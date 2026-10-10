@@ -5,7 +5,7 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { stations, type Mode, type View, type StationId } from '../../data'
 
-type Props = { mode: Mode; view: View; playing: boolean; selected: StationId | null; onSelect: (id: StationId) => void; onStep: (n: number) => void }
+type Props = { mode: Mode; view: View; focusedStation: number; playing: boolean; selected: StationId | null; onSelect: (id: StationId) => void; onStep: (n: number) => void }
 export default function BankingScene(props: Props) {
   const root = useRef<HTMLDivElement>(null)
   const latest = useRef(props)
@@ -27,7 +27,7 @@ export default function BankingScene(props: Props) {
     camera.position.set(10,10,14)
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enableDamping = true; controls.enablePan = false; controls.enableZoom = false
-    controls.maxPolarAngle = Math.PI * .46; controls.minDistance = 8
+    controls.maxPolarAngle = Math.PI * .46; controls.minDistance = 3.5
     controls.target.set(0,.5,0)
     if (matchMedia('(pointer:coarse)').matches) controls.enableRotate = false
     const pmrem = new THREE.PMREMGenerator(renderer), room = new RoomEnvironment(), env = pmrem.fromScene(room,.04)
@@ -125,16 +125,26 @@ export default function BankingScene(props: Props) {
     const resize=()=>{w=host.clientWidth;h=host.clientHeight;const narrow=w<600;if(narrow!==wasNarrow){camera.position.multiplyScalar(narrow?1.3:1/1.3);wasNarrow=narrow}renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()}
     const observer=new ResizeObserver(resize);observer.observe(host);resize()
     const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches
-    let frame=0,time=0,last=performance.now(),lastStep=-1,lastView:View='perspective',transition=0
-    const targetPosition=new THREE.Vector3(),projection=new THREE.Vector3()
+    let frame=0,time=0,last=performance.now(),lastStep=-1,lastView:View='overview',lastFocus=-1,lastMode:Mode='overview',transition=0
+    const targetPosition=new THREE.Vector3(),targetLook=new THREE.Vector3(),projection=new THREE.Vector3()
     function draw(now:number){
       frame=requestAnimationFrame(draw);const dt=Math.max(0,Math.min((now-last)/1000,.05));last=now
       const p=latest.current;if(p.playing&&!reduced)time+=dt
       const s=Math.floor(time/2.4)%5;if(s!==lastStep){lastStep=s;latest.current.onStep(s)}
-      if(lastView!==p.view){lastView=p.view;transition=1}
+      if(lastView!==p.view || lastFocus!==p.focusedStation || lastMode!==p.mode){lastView=p.view;lastFocus=p.focusedStation;lastMode=p.mode;transition=1}
       const distance=w<600?1.3:1
-      targetPosition.copy(p.view==='top'?new THREE.Vector3(.01,21,.01):p.view==='front'?new THREE.Vector3(0,7,19):new THREE.Vector3(11,11,15)).multiplyScalar(distance)
-      if(transition>0){camera.position.lerp(targetPosition,reduced?1:.09);controls.target.lerp(new THREE.Vector3(0,.5,0),.09);transition=Math.max(0,transition-dt*.55)}
+      targetLook.set(0,.5,0)
+      if(p.view==='station'){
+        targetLook.copy(bases[p.focusedStation]).multiplyScalar(p.mode==='stations'?1.22:1);targetLook.y=1.3
+        targetPosition.copy(targetLook).add(new THREE.Vector3(3.2,2.7,6).multiplyScalar(distance))
+      } else if(p.view==='flight') {
+        const angle=reduced?.55:time*.16+.55
+        targetPosition.set(Math.sin(angle)*19,10.5,Math.cos(angle)*19).multiplyScalar(distance)
+      } else targetPosition.copy(p.view==='top'?new THREE.Vector3(.01,21,.01):p.view==='side'?new THREE.Vector3(19,7,2):new THREE.Vector3(11,11,15)).multiplyScalar(distance)
+      controls.enabled=p.view!=='flight'
+      if(transition>0 || p.view==='flight'){
+        camera.position.lerp(targetPosition,reduced?1:.09);controls.target.lerp(targetLook,reduced?1:.09);transition=Math.max(0,transition-dt*.55)
+      }
       nodes.forEach((g,i)=>{
         const spread=p.mode==='stations'?1.22:1;g.position.lerp(bases[i].clone().multiplyScalar(spread),reduced?1:.08)
         g.position.y=THREE.MathUtils.lerp(g.position.y,p.mode==='flow'&&i===s?.22:0,.08)

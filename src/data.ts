@@ -7,5 +7,5 @@ export const stations = [
 ] as const
 export type StationId = typeof stations[number]['id']
 export type Mode = 'overview' | 'inside' | 'stations' | 'flow'
-export type View = 'perspective' | 'front' | 'top'
+export type View = 'overview' | 'side' | 'top' | 'station' | 'flight'
 export const steps = ['사용자 요청', '뱅킹 접속', '인증서 확인', '인증 처리', '업무 처리']
