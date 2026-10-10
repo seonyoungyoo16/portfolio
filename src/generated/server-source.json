@@ -44,6 +44,68 @@
           ]
         }
       ],
+      "trace": [
+        {
+          "label": "Controller → Service 호출",
+          "layer": "CONTROLLER",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardController.java",
+            "line": 20,
+            "lines": [
+              "    @PostMapping(\"/posts\") @ResponseStatus(HttpStatus.CREATED) public BoardService.PostView create(@RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody CreatePost input) { return service.create(actor, input.title(), input.body()); }"
+            ]
+          },
+          "highlight": "service.create("
+        },
+        {
+          "label": "사용자 조회",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 26,
+            "lines": [
+              "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+            ]
+          },
+          "highlight": "users.findById(id)"
+        },
+        {
+          "label": "게시글 객체 생성",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 43,
+            "lines": [
+              "    public PostView create(Long actor, String title, String body) { return view(posts.saveAndFlush(new Post(user(actor), title.trim(), body.trim())), actor); }"
+            ]
+          },
+          "highlight": "new Post(user(actor), title.trim(), body.trim())"
+        },
+        {
+          "label": "게시글 저장 · INSERT",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 43,
+            "lines": [
+              "    public PostView create(Long actor, String title, String body) { return view(posts.saveAndFlush(new Post(user(actor), title.trim(), body.trim())), actor); }"
+            ]
+          },
+          "highlight": "posts.saveAndFlush"
+        },
+        {
+          "label": "응답 DTO 생성",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 31,
+            "lines": [
+              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+            ]
+          },
+          "highlight": "new PostView"
+        }
+      ],
       "repositories": [
         {
           "name": "UserRepository",
@@ -155,6 +217,116 @@
           ]
         }
       ],
+      "trace": [
+        {
+          "label": "Controller → Service 호출",
+          "layer": "CONTROLLER",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardController.java",
+            "line": 21,
+            "lines": [
+              "    @PutMapping(\"/posts/{id}\") public BoardService.PostView update(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody UpdatePost input) { return service.update(id, actor, input.title(), input.body(), input.version()); }"
+            ]
+          },
+          "highlight": "service.update("
+        },
+        {
+          "label": "게시글 조회 · 쓰기 잠금",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 28,
+            "lines": [
+              "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+            ]
+          },
+          "highlight": "posts.findLocked(id)"
+        },
+        {
+          "label": "사용자 조회",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 26,
+            "lines": [
+              "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+            ]
+          },
+          "highlight": "users.findById(id)"
+        },
+        {
+          "label": "작성자 권한 확인",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 30,
+            "lines": [
+              "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
+            ]
+          },
+          "highlight": "!authorId.equals(actor)"
+        },
+        {
+          "label": "버전 충돌 확인",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 44,
+            "lines": [
+              "    public PostView update(Long id, Long actor, String title, String body, Long version) {",
+              "        var p = locked(id); owner(p.author.getId(), actor);",
+              "        if (!p.version.equals(version)) throw new ResponseStatusException(HttpStatus.CONFLICT, \"글이 변경되었습니다. 다시 조회해 주세요.\");",
+              "        p.title = title.trim(); p.body = body.trim(); posts.flush(); return view(p, actor);",
+              "    }"
+            ]
+          },
+          "highlight": "!p.version.equals(version)"
+        },
+        {
+          "label": "제목·본문 변경",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 44,
+            "lines": [
+              "    public PostView update(Long id, Long actor, String title, String body, Long version) {",
+              "        var p = locked(id); owner(p.author.getId(), actor);",
+              "        if (!p.version.equals(version)) throw new ResponseStatusException(HttpStatus.CONFLICT, \"글이 변경되었습니다. 다시 조회해 주세요.\");",
+              "        p.title = title.trim(); p.body = body.trim(); posts.flush(); return view(p, actor);",
+              "    }"
+            ]
+          },
+          "highlight": "p.title = title.trim(); p.body = body.trim()"
+        },
+        {
+          "label": "변경 DB 반영 · UPDATE",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 44,
+            "lines": [
+              "    public PostView update(Long id, Long actor, String title, String body, Long version) {",
+              "        var p = locked(id); owner(p.author.getId(), actor);",
+              "        if (!p.version.equals(version)) throw new ResponseStatusException(HttpStatus.CONFLICT, \"글이 변경되었습니다. 다시 조회해 주세요.\");",
+              "        p.title = title.trim(); p.body = body.trim(); posts.flush(); return view(p, actor);",
+              "    }"
+            ]
+          },
+          "highlight": "posts.flush()"
+        },
+        {
+          "label": "응답 DTO 생성",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 31,
+            "lines": [
+              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+            ]
+          },
+          "highlight": "new PostView"
+        }
+      ],
       "repositories": [
         {
           "name": "UserRepository",
@@ -257,6 +429,116 @@
           ]
         }
       ],
+      "trace": [
+        {
+          "label": "Controller → Service 호출",
+          "layer": "CONTROLLER",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardController.java",
+            "line": 22,
+            "lines": [
+              "    @DeleteMapping(\"/posts/{id}\") @ResponseStatus(HttpStatus.NO_CONTENT) public void delete(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { service.delete(id, actor); }"
+            ]
+          },
+          "highlight": "service.delete("
+        },
+        {
+          "label": "게시글 조회 · 쓰기 잠금",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 28,
+            "lines": [
+              "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+            ]
+          },
+          "highlight": "posts.findLocked(id)"
+        },
+        {
+          "label": "사용자 조회",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 26,
+            "lines": [
+              "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+            ]
+          },
+          "highlight": "users.findById(id)"
+        },
+        {
+          "label": "작성자 권한 확인",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 30,
+            "lines": [
+              "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
+            ]
+          },
+          "highlight": "!authorId.equals(actor)"
+        },
+        {
+          "label": "댓글 삭제",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 49,
+            "lines": [
+              "    public void delete(Long id, Long actor) {",
+              "        var p = locked(id); owner(p.author.getId(), actor);",
+              "        comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
+              "    }"
+            ]
+          },
+          "highlight": "comments.deleteByPostId(id)"
+        },
+        {
+          "label": "좋아요 삭제",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 49,
+            "lines": [
+              "    public void delete(Long id, Long actor) {",
+              "        var p = locked(id); owner(p.author.getId(), actor);",
+              "        comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
+              "    }"
+            ]
+          },
+          "highlight": "likes.deleteByPostId(id)"
+        },
+        {
+          "label": "연관 삭제 DB 반영",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 49,
+            "lines": [
+              "    public void delete(Long id, Long actor) {",
+              "        var p = locked(id); owner(p.author.getId(), actor);",
+              "        comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
+              "    }"
+            ]
+          },
+          "highlight": "comments.flush(); likes.flush()"
+        },
+        {
+          "label": "게시글 삭제 · DB 반영",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 49,
+            "lines": [
+              "    public void delete(Long id, Long actor) {",
+              "        var p = locked(id); owner(p.author.getId(), actor);",
+              "        comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
+              "    }"
+            ]
+          },
+          "highlight": "posts.delete(p); posts.flush()"
+        }
+      ],
       "repositories": [
         {
           "name": "UserRepository",
@@ -356,6 +638,80 @@
           ]
         }
       ],
+      "trace": [
+        {
+          "label": "Controller → Service 호출",
+          "layer": "CONTROLLER",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardController.java",
+            "line": 24,
+            "lines": [
+              "    @PostMapping(\"/posts/{id}/comments\") @ResponseStatus(HttpStatus.CREATED) public BoardService.CommentView addComment(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody CommentInput input) { return service.addComment(id, actor, input.body()); }"
+            ]
+          },
+          "highlight": "service.addComment("
+        },
+        {
+          "label": "게시글 조회 · 쓰기 잠금",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 28,
+            "lines": [
+              "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+            ]
+          },
+          "highlight": "posts.findLocked(id)"
+        },
+        {
+          "label": "사용자 조회",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 26,
+            "lines": [
+              "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+            ]
+          },
+          "highlight": "users.findById(id)"
+        },
+        {
+          "label": "댓글 객체 생성",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 55,
+            "lines": [
+              "    public CommentView addComment(Long id, Long actor, String body) { var p = locked(id); return view(comments.saveAndFlush(new Comment(p, user(actor), body.trim()))); }"
+            ]
+          },
+          "highlight": "new Comment(p, user(actor), body.trim())"
+        },
+        {
+          "label": "댓글 저장 · INSERT",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 55,
+            "lines": [
+              "    public CommentView addComment(Long id, Long actor, String body) { var p = locked(id); return view(comments.saveAndFlush(new Comment(p, user(actor), body.trim()))); }"
+            ]
+          },
+          "highlight": "comments.saveAndFlush"
+        },
+        {
+          "label": "댓글 응답 DTO 생성",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 32,
+            "lines": [
+              "    private CommentView view(Comment c) { return new CommentView(c.id, c.post.getId(), c.author.getId(), c.author.getDisplayName(), c.body, c.createdAt); }"
+            ]
+          },
+          "highlight": "new CommentView"
+        }
+      ],
       "repositories": [
         {
           "name": "UserRepository",
@@ -436,9 +792,9 @@
         {
           "name": "comment",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 56,
+          "line": 58,
           "lines": [
-            "    public CommentView updateComment(Long id, Long commentId, Long actor, String body) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); c.body = body.trim(); comments.flush(); return view(c); }"
+            "    private Comment comment(Long postId, Long id) { var c = comments.findById(id).orElseThrow(() -> missing(\"댓글\")); if (!c.post.getId().equals(postId)) throw missing(\"댓글\"); return c; }"
           ]
         },
         {
@@ -456,6 +812,104 @@
           "lines": [
             "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
           ]
+        }
+      ],
+      "trace": [
+        {
+          "label": "Controller → Service 호출",
+          "layer": "CONTROLLER",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardController.java",
+            "line": 25,
+            "lines": [
+              "    @PutMapping(\"/posts/{id}/comments/{commentId}\") public BoardService.CommentView updateComment(@PathVariable Long id, @PathVariable Long commentId, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody CommentInput input) { return service.updateComment(id, commentId, actor, input.body()); }"
+            ]
+          },
+          "highlight": "service.updateComment("
+        },
+        {
+          "label": "게시글 조회 · 쓰기 잠금",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 28,
+            "lines": [
+              "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+            ]
+          },
+          "highlight": "posts.findLocked(id)"
+        },
+        {
+          "label": "댓글 조회 · 게시글 소속 확인",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 58,
+            "lines": [
+              "    private Comment comment(Long postId, Long id) { var c = comments.findById(id).orElseThrow(() -> missing(\"댓글\")); if (!c.post.getId().equals(postId)) throw missing(\"댓글\"); return c; }"
+            ]
+          },
+          "highlight": "comments.findById(id)"
+        },
+        {
+          "label": "사용자 조회",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 26,
+            "lines": [
+              "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+            ]
+          },
+          "highlight": "users.findById(id)"
+        },
+        {
+          "label": "작성자 권한 확인",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 30,
+            "lines": [
+              "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
+            ]
+          },
+          "highlight": "!authorId.equals(actor)"
+        },
+        {
+          "label": "댓글 본문 변경",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 56,
+            "lines": [
+              "    public CommentView updateComment(Long id, Long commentId, Long actor, String body) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); c.body = body.trim(); comments.flush(); return view(c); }"
+            ]
+          },
+          "highlight": "c.body = body.trim()"
+        },
+        {
+          "label": "변경 DB 반영 · UPDATE",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 56,
+            "lines": [
+              "    public CommentView updateComment(Long id, Long commentId, Long actor, String body) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); c.body = body.trim(); comments.flush(); return view(c); }"
+            ]
+          },
+          "highlight": "comments.flush()"
+        },
+        {
+          "label": "댓글 응답 DTO 생성",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 32,
+            "lines": [
+              "    private CommentView view(Comment c) { return new CommentView(c.id, c.post.getId(), c.author.getId(), c.author.getDisplayName(), c.body, c.createdAt); }"
+            ]
+          },
+          "highlight": "new CommentView"
         }
       ],
       "repositories": [
@@ -538,9 +992,9 @@
         {
           "name": "comment",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 56,
+          "line": 58,
           "lines": [
-            "    public CommentView updateComment(Long id, Long commentId, Long actor, String body) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); c.body = body.trim(); comments.flush(); return view(c); }"
+            "    private Comment comment(Long postId, Long id) { var c = comments.findById(id).orElseThrow(() -> missing(\"댓글\")); if (!c.post.getId().equals(postId)) throw missing(\"댓글\"); return c; }"
           ]
         },
         {
@@ -550,6 +1004,80 @@
           "lines": [
             "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
           ]
+        }
+      ],
+      "trace": [
+        {
+          "label": "Controller → Service 호출",
+          "layer": "CONTROLLER",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardController.java",
+            "line": 26,
+            "lines": [
+              "    @DeleteMapping(\"/posts/{id}/comments/{commentId}\") @ResponseStatus(HttpStatus.NO_CONTENT) public void deleteComment(@PathVariable Long id, @PathVariable Long commentId, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { service.deleteComment(id, commentId, actor); }"
+            ]
+          },
+          "highlight": "service.deleteComment("
+        },
+        {
+          "label": "게시글 조회 · 쓰기 잠금",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 28,
+            "lines": [
+              "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+            ]
+          },
+          "highlight": "posts.findLocked(id)"
+        },
+        {
+          "label": "댓글 조회 · 게시글 소속 확인",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 58,
+            "lines": [
+              "    private Comment comment(Long postId, Long id) { var c = comments.findById(id).orElseThrow(() -> missing(\"댓글\")); if (!c.post.getId().equals(postId)) throw missing(\"댓글\"); return c; }"
+            ]
+          },
+          "highlight": "comments.findById(id)"
+        },
+        {
+          "label": "사용자 조회",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 26,
+            "lines": [
+              "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+            ]
+          },
+          "highlight": "users.findById(id)"
+        },
+        {
+          "label": "작성자 권한 확인",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 30,
+            "lines": [
+              "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
+            ]
+          },
+          "highlight": "!authorId.equals(actor)"
+        },
+        {
+          "label": "댓글 삭제",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 57,
+            "lines": [
+              "    public void deleteComment(Long id, Long commentId, Long actor) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); comments.delete(c); }"
+            ]
+          },
+          "highlight": "comments.delete(c)"
         }
       ],
       "repositories": [
@@ -636,6 +1164,80 @@
           "lines": [
             "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
           ]
+        }
+      ],
+      "trace": [
+        {
+          "label": "Controller → Service 호출",
+          "layer": "CONTROLLER",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardController.java",
+            "line": 27,
+            "lines": [
+              "    @PutMapping(\"/posts/{id}/likes/me\") public BoardService.PostView like(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { return service.like(id, actor); }"
+            ]
+          },
+          "highlight": "service.like("
+        },
+        {
+          "label": "게시글 조회 · 쓰기 잠금",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 28,
+            "lines": [
+              "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+            ]
+          },
+          "highlight": "posts.findLocked(id)"
+        },
+        {
+          "label": "사용자 조회",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 26,
+            "lines": [
+              "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+            ]
+          },
+          "highlight": "users.findById(id)"
+        },
+        {
+          "label": "좋아요 중복 확인",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 59,
+            "lines": [
+              "    public PostView like(Long id, Long actor) { var p = locked(id); var u = user(actor); if (!likes.existsByPostIdAndUserId(id, actor)) likes.saveAndFlush(new PostLike(p, u)); return view(p, actor); }"
+            ]
+          },
+          "highlight": "!likes.existsByPostIdAndUserId(id, actor)"
+        },
+        {
+          "label": "없는 경우에만 좋아요 INSERT",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 59,
+            "lines": [
+              "    public PostView like(Long id, Long actor) { var p = locked(id); var u = user(actor); if (!likes.existsByPostIdAndUserId(id, actor)) likes.saveAndFlush(new PostLike(p, u)); return view(p, actor); }"
+            ]
+          },
+          "highlight": "likes.saveAndFlush(new PostLike(p, u))"
+        },
+        {
+          "label": "응답 DTO 생성",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 31,
+            "lines": [
+              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+            ]
+          },
+          "highlight": "new PostView"
         }
       ],
       "repositories": [
@@ -735,6 +1337,80 @@
           "lines": [
             "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
           ]
+        }
+      ],
+      "trace": [
+        {
+          "label": "Controller → Service 호출",
+          "layer": "CONTROLLER",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardController.java",
+            "line": 28,
+            "lines": [
+              "    @DeleteMapping(\"/posts/{id}/likes/me\") public BoardService.PostView unlike(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { return service.unlike(id, actor); }"
+            ]
+          },
+          "highlight": "service.unlike("
+        },
+        {
+          "label": "게시글 조회 · 쓰기 잠금",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 28,
+            "lines": [
+              "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+            ]
+          },
+          "highlight": "posts.findLocked(id)"
+        },
+        {
+          "label": "사용자 조회",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 26,
+            "lines": [
+              "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+            ]
+          },
+          "highlight": "users.findById(id)"
+        },
+        {
+          "label": "현재 사용자 좋아요 조회 · 있으면 DELETE",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 60,
+            "lines": [
+              "    public PostView unlike(Long id, Long actor) { var p = locked(id); user(actor); likes.findByPostIdAndUserId(id, actor).ifPresent(likes::delete); likes.flush(); return view(p, actor); }"
+            ]
+          },
+          "highlight": "likes.findByPostIdAndUserId(id, actor).ifPresent(likes::delete)"
+        },
+        {
+          "label": "변경 DB 반영",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 60,
+            "lines": [
+              "    public PostView unlike(Long id, Long actor) { var p = locked(id); user(actor); likes.findByPostIdAndUserId(id, actor).ifPresent(likes::delete); likes.flush(); return view(p, actor); }"
+            ]
+          },
+          "highlight": "likes.flush()"
+        },
+        {
+          "label": "응답 DTO 생성",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 31,
+            "lines": [
+              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+            ]
+          },
+          "highlight": "new PostView"
         }
       ],
       "repositories": [

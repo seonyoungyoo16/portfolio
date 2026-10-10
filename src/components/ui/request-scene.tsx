@@ -5,6 +5,7 @@ import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeomet
 import type {View} from '../../data'
 import model from '../../generated/board-model.json'
 import ServerLogView from './ServerLogView'
+import source from '../../generated/server-source.json'
 
 const requests:Record<string,{method:string;path:string;sql:string;icon:'document'|'heart'}>={
   create:{method:'POST',path:'/api/posts',sql:'게시글 INSERT · posts',icon:'document'},
@@ -18,11 +19,12 @@ const requests:Record<string,{method:string;path:string;sql:string;icon:'documen
 }
 // Endpoint declarations must match the inspected controller snapshot.
 Object.values(requests).forEach(r=>{if(!model.endpoints.some(e=>e.method===r.method&&e.path===r.path))throw new Error('소스에 없는 API 경로')})
-type Props={view:View;playing:boolean;operation:string;runKey:number;station:number;onStation:(index:number)=>void}
+type Props={view:View;playing:boolean;operation:string;runKey:number;station:number;onStation:(index:number)=>void;onToggle:()=>void;onReplay:()=>void}
 export default function RequestScene(props:Props){
   const root=useRef<HTMLDivElement>(null),latest=useRef(props)
   const [phase,setPhase]=useState('idle'),[error,setError]=useState(false),[logOpen,setLogOpen]=useState(false)
   const logTrigger=useRef<HTMLButtonElement>(null)
+  const [traceIndex,setTraceIndex]=useState(-1)
   useEffect(()=>{latest.current=props},[props])
   useEffect(()=>{
     const host=root.current!;let renderer:THREE.WebGLRenderer
@@ -73,17 +75,21 @@ export default function RequestScene(props:Props){
     const up=(e:PointerEvent)=>{if(Math.hypot(e.clientX-downX,e.clientY-downY)>6)return;const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);raycaster.setFromCamera(pointer,camera);if(raycaster.intersectObject(server,true).length)setLogOpen(true)}
     renderer.domElement.addEventListener('pointerdown',down);renderer.domElement.addEventListener('pointerup',up)
     const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;controls.enableRotate=!matchMedia('(pointer:coarse)').matches
-    let frame=0,last=performance.now(),elapsed=0,seenKey=0,seenPhase='idle',time=0,lastView='',lastStation=-1,transition=1
+    let frame=0,last=performance.now(),elapsed=0,seenKey=0,seenPhase='idle',seenTrace=-1,autoOpenedKey=0,time=0,lastView='',lastStation=-1,transition=1
     const target=new THREE.Vector3(),position=new THREE.Vector3()
     function draw(now:number){frame=requestAnimationFrame(draw);const dt=Math.max(0,Math.min((now-last)/1000,.05));last=now;const p=latest.current
-      if(seenKey!==p.runKey){seenKey=p.runKey;elapsed=0}
-      if(p.playing){elapsed+=dt;time+=dt}const hasRun=p.runKey>0,t=reduced?4.5:elapsed
-      const current=!hasRun?'idle':t<1.2?'request':t<2.4?'transfer':t<3.2?'insert':t<4.2?'response':'complete'
+      if(seenKey!==p.runKey){seenKey=p.runKey;elapsed=0;if(!p.runKey)autoOpenedKey=0}
+      const steps=source.operations.find(o=>o.id===p.operation)!.trace.length,serverEnd=2.4+steps*1.4
+      if(p.playing){elapsed+=dt;time+=dt}const hasRun=p.runKey>0,t=reduced?serverEnd+1:elapsed
+      const current=!hasRun?'idle':t<1.2?'request':t<2.4?'transfer':t<serverEnd?'insert':t<serverEnd+1?'response':'complete'
+      const trace=!hasRun||t<2.4?-1:Math.min(steps-1,Math.floor((t-2.4)/1.4))
+      if(seenTrace!==trace){seenTrace=trace;setTraceIndex(trace)}
+      if(hasRun&&t>=2.4&&autoOpenedKey!==p.runKey){autoOpenedKey=p.runKey;setLogOpen(true)}
       if(seenPhase!==current){seenPhase=current;setPhase(current)}
       documentToken.visible=requests[p.operation]?.icon!=='heart';heart.visible=!documentToken.visible
       packet.visible=hasRun&&!reduced&&t<2.4;packet.position.copy(route.getPoint(Math.min(t/2.4,1)));packet.rotation.y=Math.sin(time*3)*.15
       serverGlow.emissiveIntensity=current==='insert'?1.7:.2
-      ack.visible=current==='response'&&!reduced;ack.position.copy(route.getPoint(Math.max(0,1-(t-3.2))))
+      ack.visible=current==='response'&&!reduced;ack.position.copy(route.getPoint(Math.max(0,Math.min(1,1-(t-serverEnd)))))
       const distance=Math.max(5.5,11.5/(2*Math.tan(THREE.MathUtils.degToRad(18))*(width/height)))/9
       target.set(0,.85,0)
       if(p.view==='station'){target.set(bases[p.station],1,0);position.copy(target).add(new THREE.Vector3(0,2,5.5))}
@@ -104,6 +110,6 @@ export default function RequestScene(props:Props){
     <div className="request-stages">{['사용자 · PC / 앱','API 요청','Spring Boot 서버'].map((name,i)=><button key={name} className={stage===i?'active':''} onClick={()=>i===2?setLogOpen(true):props.onStation(i)}>{name}</button>)}</div>
     <div className="request-caption" aria-live="polite"><span>{request.method} {request.path}</span><strong>{phase==='idle'?'게시판을 조작하거나 흐름 다시 보기를 눌러보세요.':phase==='request'?'사용자 요청 · '+(request.icon==='heart'?'좋아요 전달':'문서 전달'):phase==='transfer'?'API 요청이 서버로 전달됩니다.':phase==='insert'?request.sql:phase==='response'?'처리 결과 응답 · 서버 → 사용자':'처리 완료 · '+request.sql}</strong></div>
     {error&&<p className="request-fallback">사용자 PC / 앱 → {request.method} {request.path} → 서버: {request.sql}</p>}
-    {logOpen&&<ServerLogView operation={props.operation} phase={phase} onClose={()=>setLogOpen(false)}/>}
+    {logOpen&&<ServerLogView operation={props.operation} phase={phase} traceIndex={traceIndex} runKey={props.runKey} playing={props.playing} onToggle={props.onToggle} onReplay={props.onReplay} onClose={()=>setLogOpen(false)}/>}
   </div>
 }

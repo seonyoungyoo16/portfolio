@@ -25,6 +25,7 @@ node <board-checkout>/scripts/export-model.mjs <board-checkout> src/generated/bo
 - `src/components/BoardProject.tsx`: 요청 흐름, 테이블 현황, 소스 근거, 게시판 체험
 - `src/components/ui/request-scene.tsx`: PC/앱 → API 요청 → Spring Boot 서버, 문서/하트 이동과 처리 결과, 카메라 5종
 - `src/components/ui/ServerLogView.tsx`: 서버 터미널 클릭 → 현재 동작의 Controller/Service/Repository 소스와 내부 호출 확인
+- 서버에 요청이 도착하면 소스 흐름 화면이 열리고, 실제 코드 조각을 정상 처리 순서에 맞춰 강조합니다. 일시 정지/재개, 다시 재생, 단계 클릭을 지원하며 조건부 호출은 조건을 만족하는 경우로 표시합니다.
 - `scripts/export-server-source.mjs`: 고정 commit의 Git 객체에서 소스 코드·줄 번호 추출 (`node scripts/export-server-source.mjs <board-checkout>`)
 - `src/board-demo.ts`: 소스 규칙에 맞춘 브라우저 시뮬레이션
 - `src/project.css`: 프로젝트 상세와 모바일 레이아웃
