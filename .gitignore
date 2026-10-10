@@ -1,0 +1,5 @@
+node_modules/
+dist/
+*.tsbuildinfo
+*.tar.gz
+preview*.jpg
