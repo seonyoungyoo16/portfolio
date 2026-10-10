@@ -1,0 +1,789 @@
+{
+  "revision": "5e3a5bc9796aedc98f3dab1161adb077df8b0d76",
+  "operations": [
+    {
+      "id": "create",
+      "method": "create",
+      "endpoint": {
+        "method": "POST",
+        "path": "/api/posts",
+        "source": {
+          "file": "src/main/java/dev/portfolio/board/BoardController.java",
+          "line": 20
+        }
+      },
+      "controller": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 20,
+        "lines": [
+          "    @PostMapping(\"/posts\") @ResponseStatus(HttpStatus.CREATED) public BoardService.PostView create(@RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody CreatePost input) { return service.create(actor, input.title(), input.body()); }"
+        ]
+      },
+      "service": {
+        "file": "src/main/java/dev/portfolio/board/BoardService.java",
+        "line": 43,
+        "lines": [
+          "    public PostView create(Long actor, String title, String body) { return view(posts.saveAndFlush(new Post(user(actor), title.trim(), body.trim())), actor); }"
+        ]
+      },
+      "helpers": [
+        {
+          "name": "user",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 26,
+          "lines": [
+            "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+          ]
+        },
+        {
+          "name": "view",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 31,
+          "lines": [
+            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+          ]
+        }
+      ],
+      "repositories": [
+        {
+          "name": "UserRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 9,
+          "lines": [
+            "interface UserRepository extends JpaRepository<AppUser, Long> {}"
+          ]
+        },
+        {
+          "name": "PostRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface PostRepository extends JpaRepository<Post, Long> {",
+            "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
+            "    @Query(\"select p from Post p where p.id = :id\")",
+            "    Optional<Post> findLocked(@Param(\"id\") Long id);",
+            "}"
+          ]
+        },
+        {
+          "name": "CommentRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 15,
+          "lines": [
+            "interface CommentRepository extends JpaRepository<Comment, Long> {",
+            "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        },
+        {
+          "name": "LikeRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 20,
+          "lines": [
+            "interface LikeRepository extends JpaRepository<PostLike, Long> {",
+            "    Optional<PostLike> findByPostIdAndUserId(Long postId, Long userId);",
+            "    boolean existsByPostIdAndUserId(Long postId, Long userId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "update",
+      "method": "update",
+      "endpoint": {
+        "method": "PUT",
+        "path": "/api/posts/{id}",
+        "source": {
+          "file": "src/main/java/dev/portfolio/board/BoardController.java",
+          "line": 21
+        }
+      },
+      "controller": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 21,
+        "lines": [
+          "    @PutMapping(\"/posts/{id}\") public BoardService.PostView update(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody UpdatePost input) { return service.update(id, actor, input.title(), input.body(), input.version()); }"
+        ]
+      },
+      "service": {
+        "file": "src/main/java/dev/portfolio/board/BoardService.java",
+        "line": 44,
+        "lines": [
+          "    public PostView update(Long id, Long actor, String title, String body, Long version) {",
+          "        var p = locked(id); owner(p.author.getId(), actor);",
+          "        if (!p.version.equals(version)) throw new ResponseStatusException(HttpStatus.CONFLICT, \"글이 변경되었습니다. 다시 조회해 주세요.\");",
+          "        p.title = title.trim(); p.body = body.trim(); posts.flush(); return view(p, actor);",
+          "    }"
+        ]
+      },
+      "helpers": [
+        {
+          "name": "locked",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 28,
+          "lines": [
+            "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+          ]
+        },
+        {
+          "name": "owner",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 30,
+          "lines": [
+            "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
+          ]
+        },
+        {
+          "name": "view",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 31,
+          "lines": [
+            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+          ]
+        },
+        {
+          "name": "user",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 26,
+          "lines": [
+            "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+          ]
+        }
+      ],
+      "repositories": [
+        {
+          "name": "UserRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 9,
+          "lines": [
+            "interface UserRepository extends JpaRepository<AppUser, Long> {}"
+          ]
+        },
+        {
+          "name": "PostRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface PostRepository extends JpaRepository<Post, Long> {",
+            "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
+            "    @Query(\"select p from Post p where p.id = :id\")",
+            "    Optional<Post> findLocked(@Param(\"id\") Long id);",
+            "}"
+          ]
+        },
+        {
+          "name": "CommentRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 15,
+          "lines": [
+            "interface CommentRepository extends JpaRepository<Comment, Long> {",
+            "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        },
+        {
+          "name": "LikeRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 20,
+          "lines": [
+            "interface LikeRepository extends JpaRepository<PostLike, Long> {",
+            "    Optional<PostLike> findByPostIdAndUserId(Long postId, Long userId);",
+            "    boolean existsByPostIdAndUserId(Long postId, Long userId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "delete",
+      "method": "delete",
+      "endpoint": {
+        "method": "DELETE",
+        "path": "/api/posts/{id}",
+        "source": {
+          "file": "src/main/java/dev/portfolio/board/BoardController.java",
+          "line": 22
+        }
+      },
+      "controller": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 22,
+        "lines": [
+          "    @DeleteMapping(\"/posts/{id}\") @ResponseStatus(HttpStatus.NO_CONTENT) public void delete(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { service.delete(id, actor); }"
+        ]
+      },
+      "service": {
+        "file": "src/main/java/dev/portfolio/board/BoardService.java",
+        "line": 49,
+        "lines": [
+          "    public void delete(Long id, Long actor) {",
+          "        var p = locked(id); owner(p.author.getId(), actor);",
+          "        comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
+          "    }"
+        ]
+      },
+      "helpers": [
+        {
+          "name": "locked",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 28,
+          "lines": [
+            "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+          ]
+        },
+        {
+          "name": "owner",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 30,
+          "lines": [
+            "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
+          ]
+        },
+        {
+          "name": "user",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 26,
+          "lines": [
+            "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+          ]
+        }
+      ],
+      "repositories": [
+        {
+          "name": "UserRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 9,
+          "lines": [
+            "interface UserRepository extends JpaRepository<AppUser, Long> {}"
+          ]
+        },
+        {
+          "name": "PostRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface PostRepository extends JpaRepository<Post, Long> {",
+            "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
+            "    @Query(\"select p from Post p where p.id = :id\")",
+            "    Optional<Post> findLocked(@Param(\"id\") Long id);",
+            "}"
+          ]
+        },
+        {
+          "name": "CommentRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 15,
+          "lines": [
+            "interface CommentRepository extends JpaRepository<Comment, Long> {",
+            "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        },
+        {
+          "name": "LikeRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 20,
+          "lines": [
+            "interface LikeRepository extends JpaRepository<PostLike, Long> {",
+            "    Optional<PostLike> findByPostIdAndUserId(Long postId, Long userId);",
+            "    boolean existsByPostIdAndUserId(Long postId, Long userId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "comment",
+      "method": "addComment",
+      "endpoint": {
+        "method": "POST",
+        "path": "/api/posts/{id}/comments",
+        "source": {
+          "file": "src/main/java/dev/portfolio/board/BoardController.java",
+          "line": 24
+        }
+      },
+      "controller": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 24,
+        "lines": [
+          "    @PostMapping(\"/posts/{id}/comments\") @ResponseStatus(HttpStatus.CREATED) public BoardService.CommentView addComment(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody CommentInput input) { return service.addComment(id, actor, input.body()); }"
+        ]
+      },
+      "service": {
+        "file": "src/main/java/dev/portfolio/board/BoardService.java",
+        "line": 55,
+        "lines": [
+          "    public CommentView addComment(Long id, Long actor, String body) { var p = locked(id); return view(comments.saveAndFlush(new Comment(p, user(actor), body.trim()))); }"
+        ]
+      },
+      "helpers": [
+        {
+          "name": "locked",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 28,
+          "lines": [
+            "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+          ]
+        },
+        {
+          "name": "user",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 26,
+          "lines": [
+            "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+          ]
+        },
+        {
+          "name": "view",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 32,
+          "lines": [
+            "    private CommentView view(Comment c) { return new CommentView(c.id, c.post.getId(), c.author.getId(), c.author.getDisplayName(), c.body, c.createdAt); }"
+          ]
+        }
+      ],
+      "repositories": [
+        {
+          "name": "UserRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 9,
+          "lines": [
+            "interface UserRepository extends JpaRepository<AppUser, Long> {}"
+          ]
+        },
+        {
+          "name": "PostRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface PostRepository extends JpaRepository<Post, Long> {",
+            "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
+            "    @Query(\"select p from Post p where p.id = :id\")",
+            "    Optional<Post> findLocked(@Param(\"id\") Long id);",
+            "}"
+          ]
+        },
+        {
+          "name": "CommentRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 15,
+          "lines": [
+            "interface CommentRepository extends JpaRepository<Comment, Long> {",
+            "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "commentUpdate",
+      "method": "updateComment",
+      "endpoint": {
+        "method": "PUT",
+        "path": "/api/posts/{id}/comments/{commentId}",
+        "source": {
+          "file": "src/main/java/dev/portfolio/board/BoardController.java",
+          "line": 25
+        }
+      },
+      "controller": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 25,
+        "lines": [
+          "    @PutMapping(\"/posts/{id}/comments/{commentId}\") public BoardService.CommentView updateComment(@PathVariable Long id, @PathVariable Long commentId, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody CommentInput input) { return service.updateComment(id, commentId, actor, input.body()); }"
+        ]
+      },
+      "service": {
+        "file": "src/main/java/dev/portfolio/board/BoardService.java",
+        "line": 56,
+        "lines": [
+          "    public CommentView updateComment(Long id, Long commentId, Long actor, String body) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); c.body = body.trim(); comments.flush(); return view(c); }"
+        ]
+      },
+      "helpers": [
+        {
+          "name": "locked",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 28,
+          "lines": [
+            "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+          ]
+        },
+        {
+          "name": "owner",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 30,
+          "lines": [
+            "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
+          ]
+        },
+        {
+          "name": "comment",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 56,
+          "lines": [
+            "    public CommentView updateComment(Long id, Long commentId, Long actor, String body) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); c.body = body.trim(); comments.flush(); return view(c); }"
+          ]
+        },
+        {
+          "name": "view",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 32,
+          "lines": [
+            "    private CommentView view(Comment c) { return new CommentView(c.id, c.post.getId(), c.author.getId(), c.author.getDisplayName(), c.body, c.createdAt); }"
+          ]
+        },
+        {
+          "name": "user",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 26,
+          "lines": [
+            "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+          ]
+        }
+      ],
+      "repositories": [
+        {
+          "name": "UserRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 9,
+          "lines": [
+            "interface UserRepository extends JpaRepository<AppUser, Long> {}"
+          ]
+        },
+        {
+          "name": "PostRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface PostRepository extends JpaRepository<Post, Long> {",
+            "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
+            "    @Query(\"select p from Post p where p.id = :id\")",
+            "    Optional<Post> findLocked(@Param(\"id\") Long id);",
+            "}"
+          ]
+        },
+        {
+          "name": "CommentRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 15,
+          "lines": [
+            "interface CommentRepository extends JpaRepository<Comment, Long> {",
+            "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "commentDelete",
+      "method": "deleteComment",
+      "endpoint": {
+        "method": "DELETE",
+        "path": "/api/posts/{id}/comments/{commentId}",
+        "source": {
+          "file": "src/main/java/dev/portfolio/board/BoardController.java",
+          "line": 26
+        }
+      },
+      "controller": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 26,
+        "lines": [
+          "    @DeleteMapping(\"/posts/{id}/comments/{commentId}\") @ResponseStatus(HttpStatus.NO_CONTENT) public void deleteComment(@PathVariable Long id, @PathVariable Long commentId, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { service.deleteComment(id, commentId, actor); }"
+        ]
+      },
+      "service": {
+        "file": "src/main/java/dev/portfolio/board/BoardService.java",
+        "line": 57,
+        "lines": [
+          "    public void deleteComment(Long id, Long commentId, Long actor) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); comments.delete(c); }"
+        ]
+      },
+      "helpers": [
+        {
+          "name": "locked",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 28,
+          "lines": [
+            "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+          ]
+        },
+        {
+          "name": "owner",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 30,
+          "lines": [
+            "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
+          ]
+        },
+        {
+          "name": "comment",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 56,
+          "lines": [
+            "    public CommentView updateComment(Long id, Long commentId, Long actor, String body) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); c.body = body.trim(); comments.flush(); return view(c); }"
+          ]
+        },
+        {
+          "name": "user",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 26,
+          "lines": [
+            "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+          ]
+        }
+      ],
+      "repositories": [
+        {
+          "name": "UserRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 9,
+          "lines": [
+            "interface UserRepository extends JpaRepository<AppUser, Long> {}"
+          ]
+        },
+        {
+          "name": "PostRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface PostRepository extends JpaRepository<Post, Long> {",
+            "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
+            "    @Query(\"select p from Post p where p.id = :id\")",
+            "    Optional<Post> findLocked(@Param(\"id\") Long id);",
+            "}"
+          ]
+        },
+        {
+          "name": "CommentRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 15,
+          "lines": [
+            "interface CommentRepository extends JpaRepository<Comment, Long> {",
+            "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "like",
+      "method": "like",
+      "endpoint": {
+        "method": "PUT",
+        "path": "/api/posts/{id}/likes/me",
+        "source": {
+          "file": "src/main/java/dev/portfolio/board/BoardController.java",
+          "line": 27
+        }
+      },
+      "controller": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 27,
+        "lines": [
+          "    @PutMapping(\"/posts/{id}/likes/me\") public BoardService.PostView like(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { return service.like(id, actor); }"
+        ]
+      },
+      "service": {
+        "file": "src/main/java/dev/portfolio/board/BoardService.java",
+        "line": 59,
+        "lines": [
+          "    public PostView like(Long id, Long actor) { var p = locked(id); var u = user(actor); if (!likes.existsByPostIdAndUserId(id, actor)) likes.saveAndFlush(new PostLike(p, u)); return view(p, actor); }"
+        ]
+      },
+      "helpers": [
+        {
+          "name": "locked",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 28,
+          "lines": [
+            "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+          ]
+        },
+        {
+          "name": "user",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 26,
+          "lines": [
+            "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+          ]
+        },
+        {
+          "name": "view",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 31,
+          "lines": [
+            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+          ]
+        }
+      ],
+      "repositories": [
+        {
+          "name": "UserRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 9,
+          "lines": [
+            "interface UserRepository extends JpaRepository<AppUser, Long> {}"
+          ]
+        },
+        {
+          "name": "PostRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface PostRepository extends JpaRepository<Post, Long> {",
+            "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
+            "    @Query(\"select p from Post p where p.id = :id\")",
+            "    Optional<Post> findLocked(@Param(\"id\") Long id);",
+            "}"
+          ]
+        },
+        {
+          "name": "CommentRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 15,
+          "lines": [
+            "interface CommentRepository extends JpaRepository<Comment, Long> {",
+            "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        },
+        {
+          "name": "LikeRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 20,
+          "lines": [
+            "interface LikeRepository extends JpaRepository<PostLike, Long> {",
+            "    Optional<PostLike> findByPostIdAndUserId(Long postId, Long userId);",
+            "    boolean existsByPostIdAndUserId(Long postId, Long userId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "unlike",
+      "method": "unlike",
+      "endpoint": {
+        "method": "DELETE",
+        "path": "/api/posts/{id}/likes/me",
+        "source": {
+          "file": "src/main/java/dev/portfolio/board/BoardController.java",
+          "line": 28
+        }
+      },
+      "controller": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 28,
+        "lines": [
+          "    @DeleteMapping(\"/posts/{id}/likes/me\") public BoardService.PostView unlike(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { return service.unlike(id, actor); }"
+        ]
+      },
+      "service": {
+        "file": "src/main/java/dev/portfolio/board/BoardService.java",
+        "line": 60,
+        "lines": [
+          "    public PostView unlike(Long id, Long actor) { var p = locked(id); user(actor); likes.findByPostIdAndUserId(id, actor).ifPresent(likes::delete); likes.flush(); return view(p, actor); }"
+        ]
+      },
+      "helpers": [
+        {
+          "name": "locked",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 28,
+          "lines": [
+            "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
+          ]
+        },
+        {
+          "name": "user",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 26,
+          "lines": [
+            "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+          ]
+        },
+        {
+          "name": "view",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 31,
+          "lines": [
+            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+          ]
+        }
+      ],
+      "repositories": [
+        {
+          "name": "UserRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 9,
+          "lines": [
+            "interface UserRepository extends JpaRepository<AppUser, Long> {}"
+          ]
+        },
+        {
+          "name": "PostRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface PostRepository extends JpaRepository<Post, Long> {",
+            "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
+            "    @Query(\"select p from Post p where p.id = :id\")",
+            "    Optional<Post> findLocked(@Param(\"id\") Long id);",
+            "}"
+          ]
+        },
+        {
+          "name": "CommentRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 15,
+          "lines": [
+            "interface CommentRepository extends JpaRepository<Comment, Long> {",
+            "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        },
+        {
+          "name": "LikeRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 20,
+          "lines": [
+            "interface LikeRepository extends JpaRepository<PostLike, Long> {",
+            "    Optional<PostLike> findByPostIdAndUserId(Long postId, Long userId);",
+            "    boolean existsByPostIdAndUserId(Long postId, Long userId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
 import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
 import type {View} from '../../data'
 import model from '../../generated/board-model.json'
+import ServerLogView from './ServerLogView'
 
 const requests:Record<string,{method:string;path:string;sql:string;icon:'document'|'heart'}>={
   create:{method:'POST',path:'/api/posts',sql:'게시글 INSERT · posts',icon:'document'},
@@ -20,7 +21,8 @@ Object.values(requests).forEach(r=>{if(!model.endpoints.some(e=>e.method===r.met
 type Props={view:View;playing:boolean;operation:string;runKey:number;station:number;onStation:(index:number)=>void}
 export default function RequestScene(props:Props){
   const root=useRef<HTMLDivElement>(null),latest=useRef(props)
-  const [phase,setPhase]=useState('idle'),[error,setError]=useState(false)
+  const [phase,setPhase]=useState('idle'),[error,setError]=useState(false),[logOpen,setLogOpen]=useState(false)
+  const logTrigger=useRef<HTMLButtonElement>(null)
   useEffect(()=>{latest.current=props},[props])
   useEffect(()=>{
     const host=root.current!;let renderer:THREE.WebGLRenderer
@@ -50,6 +52,11 @@ export default function RequestScene(props:Props){
     const server=nodes[2];box(server,1.55,2.2,.9,0,1.17,0,metal);box(server,1.3,1.95,.08,0,1.17,.49,dark)
     for(let i=0;i<4;i++){box(server,1.1,.32,.06,0,1.85-i*.46,.55,metal);box(server,.12,.1,.04,.36,1.85-i*.46,.6,green);box(server,.48,.045,.04,-.16,1.85-i*.46,.6,dark)}
     const serverGlow=new THREE.MeshStandardMaterial({color:0x85eab8,emissive:0x85eab8,emissiveIntensity:.2});materials.push(serverGlow);box(server,1.4,.08,.96,0,2.3,0,serverGlow)
+    // A physical terminal attached to the server, paired with a projected DOM button.
+    const terminal=new THREE.Group();terminal.position.set(-.7,.55,1.03);server.add(terminal)
+    box(terminal,1.18,.72,.1,0,.34,0,metal);box(terminal,1.03,.57,.03,0,.34,.07,dark)
+    for(let i=0;i<3;i++)box(terminal,.7-i*.12,.035,.02,-.08,.48-i*.13,.095,green)
+    box(terminal,.1,.25,.1,0,-.09,0,metal);box(terminal,.65,.05,.35,0,-.22,.02,metal)
     // Each route shows a document or heart travelling through the same HTTP path.
     const documentToken=new THREE.Group();box(documentToken,.52,.7,.06,0,0,0,white);for(let i=0;i<3;i++)box(documentToken,.34,.035,.02,0,.16-i*.14,.045,blue)
     const shape=new THREE.Shape();shape.moveTo(0,-.35);shape.bezierCurveTo(-.1,-.2,-.5,.05,-.5,.3);shape.bezierCurveTo(-.5,.65,-.05,.7,0,.4);shape.bezierCurveTo(.05,.7,.5,.65,.5,.3);shape.bezierCurveTo(.5,.05,.1,-.2,0,-.35)
@@ -61,6 +68,10 @@ export default function RequestScene(props:Props){
     for(const x of [-1.9,1.9]){const g=new THREE.ConeGeometry(.09,.28,10);geometries.push(g);const arrow=new THREE.Mesh(g,blue);arrow.rotation.z=-Math.PI/2;arrow.position.set(x,1.72,.65);scene.add(arrow)}
     const grid=new THREE.GridHelper(16,24,0x334862,0x1b293b);grid.position.y=-.13;scene.add(grid)
     let width=1,height=1;const resize=()=>{width=host.clientWidth;height=host.clientHeight;renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix()};const observer=new ResizeObserver(resize);observer.observe(host);resize()
+    const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let downX=0,downY=0
+    const down=(e:PointerEvent)=>{downX=e.clientX;downY=e.clientY}
+    const up=(e:PointerEvent)=>{if(Math.hypot(e.clientX-downX,e.clientY-downY)>6)return;const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);raycaster.setFromCamera(pointer,camera);if(raycaster.intersectObject(server,true).length)setLogOpen(true)}
+    renderer.domElement.addEventListener('pointerdown',down);renderer.domElement.addEventListener('pointerup',up)
     const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;controls.enableRotate=!matchMedia('(pointer:coarse)').matches
     let frame=0,last=performance.now(),elapsed=0,seenKey=0,seenPhase='idle',time=0,lastView='',lastStation=-1,transition=1
     const target=new THREE.Vector3(),position=new THREE.Vector3()
@@ -82,15 +93,17 @@ export default function RequestScene(props:Props){
       else position.set(0,3.7,8.8).multiplyScalar(distance)
       if(lastView!==p.view||lastStation!==p.station){transition=1;lastView=p.view;lastStation=p.station}
       controls.enabled=p.view!=='flight';if(transition>0||p.view==='flight'){camera.position.lerp(position,reduced?1:.12);controls.target.lerp(target,reduced?1:.12);transition=Math.max(0,transition-dt)}controls.update();renderer.render(scene,camera)
+      if(logTrigger.current){const point=terminal.getWorldPosition(new THREE.Vector3());point.y-=.55;point.project(camera);const x=(point.x+1)*width/2,y=(1-point.y)*height/2;logTrigger.current.style.left=`${Math.min(width-55,Math.max(55,x))}px`;logTrigger.current.style.top=`${Math.min(height-15,Math.max(15,y))}px`}
     }
     camera.position.set(0,5.2,16);frame=requestAnimationFrame(draw)
-    return()=>{cancelAnimationFrame(frame);observer.disconnect();controls.dispose();renderer.domElement.remove();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());grid.geometry.dispose();(grid.material as THREE.Material).dispose();renderer.dispose()}
+    return()=>{cancelAnimationFrame(frame);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointerup',up);controls.dispose();renderer.domElement.remove();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());grid.geometry.dispose();(grid.material as THREE.Material).dispose();renderer.dispose()}
   },[])
   const request=requests[props.operation]||requests.create
   const stage=phase==='request'?0:phase==='transfer'?1:phase==='insert'||phase==='response'||phase==='complete'?2:-1
-  return <div className="request-scene"><div ref={root} className="request-canvas" aria-label="PC·앱에서 API를 거쳐 Spring Boot 서버로 전달되는 요청 흐름"/>
-    <div className="request-stages">{['사용자 · PC / 앱','API 요청','Spring Boot 서버'].map((name,i)=><button key={name} className={stage===i?'active':''} onClick={()=>props.onStation(i)}>{name}</button>)}</div>
+  return <div className="request-scene"><div ref={root} className="request-canvas" aria-label="PC·앱에서 API를 거쳐 Spring Boot 서버로 전달되는 요청 흐름"><button ref={logTrigger} className="server-log-trigger" aria-label="서버 로그 화면 열기" aria-expanded={logOpen} onClick={()=>setLogOpen(true)}><span aria-hidden="true">&gt;_</span> 소스 로그 ↗</button></div>
+    <div className="request-stages">{['사용자 · PC / 앱','API 요청','Spring Boot 서버'].map((name,i)=><button key={name} className={stage===i?'active':''} onClick={()=>i===2?setLogOpen(true):props.onStation(i)}>{name}</button>)}</div>
     <div className="request-caption" aria-live="polite"><span>{request.method} {request.path}</span><strong>{phase==='idle'?'게시판을 조작하거나 흐름 다시 보기를 눌러보세요.':phase==='request'?'사용자 요청 · '+(request.icon==='heart'?'좋아요 전달':'문서 전달'):phase==='transfer'?'API 요청이 서버로 전달됩니다.':phase==='insert'?request.sql:phase==='response'?'처리 결과 응답 · 서버 → 사용자':'처리 완료 · '+request.sql}</strong></div>
     {error&&<p className="request-fallback">사용자 PC / 앱 → {request.method} {request.path} → 서버: {request.sql}</p>}
+    {logOpen&&<ServerLogView operation={props.operation} phase={phase} onClose={()=>setLogOpen(false)}/>}
   </div>
 }
