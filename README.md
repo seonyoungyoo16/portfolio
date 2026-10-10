@@ -22,14 +22,16 @@ node <board-checkout>/scripts/export-model.mjs <board-checkout> src/generated/bo
 ```
 
 - `src/App.tsx`: 목록 → 프로젝트 상세 이동
-- `src/components/BoardProject.tsx`: 관계, 소스 근거, 게시판 체험
-- `src/components/ui/schema-scene.tsx`: 실제 테이블 4개/FK 5개 3D 모델, 카메라 5종
+- `src/components/BoardProject.tsx`: 요청 흐름, 테이블 현황, 소스 근거, 게시판 체험
+- `src/components/ui/request-scene.tsx`: PC/앱 → API 요청 → Spring Boot 서버, 문서/하트 이동과 처리 결과, 카메라 5종
 - `src/board-demo.ts`: 소스 규칙에 맞춘 브라우저 시뮬레이션
 - `src/project.css`: 프로젝트 상세와 모바일 레이아웃
 - `docs/archive/App-before-board.tsx`: 이전 전체 메인 구성 보관
 
 ## 실행 범위
 포트폴리오는 브라우저 저장 기반 시뮬레이션입니다. 글 CRUD, 댓글 CRUD, 사용자별 좋아요 등록·취소, 작성자 검사, 입력 제한, 버전 비교와 연관 삭제를 실제 소스 규칙에 맞춰 구현했습니다. 테이블 데이터 화면은 실제 SQL 컬럼명을 사용합니다. source revision별로 브라우저 저장 키를 분리합니다.
+
+3D의 API 요소는 HTTP 요청을 설명하는 논리적인 단계입니다. 별도 API 게이트웨이나 서버를 의미하지 않습니다. 글 작성 시 문서, 좋아요 시 하트가 이동하며 실제 소스의 요청 메서드/경로와 DB 처리 내용을 표시합니다. 좋아요 요청은 소스에 맞게 `PUT /api/posts/{id}/likes/me`이며, 등록 전에 중복을 확인합니다.
 
 실제 Spring Boot API와 H2 파일 DB는 GitHub 저장소의 Java 앱으로 별도 실행합니다. GitHub에는 실행 가능한 소스, Dockerfile, 테스트와 CI 템플릿을 게시했습니다. 현재 연결의 workflow 권한이 없어 CI는 활성화되지 않았습니다.
 
