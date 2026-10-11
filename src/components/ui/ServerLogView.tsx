@@ -4,7 +4,9 @@ import source from '../../generated/server-source.json'
 
 type Snippet={file:string;line:number;lines:string[]}
 function Code({snippet,highlight=''}: {snippet:Snippet;highlight?:string}){
-  return <div className="server-code">{snippet.lines.map((line,i)=>{const at=highlight?line.indexOf(highlight):-1;return <div key={i} className={at>=0?'executing-line':''}><span>{snippet.line+i}</span><code>{at>=0?<>{line.slice(0,at)}<mark>{highlight}</mark>{line.slice(at+highlight.length)}</>:line}</code></div>})}</div>
+  const match=highlight?snippet.lines.findIndex(line=>line.includes(highlight)):-1
+  const start=match<0?0:Math.max(0,match-2),end=match<0?snippet.lines.length:match+2
+  return <div className="server-code">{snippet.lines.slice(start,end).map((line,index)=>{const i=start+index,at=highlight?line.indexOf(highlight):-1;return <div key={i} className={at>=0?'executing-line':''}><span>{snippet.line+i}</span><code>{at>=0?<>{line.slice(0,at)}<mark>{highlight}</mark>{line.slice(at+highlight.length)}</>:line}</code></div>})}</div>
 }
 const href=(s:Snippet)=>`${model.repo}/blob/${source.revision}/${s.file}#L${s.line}`
 function SourceBlock({name,snippet}: {name:string;snippet:Snippet}){
