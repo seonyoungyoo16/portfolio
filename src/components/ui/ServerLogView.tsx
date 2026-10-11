@@ -20,7 +20,7 @@ export default function ServerLogView({operation,phase,traceIndex,runKey,playing
   useEffect(()=>{setInspect(null);scroll.current?.scrollTo({top:0})},[operation,runKey])
   useEffect(()=>{if(inspect===null)scroll.current?.scrollTo({top:0})},[traceIndex,inspect])
   const flow=source.operations.find(o=>o.id===operation)!,op=model.operations.find(o=>o.id===operation)!
-  const index=inspect??Math.max(0,Math.min(traceIndex,flow.trace.length-1)),step=flow.trace[index]
+  const index=Math.max(0,Math.min(inspect??traceIndex,flow.trace.length-1)),step=flow.trace[index]
   const active=traceIndex>=0&&phase==='insert'&&inspect===null
   return <section className="server-log-view" aria-label="Spring Boot 소스 흐름" onKeyDown={e=>{if(e.key==='Escape')onClose()}}>
     <header><div><span className="terminal-dots" aria-hidden="true">● ● ●</span><strong>Spring Boot · 소스 흐름</strong></div><button ref={close} onClick={onClose} aria-label="서버 로그 화면 닫기">닫기 ×</button></header>
