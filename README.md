@@ -11,6 +11,13 @@ node --experimental-strip-types scripts/test-board-demo.ts
 ```
 개발 주소: http://127.0.0.1:5188 / 상세: /#project/board
 
+## GitHub Pages
+배포 주소: https://seonyoungyoo16.github.io/portfolio/
+
+`npm run build:pages`로 `/portfolio/` 경로에 맞춘 정적 파일을 생성합니다. GitHub Pages는 `gh-pages` 브랜치의 루트에서 배포합니다. 해당 브랜치에는 `dist/` 내용과 `.nojekyll`만 올립니다. 기존 Sites 빌드는 `npm run build`로 루트 경로를 유지합니다.
+
+현재 배포는 빌드 결과를 직접 게시하는 방식입니다. 이후 소스 변경을 배포하려면 Pages 빌드 결과도 갱신해야 합니다.
+
 ## 소스와 분석
 저장소: https://github.com/seonyoungyoo16/springboot-board-lab
 
