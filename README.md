@@ -47,3 +47,7 @@ node <board-checkout>/scripts/export-model.mjs <board-checkout> src/generated/bo
 
 ## 검증
 Java API 통합 테스트 5개 통과. 브라우저 시뮬레이션은 CRUD/권한/버전/댓글/멱등 좋아요/연관 삭제 및 추출 모델 제약을 검증합니다. 실제 API UI와 포트폴리오 UI는 별도로 브라우저 확인합니다.
+
+### 이미지 업로드 및 조회 체험
+새 글 작성에서 PNG/JPEG 한 장(2MB, 4096×4096 이하)을 첨부합니다. data JSON + image 파일의 FormData 구성을 표시하고, 게시글 INSERT → post_images BLOB INSERT 소스 순서를 재생합니다. 저장된 이미지를 클릭하면 GET /api/images/{id} 조회 흐름을 재생합니다. Pages는 브라우저 저장 시뮬레이션이며 실제 서버 전송은 Spring Boot 저장소 UI에서 실행합니다.
+모델 재생성: Spring Boot 저장소의 scripts/export-model.mjs로 board-model.json을 추출한 뒤 node scripts/export-server-source.mjs를 실행합니다.

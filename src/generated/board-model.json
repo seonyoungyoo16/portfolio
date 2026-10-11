@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/seonyoungyoo16/springboot-board-lab",
-  "revision": "5e3a5bc9796aedc98f3dab1161adb077df8b0d76",
+  "revision": "2719ea4b178c94ae8c38f01fe93d43fb19f84d33",
   "title": "Spring Boot Board Lab",
   "tables": [
     {
@@ -210,6 +210,60 @@
         "entityFile": "src/main/java/dev/portfolio/board/PostLike.java",
         "entityLine": 6
       }
+    },
+    {
+      "name": "post_images",
+      "entity": "PostImage",
+      "columns": [
+        {
+          "name": "id",
+          "type": "BIGINT",
+          "primary": true,
+          "nullable": false
+        },
+        {
+          "name": "post_id",
+          "type": "BIGINT",
+          "primary": false,
+          "nullable": false
+        },
+        {
+          "name": "filename",
+          "type": "VARCHAR(255)",
+          "primary": false,
+          "nullable": false
+        },
+        {
+          "name": "content_type",
+          "type": "VARCHAR(80)",
+          "primary": false,
+          "nullable": false
+        },
+        {
+          "name": "content",
+          "type": "BLOB",
+          "primary": false,
+          "nullable": false
+        }
+      ],
+      "relations": [
+        {
+          "name": "fk_images_post",
+          "from": "post_images",
+          "column": "post_id",
+          "to": "posts",
+          "referencedColumn": "id",
+          "cardinality": "N:1",
+          "line": 38
+        }
+      ],
+      "unique": [],
+      "source": {
+        "file": "src/main/resources/schema.sql",
+        "line": 32,
+        "entityFile": "src/main/java/dev/portfolio/board/PostImage.java",
+        "entityLine": 6
+      }
     }
   ],
   "relations": [
@@ -257,6 +311,15 @@
       "referencedColumn": "id",
       "cardinality": "N:1",
       "line": 28
+    },
+    {
+      "name": "fk_images_post",
+      "from": "post_images",
+      "column": "post_id",
+      "to": "posts",
+      "referencedColumn": "id",
+      "cardinality": "N:1",
+      "line": 38
     }
   ],
   "endpoints": [
@@ -265,27 +328,11 @@
       "path": "/api/users",
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 17
-      }
-    },
-    {
-      "method": "GET",
-      "path": "/api/posts",
-      "source": {
-        "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 18
-      }
-    },
-    {
-      "method": "GET",
-      "path": "/api/posts/{id}",
-      "source": {
-        "file": "src/main/java/dev/portfolio/board/BoardController.java",
         "line": 19
       }
     },
     {
-      "method": "POST",
+      "method": "GET",
       "path": "/api/posts",
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
@@ -293,7 +340,7 @@
       }
     },
     {
-      "method": "PUT",
+      "method": "GET",
       "path": "/api/posts/{id}",
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
@@ -301,11 +348,27 @@
       }
     },
     {
+      "method": "POST",
+      "path": "/api/posts",
+      "source": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 22
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/posts/{id}",
+      "source": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 23
+      }
+    },
+    {
       "method": "DELETE",
       "path": "/api/posts/{id}",
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 22
+        "line": 24
       }
     },
     {
@@ -313,7 +376,7 @@
       "path": "/api/posts/{id}/comments",
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 23
+        "line": 25
       }
     },
     {
@@ -321,28 +384,12 @@
       "path": "/api/posts/{id}/comments",
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 24
-      }
-    },
-    {
-      "method": "PUT",
-      "path": "/api/posts/{id}/comments/{commentId}",
-      "source": {
-        "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 25
-      }
-    },
-    {
-      "method": "DELETE",
-      "path": "/api/posts/{id}/comments/{commentId}",
-      "source": {
-        "file": "src/main/java/dev/portfolio/board/BoardController.java",
         "line": 26
       }
     },
     {
       "method": "PUT",
-      "path": "/api/posts/{id}/likes/me",
+      "path": "/api/posts/{id}/comments/{commentId}",
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
         "line": 27
@@ -350,10 +397,42 @@
     },
     {
       "method": "DELETE",
-      "path": "/api/posts/{id}/likes/me",
+      "path": "/api/posts/{id}/comments/{commentId}",
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
         "line": 28
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/api/posts/{id}/likes/me",
+      "source": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 29
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/api/posts",
+      "source": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 32
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/api/images/{id}",
+      "source": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 34
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/posts/{id}/likes/me",
+      "source": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 38
       }
     }
   ],
@@ -378,17 +457,17 @@
       ],
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 43
+        "line": 49
       },
       "evidence": [
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 43,
+          "line": 49,
           "code": "new Post(user(actor)"
         },
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 43,
+          "line": 49,
           "code": "posts.saveAndFlush"
         }
       ]
@@ -413,22 +492,22 @@
       ],
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 44
+        "line": 83
       },
       "evidence": [
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 45,
+          "line": 84,
           "code": "owner(p.author.getId(), actor)"
         },
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 46,
+          "line": 85,
           "code": "!p.version.equals(version)"
         },
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 47,
+          "line": 86,
           "code": "p.title = title.trim()"
         }
       ]
@@ -438,11 +517,16 @@
       "title": "글 삭제",
       "method": "delete",
       "tables": [
+        "post_images",
         "comments",
         "post_likes",
         "posts"
       ],
       "steps": [
+        {
+          "label": "이미지 DELETE",
+          "table": "post_images"
+        },
         {
           "label": "댓글 DELETE",
           "table": "comments"
@@ -458,22 +542,27 @@
       ],
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 49
+        "line": 88
       },
       "evidence": [
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 51,
+          "line": 90,
+          "code": "images.deleteByPostId(id)"
+        },
+        {
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 90,
           "code": "comments.deleteByPostId(id)"
         },
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 51,
+          "line": 90,
           "code": "likes.deleteByPostId(id)"
         },
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 51,
+          "line": 90,
           "code": "posts.delete(p)"
         }
       ]
@@ -503,12 +592,12 @@
       ],
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 55
+        "line": 94
       },
       "evidence": [
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 55,
+          "line": 94,
           "code": "new Comment(p, user(actor), body.trim())"
         }
       ]
@@ -538,17 +627,17 @@
       ],
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 56
+        "line": 95
       },
       "evidence": [
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 56,
+          "line": 95,
           "code": "comment(id, commentId)"
         },
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 56,
+          "line": 95,
           "code": "c.body = body.trim()"
         }
       ]
@@ -578,12 +667,12 @@
       ],
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 57
+        "line": 96
       },
       "evidence": [
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 57,
+          "line": 96,
           "code": "comments.delete(c)"
         }
       ]
@@ -613,17 +702,17 @@
       ],
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 59
+        "line": 98
       },
       "evidence": [
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 59,
+          "line": 98,
           "code": "!likes.existsByPostIdAndUserId(id, actor)"
         },
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 59,
+          "line": 98,
           "code": "new PostLike(p, u)"
         }
       ]
@@ -648,13 +737,78 @@
       ],
       "source": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 60
+        "line": 99
       },
       "evidence": [
         {
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 60,
+          "line": 99,
           "code": "likes.findByPostIdAndUserId(id, actor).ifPresent(likes::delete)"
+        }
+      ]
+    },
+    {
+      "id": "createMultipart",
+      "title": "데이터 + 이미지 업로드",
+      "method": "createMultipart",
+      "tables": [
+        "app_users",
+        "posts",
+        "post_images"
+      ],
+      "steps": [
+        {
+          "label": "JSON data + image 검증 · 사용자 조회",
+          "table": "app_users"
+        },
+        {
+          "label": "게시글 INSERT",
+          "table": "posts"
+        },
+        {
+          "label": "이미지 BLOB INSERT",
+          "table": "post_images"
+        }
+      ],
+      "source": {
+        "file": "src/main/java/dev/portfolio/board/BoardService.java",
+        "line": 50
+      },
+      "evidence": [
+        {
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 51,
+          "code": "validateImage(image)"
+        },
+        {
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 56,
+          "code": "images.saveAndFlush(new PostImage(p, filename, image.getContentType(), bytes))"
+        }
+      ]
+    },
+    {
+      "id": "readImage",
+      "title": "이미지 조회",
+      "method": "readImage",
+      "tables": [
+        "post_images"
+      ],
+      "steps": [
+        {
+          "label": "이미지 SELECT → 바이너리 응답",
+          "table": "post_images"
+        }
+      ],
+      "source": {
+        "file": "src/main/java/dev/portfolio/board/BoardService.java",
+        "line": 82
+      },
+      "evidence": [
+        {
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 80,
+          "code": "images.findById(id)"
         }
       ]
     }
@@ -670,6 +824,7 @@
       "user_id"
     ],
     "deleteOrder": [
+      "post_images",
       "comments",
       "post_likes",
       "posts"
@@ -678,31 +833,39 @@
   "sources": [
     {
       "file": "src/main/resources/schema.sql",
-      "sha256": "50243abfc6255dc19d75f5f0f318d3a1827aaeca3e017b894f432d4a4c1ede8f"
+      "sha256": "4b8ef80154983dd8aecc6a1719f55b3f94a010128864d34b455f3e2351aa8a8b"
     },
     {
       "file": "src/main/java/dev/portfolio/board/BoardController.java",
-      "sha256": "b9c0e31934069eef044ea1060f2b633232829c0a76fff444f36a805056833608"
+      "sha256": "74f08e9ab5ac6d67642999d76867c170c82045beee62ca6a897fd5c652c57aa8"
     },
     {
       "file": "src/main/java/dev/portfolio/board/BoardService.java",
-      "sha256": "e720c87c47bbb5a2b05dbf28177bb1ef657629eefe63da2cbbaa9666b3466db2"
+      "sha256": "aef1458be6b50e1a775e9b5c636186dbc16651b74da62e71d282fff80198d1cc"
+    },
+    {
+      "file": "src/main/java/dev/portfolio/board/Repositories.java",
+      "sha256": "4582002d5599025b3d03d4a1b222f2cbaf6773779176385d7e0cd06a6500fa10"
     },
     {
       "file": "src/main/java/dev/portfolio/board/AppUser.java",
-      "sha256": "5ff1c8a044f1dbc2479e74865def1ff2cb889cab2d5d138aa574c480c718f4d6"
+      "sha256": "6c9fc304eaa5423023d42c9c6b423eaa308feaa3ec392653669fdacadf547acf"
     },
     {
       "file": "src/main/java/dev/portfolio/board/Post.java",
-      "sha256": "8930739ffe7a68c0a2125c21bb7b94960e4d02253f2418bdf80460f169a06145"
+      "sha256": "9e0912954866e486807a5a2307f7d2cdf8b96e711565da0b7e8741982ec5f0b6"
     },
     {
       "file": "src/main/java/dev/portfolio/board/Comment.java",
-      "sha256": "545a24586f00622e92205c735f33b3a6063eb259b373099b62dbb9969a11823d"
+      "sha256": "8a94b348330026c0fdc6733d5ca4a54acd9a44f36ac55fc0b6fd7b4a45273340"
     },
     {
       "file": "src/main/java/dev/portfolio/board/PostLike.java",
-      "sha256": "384d139dbb616ca81699f8fa6ec8d7c99d4ed4edf03fc22e918b2345aee196de"
+      "sha256": "c5135ba11df27b5c507da80d3acc94e2ef86d54971ae6a3819c6572e560eb3af"
+    },
+    {
+      "file": "src/main/java/dev/portfolio/board/PostImage.java",
+      "sha256": "93b418b21d96212af832c931386bff5c842b5ae51e9dc4b5fbd08dc7e9baa845"
     }
   ]
 }

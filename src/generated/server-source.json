@@ -1,5 +1,5 @@
 {
-  "revision": "5e3a5bc9796aedc98f3dab1161adb077df8b0d76",
+  "revision": "2719ea4b178c94ae8c38f01fe93d43fb19f84d33",
   "operations": [
     {
       "id": "create",
@@ -9,19 +9,19 @@
         "path": "/api/posts",
         "source": {
           "file": "src/main/java/dev/portfolio/board/BoardController.java",
-          "line": 20
+          "line": 22
         }
       },
       "controller": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 20,
+        "line": 22,
         "lines": [
           "    @PostMapping(\"/posts\") @ResponseStatus(HttpStatus.CREATED) public BoardService.PostView create(@RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody CreatePost input) { return service.create(actor, input.title(), input.body()); }"
         ]
       },
       "service": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 43,
+        "line": 49,
         "lines": [
           "    public PostView create(Long actor, String title, String body) { return view(posts.saveAndFlush(new Post(user(actor), title.trim(), body.trim())), actor); }"
         ]
@@ -30,7 +30,7 @@
         {
           "name": "user",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 26,
+          "line": 32,
           "lines": [
             "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
           ]
@@ -38,9 +38,9 @@
         {
           "name": "view",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 31,
+          "line": 37,
           "lines": [
-            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor), images.findByPostIdOrderByIdAsc(p.id).stream().map(i -> new ImageView(i.id, i.filename, i.contentType, i.content.length, \"/api/images/\" + i.id)).toList()); }"
           ]
         }
       ],
@@ -50,7 +50,7 @@
           "layer": "CONTROLLER",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardController.java",
-            "line": 20,
+            "line": 22,
             "lines": [
               "    @PostMapping(\"/posts\") @ResponseStatus(HttpStatus.CREATED) public BoardService.PostView create(@RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody CreatePost input) { return service.create(actor, input.title(), input.body()); }"
             ]
@@ -62,7 +62,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 26,
+            "line": 32,
             "lines": [
               "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
             ]
@@ -74,7 +74,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 43,
+            "line": 49,
             "lines": [
               "    public PostView create(Long actor, String title, String body) { return view(posts.saveAndFlush(new Post(user(actor), title.trim(), body.trim())), actor); }"
             ]
@@ -86,7 +86,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 43,
+            "line": 49,
             "lines": [
               "    public PostView create(Long actor, String title, String body) { return view(posts.saveAndFlush(new Post(user(actor), title.trim(), body.trim())), actor); }"
             ]
@@ -98,9 +98,9 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 31,
+            "line": 37,
             "lines": [
-              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor), images.findByPostIdOrderByIdAsc(p.id).stream().map(i -> new ImageView(i.id, i.filename, i.contentType, i.content.length, \"/api/images/\" + i.id)).toList()); }"
             ]
           },
           "highlight": "new PostView"
@@ -118,7 +118,7 @@
         {
           "name": "PostRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 10,
+          "line": 14,
           "lines": [
             "interface PostRepository extends JpaRepository<Post, Long> {",
             "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
@@ -130,7 +130,7 @@
         {
           "name": "CommentRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 15,
+          "line": 19,
           "lines": [
             "interface CommentRepository extends JpaRepository<Comment, Long> {",
             "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
@@ -142,12 +142,23 @@
         {
           "name": "LikeRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 20,
+          "line": 24,
           "lines": [
             "interface LikeRepository extends JpaRepository<PostLike, Long> {",
             "    Optional<PostLike> findByPostIdAndUserId(Long postId, Long userId);",
             "    boolean existsByPostIdAndUserId(Long postId, Long userId);",
             "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        },
+        {
+          "name": "ImageRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface ImageRepository extends JpaRepository<PostImage, Long> {",
+            "    List<PostImage> findByPostIdOrderByIdAsc(Long postId);",
             "    void deleteByPostId(Long postId);",
             "}"
           ]
@@ -162,19 +173,19 @@
         "path": "/api/posts/{id}",
         "source": {
           "file": "src/main/java/dev/portfolio/board/BoardController.java",
-          "line": 21
+          "line": 23
         }
       },
       "controller": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 21,
+        "line": 23,
         "lines": [
           "    @PutMapping(\"/posts/{id}\") public BoardService.PostView update(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody UpdatePost input) { return service.update(id, actor, input.title(), input.body(), input.version()); }"
         ]
       },
       "service": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 44,
+        "line": 83,
         "lines": [
           "    public PostView update(Long id, Long actor, String title, String body, Long version) {",
           "        var p = locked(id); owner(p.author.getId(), actor);",
@@ -187,7 +198,7 @@
         {
           "name": "locked",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 28,
+          "line": 34,
           "lines": [
             "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
           ]
@@ -195,7 +206,7 @@
         {
           "name": "owner",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 30,
+          "line": 36,
           "lines": [
             "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
           ]
@@ -203,15 +214,15 @@
         {
           "name": "view",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 31,
+          "line": 37,
           "lines": [
-            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor), images.findByPostIdOrderByIdAsc(p.id).stream().map(i -> new ImageView(i.id, i.filename, i.contentType, i.content.length, \"/api/images/\" + i.id)).toList()); }"
           ]
         },
         {
           "name": "user",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 26,
+          "line": 32,
           "lines": [
             "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
           ]
@@ -223,7 +234,7 @@
           "layer": "CONTROLLER",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardController.java",
-            "line": 21,
+            "line": 23,
             "lines": [
               "    @PutMapping(\"/posts/{id}\") public BoardService.PostView update(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody UpdatePost input) { return service.update(id, actor, input.title(), input.body(), input.version()); }"
             ]
@@ -235,7 +246,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 28,
+            "line": 34,
             "lines": [
               "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
             ]
@@ -247,7 +258,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 26,
+            "line": 32,
             "lines": [
               "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
             ]
@@ -259,7 +270,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 30,
+            "line": 36,
             "lines": [
               "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
             ]
@@ -271,7 +282,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 44,
+            "line": 83,
             "lines": [
               "    public PostView update(Long id, Long actor, String title, String body, Long version) {",
               "        var p = locked(id); owner(p.author.getId(), actor);",
@@ -287,7 +298,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 44,
+            "line": 83,
             "lines": [
               "    public PostView update(Long id, Long actor, String title, String body, Long version) {",
               "        var p = locked(id); owner(p.author.getId(), actor);",
@@ -303,7 +314,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 44,
+            "line": 83,
             "lines": [
               "    public PostView update(Long id, Long actor, String title, String body, Long version) {",
               "        var p = locked(id); owner(p.author.getId(), actor);",
@@ -319,9 +330,9 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 31,
+            "line": 37,
             "lines": [
-              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor), images.findByPostIdOrderByIdAsc(p.id).stream().map(i -> new ImageView(i.id, i.filename, i.contentType, i.content.length, \"/api/images/\" + i.id)).toList()); }"
             ]
           },
           "highlight": "new PostView"
@@ -339,7 +350,7 @@
         {
           "name": "PostRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 10,
+          "line": 14,
           "lines": [
             "interface PostRepository extends JpaRepository<Post, Long> {",
             "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
@@ -351,7 +362,7 @@
         {
           "name": "CommentRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 15,
+          "line": 19,
           "lines": [
             "interface CommentRepository extends JpaRepository<Comment, Long> {",
             "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
@@ -363,12 +374,23 @@
         {
           "name": "LikeRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 20,
+          "line": 24,
           "lines": [
             "interface LikeRepository extends JpaRepository<PostLike, Long> {",
             "    Optional<PostLike> findByPostIdAndUserId(Long postId, Long userId);",
             "    boolean existsByPostIdAndUserId(Long postId, Long userId);",
             "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        },
+        {
+          "name": "ImageRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface ImageRepository extends JpaRepository<PostImage, Long> {",
+            "    List<PostImage> findByPostIdOrderByIdAsc(Long postId);",
             "    void deleteByPostId(Long postId);",
             "}"
           ]
@@ -383,23 +405,23 @@
         "path": "/api/posts/{id}",
         "source": {
           "file": "src/main/java/dev/portfolio/board/BoardController.java",
-          "line": 22
+          "line": 24
         }
       },
       "controller": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 22,
+        "line": 24,
         "lines": [
           "    @DeleteMapping(\"/posts/{id}\") @ResponseStatus(HttpStatus.NO_CONTENT) public void delete(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { service.delete(id, actor); }"
         ]
       },
       "service": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 49,
+        "line": 88,
         "lines": [
           "    public void delete(Long id, Long actor) {",
           "        var p = locked(id); owner(p.author.getId(), actor);",
-          "        comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
+          "        images.deleteByPostId(id); images.flush(); comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
           "    }"
         ]
       },
@@ -407,7 +429,7 @@
         {
           "name": "locked",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 28,
+          "line": 34,
           "lines": [
             "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
           ]
@@ -415,7 +437,7 @@
         {
           "name": "owner",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 30,
+          "line": 36,
           "lines": [
             "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
           ]
@@ -423,7 +445,7 @@
         {
           "name": "user",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 26,
+          "line": 32,
           "lines": [
             "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
           ]
@@ -435,7 +457,7 @@
           "layer": "CONTROLLER",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardController.java",
-            "line": 22,
+            "line": 24,
             "lines": [
               "    @DeleteMapping(\"/posts/{id}\") @ResponseStatus(HttpStatus.NO_CONTENT) public void delete(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { service.delete(id, actor); }"
             ]
@@ -447,7 +469,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 28,
+            "line": 34,
             "lines": [
               "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
             ]
@@ -459,7 +481,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 26,
+            "line": 32,
             "lines": [
               "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
             ]
@@ -471,7 +493,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 30,
+            "line": 36,
             "lines": [
               "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
             ]
@@ -479,15 +501,30 @@
           "highlight": "!authorId.equals(actor)"
         },
         {
+          "label": "첨부 이미지 삭제",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 88,
+            "lines": [
+              "    public void delete(Long id, Long actor) {",
+              "        var p = locked(id); owner(p.author.getId(), actor);",
+              "        images.deleteByPostId(id); images.flush(); comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
+              "    }"
+            ]
+          },
+          "highlight": "images.deleteByPostId(id)"
+        },
+        {
           "label": "댓글 삭제",
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 49,
+            "line": 88,
             "lines": [
               "    public void delete(Long id, Long actor) {",
               "        var p = locked(id); owner(p.author.getId(), actor);",
-              "        comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
+              "        images.deleteByPostId(id); images.flush(); comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
               "    }"
             ]
           },
@@ -498,11 +535,11 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 49,
+            "line": 88,
             "lines": [
               "    public void delete(Long id, Long actor) {",
               "        var p = locked(id); owner(p.author.getId(), actor);",
-              "        comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
+              "        images.deleteByPostId(id); images.flush(); comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
               "    }"
             ]
           },
@@ -513,11 +550,11 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 49,
+            "line": 88,
             "lines": [
               "    public void delete(Long id, Long actor) {",
               "        var p = locked(id); owner(p.author.getId(), actor);",
-              "        comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
+              "        images.deleteByPostId(id); images.flush(); comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
               "    }"
             ]
           },
@@ -528,11 +565,11 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 49,
+            "line": 88,
             "lines": [
               "    public void delete(Long id, Long actor) {",
               "        var p = locked(id); owner(p.author.getId(), actor);",
-              "        comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
+              "        images.deleteByPostId(id); images.flush(); comments.deleteByPostId(id); likes.deleteByPostId(id); comments.flush(); likes.flush(); posts.delete(p); posts.flush();",
               "    }"
             ]
           },
@@ -551,7 +588,7 @@
         {
           "name": "PostRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 10,
+          "line": 14,
           "lines": [
             "interface PostRepository extends JpaRepository<Post, Long> {",
             "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
@@ -563,7 +600,7 @@
         {
           "name": "CommentRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 15,
+          "line": 19,
           "lines": [
             "interface CommentRepository extends JpaRepository<Comment, Long> {",
             "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
@@ -575,12 +612,23 @@
         {
           "name": "LikeRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 20,
+          "line": 24,
           "lines": [
             "interface LikeRepository extends JpaRepository<PostLike, Long> {",
             "    Optional<PostLike> findByPostIdAndUserId(Long postId, Long userId);",
             "    boolean existsByPostIdAndUserId(Long postId, Long userId);",
             "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        },
+        {
+          "name": "ImageRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface ImageRepository extends JpaRepository<PostImage, Long> {",
+            "    List<PostImage> findByPostIdOrderByIdAsc(Long postId);",
             "    void deleteByPostId(Long postId);",
             "}"
           ]
@@ -595,19 +643,19 @@
         "path": "/api/posts/{id}/comments",
         "source": {
           "file": "src/main/java/dev/portfolio/board/BoardController.java",
-          "line": 24
+          "line": 26
         }
       },
       "controller": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 24,
+        "line": 26,
         "lines": [
           "    @PostMapping(\"/posts/{id}/comments\") @ResponseStatus(HttpStatus.CREATED) public BoardService.CommentView addComment(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody CommentInput input) { return service.addComment(id, actor, input.body()); }"
         ]
       },
       "service": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 55,
+        "line": 94,
         "lines": [
           "    public CommentView addComment(Long id, Long actor, String body) { var p = locked(id); return view(comments.saveAndFlush(new Comment(p, user(actor), body.trim()))); }"
         ]
@@ -616,7 +664,7 @@
         {
           "name": "locked",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 28,
+          "line": 34,
           "lines": [
             "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
           ]
@@ -624,7 +672,7 @@
         {
           "name": "user",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 26,
+          "line": 32,
           "lines": [
             "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
           ]
@@ -632,7 +680,7 @@
         {
           "name": "view",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 32,
+          "line": 38,
           "lines": [
             "    private CommentView view(Comment c) { return new CommentView(c.id, c.post.getId(), c.author.getId(), c.author.getDisplayName(), c.body, c.createdAt); }"
           ]
@@ -644,7 +692,7 @@
           "layer": "CONTROLLER",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardController.java",
-            "line": 24,
+            "line": 26,
             "lines": [
               "    @PostMapping(\"/posts/{id}/comments\") @ResponseStatus(HttpStatus.CREATED) public BoardService.CommentView addComment(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody CommentInput input) { return service.addComment(id, actor, input.body()); }"
             ]
@@ -656,7 +704,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 28,
+            "line": 34,
             "lines": [
               "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
             ]
@@ -668,7 +716,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 26,
+            "line": 32,
             "lines": [
               "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
             ]
@@ -680,7 +728,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 55,
+            "line": 94,
             "lines": [
               "    public CommentView addComment(Long id, Long actor, String body) { var p = locked(id); return view(comments.saveAndFlush(new Comment(p, user(actor), body.trim()))); }"
             ]
@@ -692,7 +740,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 55,
+            "line": 94,
             "lines": [
               "    public CommentView addComment(Long id, Long actor, String body) { var p = locked(id); return view(comments.saveAndFlush(new Comment(p, user(actor), body.trim()))); }"
             ]
@@ -704,7 +752,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 32,
+            "line": 38,
             "lines": [
               "    private CommentView view(Comment c) { return new CommentView(c.id, c.post.getId(), c.author.getId(), c.author.getDisplayName(), c.body, c.createdAt); }"
             ]
@@ -724,7 +772,7 @@
         {
           "name": "PostRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 10,
+          "line": 14,
           "lines": [
             "interface PostRepository extends JpaRepository<Post, Long> {",
             "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
@@ -736,7 +784,7 @@
         {
           "name": "CommentRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 15,
+          "line": 19,
           "lines": [
             "interface CommentRepository extends JpaRepository<Comment, Long> {",
             "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
@@ -755,19 +803,19 @@
         "path": "/api/posts/{id}/comments/{commentId}",
         "source": {
           "file": "src/main/java/dev/portfolio/board/BoardController.java",
-          "line": 25
+          "line": 27
         }
       },
       "controller": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 25,
+        "line": 27,
         "lines": [
           "    @PutMapping(\"/posts/{id}/comments/{commentId}\") public BoardService.CommentView updateComment(@PathVariable Long id, @PathVariable Long commentId, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody CommentInput input) { return service.updateComment(id, commentId, actor, input.body()); }"
         ]
       },
       "service": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 56,
+        "line": 95,
         "lines": [
           "    public CommentView updateComment(Long id, Long commentId, Long actor, String body) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); c.body = body.trim(); comments.flush(); return view(c); }"
         ]
@@ -776,7 +824,7 @@
         {
           "name": "locked",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 28,
+          "line": 34,
           "lines": [
             "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
           ]
@@ -784,7 +832,7 @@
         {
           "name": "owner",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 30,
+          "line": 36,
           "lines": [
             "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
           ]
@@ -792,7 +840,7 @@
         {
           "name": "comment",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 58,
+          "line": 97,
           "lines": [
             "    private Comment comment(Long postId, Long id) { var c = comments.findById(id).orElseThrow(() -> missing(\"댓글\")); if (!c.post.getId().equals(postId)) throw missing(\"댓글\"); return c; }"
           ]
@@ -800,7 +848,7 @@
         {
           "name": "view",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 32,
+          "line": 38,
           "lines": [
             "    private CommentView view(Comment c) { return new CommentView(c.id, c.post.getId(), c.author.getId(), c.author.getDisplayName(), c.body, c.createdAt); }"
           ]
@@ -808,7 +856,7 @@
         {
           "name": "user",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 26,
+          "line": 32,
           "lines": [
             "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
           ]
@@ -820,7 +868,7 @@
           "layer": "CONTROLLER",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardController.java",
-            "line": 25,
+            "line": 27,
             "lines": [
               "    @PutMapping(\"/posts/{id}/comments/{commentId}\") public BoardService.CommentView updateComment(@PathVariable Long id, @PathVariable Long commentId, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestBody CommentInput input) { return service.updateComment(id, commentId, actor, input.body()); }"
             ]
@@ -832,7 +880,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 28,
+            "line": 34,
             "lines": [
               "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
             ]
@@ -844,7 +892,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 58,
+            "line": 97,
             "lines": [
               "    private Comment comment(Long postId, Long id) { var c = comments.findById(id).orElseThrow(() -> missing(\"댓글\")); if (!c.post.getId().equals(postId)) throw missing(\"댓글\"); return c; }"
             ]
@@ -856,7 +904,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 26,
+            "line": 32,
             "lines": [
               "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
             ]
@@ -868,7 +916,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 30,
+            "line": 36,
             "lines": [
               "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
             ]
@@ -880,7 +928,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 56,
+            "line": 95,
             "lines": [
               "    public CommentView updateComment(Long id, Long commentId, Long actor, String body) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); c.body = body.trim(); comments.flush(); return view(c); }"
             ]
@@ -892,7 +940,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 56,
+            "line": 95,
             "lines": [
               "    public CommentView updateComment(Long id, Long commentId, Long actor, String body) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); c.body = body.trim(); comments.flush(); return view(c); }"
             ]
@@ -904,7 +952,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 32,
+            "line": 38,
             "lines": [
               "    private CommentView view(Comment c) { return new CommentView(c.id, c.post.getId(), c.author.getId(), c.author.getDisplayName(), c.body, c.createdAt); }"
             ]
@@ -924,7 +972,7 @@
         {
           "name": "PostRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 10,
+          "line": 14,
           "lines": [
             "interface PostRepository extends JpaRepository<Post, Long> {",
             "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
@@ -936,7 +984,7 @@
         {
           "name": "CommentRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 15,
+          "line": 19,
           "lines": [
             "interface CommentRepository extends JpaRepository<Comment, Long> {",
             "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
@@ -955,19 +1003,19 @@
         "path": "/api/posts/{id}/comments/{commentId}",
         "source": {
           "file": "src/main/java/dev/portfolio/board/BoardController.java",
-          "line": 26
+          "line": 28
         }
       },
       "controller": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 26,
+        "line": 28,
         "lines": [
           "    @DeleteMapping(\"/posts/{id}/comments/{commentId}\") @ResponseStatus(HttpStatus.NO_CONTENT) public void deleteComment(@PathVariable Long id, @PathVariable Long commentId, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { service.deleteComment(id, commentId, actor); }"
         ]
       },
       "service": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 57,
+        "line": 96,
         "lines": [
           "    public void deleteComment(Long id, Long commentId, Long actor) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); comments.delete(c); }"
         ]
@@ -976,7 +1024,7 @@
         {
           "name": "locked",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 28,
+          "line": 34,
           "lines": [
             "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
           ]
@@ -984,7 +1032,7 @@
         {
           "name": "owner",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 30,
+          "line": 36,
           "lines": [
             "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
           ]
@@ -992,7 +1040,7 @@
         {
           "name": "comment",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 58,
+          "line": 97,
           "lines": [
             "    private Comment comment(Long postId, Long id) { var c = comments.findById(id).orElseThrow(() -> missing(\"댓글\")); if (!c.post.getId().equals(postId)) throw missing(\"댓글\"); return c; }"
           ]
@@ -1000,7 +1048,7 @@
         {
           "name": "user",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 26,
+          "line": 32,
           "lines": [
             "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
           ]
@@ -1012,7 +1060,7 @@
           "layer": "CONTROLLER",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardController.java",
-            "line": 26,
+            "line": 28,
             "lines": [
               "    @DeleteMapping(\"/posts/{id}/comments/{commentId}\") @ResponseStatus(HttpStatus.NO_CONTENT) public void deleteComment(@PathVariable Long id, @PathVariable Long commentId, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { service.deleteComment(id, commentId, actor); }"
             ]
@@ -1024,7 +1072,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 28,
+            "line": 34,
             "lines": [
               "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
             ]
@@ -1036,7 +1084,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 58,
+            "line": 97,
             "lines": [
               "    private Comment comment(Long postId, Long id) { var c = comments.findById(id).orElseThrow(() -> missing(\"댓글\")); if (!c.post.getId().equals(postId)) throw missing(\"댓글\"); return c; }"
             ]
@@ -1048,7 +1096,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 26,
+            "line": 32,
             "lines": [
               "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
             ]
@@ -1060,7 +1108,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 30,
+            "line": 36,
             "lines": [
               "    private void owner(Long authorId, Long actor) { user(actor); if (!authorId.equals(actor)) throw new ResponseStatusException(HttpStatus.FORBIDDEN, \"작성자만 변경할 수 있습니다.\"); }"
             ]
@@ -1072,7 +1120,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 57,
+            "line": 96,
             "lines": [
               "    public void deleteComment(Long id, Long commentId, Long actor) { locked(id); var c = comment(id, commentId); owner(c.author.getId(), actor); comments.delete(c); }"
             ]
@@ -1092,7 +1140,7 @@
         {
           "name": "PostRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 10,
+          "line": 14,
           "lines": [
             "interface PostRepository extends JpaRepository<Post, Long> {",
             "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
@@ -1104,7 +1152,7 @@
         {
           "name": "CommentRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 15,
+          "line": 19,
           "lines": [
             "interface CommentRepository extends JpaRepository<Comment, Long> {",
             "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
@@ -1123,19 +1171,19 @@
         "path": "/api/posts/{id}/likes/me",
         "source": {
           "file": "src/main/java/dev/portfolio/board/BoardController.java",
-          "line": 27
+          "line": 29
         }
       },
       "controller": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 27,
+        "line": 29,
         "lines": [
           "    @PutMapping(\"/posts/{id}/likes/me\") public BoardService.PostView like(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { return service.like(id, actor); }"
         ]
       },
       "service": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 59,
+        "line": 98,
         "lines": [
           "    public PostView like(Long id, Long actor) { var p = locked(id); var u = user(actor); if (!likes.existsByPostIdAndUserId(id, actor)) likes.saveAndFlush(new PostLike(p, u)); return view(p, actor); }"
         ]
@@ -1144,7 +1192,7 @@
         {
           "name": "locked",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 28,
+          "line": 34,
           "lines": [
             "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
           ]
@@ -1152,7 +1200,7 @@
         {
           "name": "user",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 26,
+          "line": 32,
           "lines": [
             "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
           ]
@@ -1160,9 +1208,9 @@
         {
           "name": "view",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 31,
+          "line": 37,
           "lines": [
-            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor), images.findByPostIdOrderByIdAsc(p.id).stream().map(i -> new ImageView(i.id, i.filename, i.contentType, i.content.length, \"/api/images/\" + i.id)).toList()); }"
           ]
         }
       ],
@@ -1172,7 +1220,7 @@
           "layer": "CONTROLLER",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardController.java",
-            "line": 27,
+            "line": 29,
             "lines": [
               "    @PutMapping(\"/posts/{id}/likes/me\") public BoardService.PostView like(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { return service.like(id, actor); }"
             ]
@@ -1184,7 +1232,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 28,
+            "line": 34,
             "lines": [
               "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
             ]
@@ -1196,7 +1244,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 26,
+            "line": 32,
             "lines": [
               "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
             ]
@@ -1208,7 +1256,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 59,
+            "line": 98,
             "lines": [
               "    public PostView like(Long id, Long actor) { var p = locked(id); var u = user(actor); if (!likes.existsByPostIdAndUserId(id, actor)) likes.saveAndFlush(new PostLike(p, u)); return view(p, actor); }"
             ]
@@ -1220,7 +1268,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 59,
+            "line": 98,
             "lines": [
               "    public PostView like(Long id, Long actor) { var p = locked(id); var u = user(actor); if (!likes.existsByPostIdAndUserId(id, actor)) likes.saveAndFlush(new PostLike(p, u)); return view(p, actor); }"
             ]
@@ -1232,9 +1280,9 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 31,
+            "line": 37,
             "lines": [
-              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor), images.findByPostIdOrderByIdAsc(p.id).stream().map(i -> new ImageView(i.id, i.filename, i.contentType, i.content.length, \"/api/images/\" + i.id)).toList()); }"
             ]
           },
           "highlight": "new PostView"
@@ -1252,7 +1300,7 @@
         {
           "name": "PostRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 10,
+          "line": 14,
           "lines": [
             "interface PostRepository extends JpaRepository<Post, Long> {",
             "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
@@ -1264,7 +1312,7 @@
         {
           "name": "CommentRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 15,
+          "line": 19,
           "lines": [
             "interface CommentRepository extends JpaRepository<Comment, Long> {",
             "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
@@ -1276,12 +1324,23 @@
         {
           "name": "LikeRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 20,
+          "line": 24,
           "lines": [
             "interface LikeRepository extends JpaRepository<PostLike, Long> {",
             "    Optional<PostLike> findByPostIdAndUserId(Long postId, Long userId);",
             "    boolean existsByPostIdAndUserId(Long postId, Long userId);",
             "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        },
+        {
+          "name": "ImageRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface ImageRepository extends JpaRepository<PostImage, Long> {",
+            "    List<PostImage> findByPostIdOrderByIdAsc(Long postId);",
             "    void deleteByPostId(Long postId);",
             "}"
           ]
@@ -1296,19 +1355,19 @@
         "path": "/api/posts/{id}/likes/me",
         "source": {
           "file": "src/main/java/dev/portfolio/board/BoardController.java",
-          "line": 28
+          "line": 38
         }
       },
       "controller": {
         "file": "src/main/java/dev/portfolio/board/BoardController.java",
-        "line": 28,
+        "line": 38,
         "lines": [
           "    @DeleteMapping(\"/posts/{id}/likes/me\") public BoardService.PostView unlike(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { return service.unlike(id, actor); }"
         ]
       },
       "service": {
         "file": "src/main/java/dev/portfolio/board/BoardService.java",
-        "line": 60,
+        "line": 99,
         "lines": [
           "    public PostView unlike(Long id, Long actor) { var p = locked(id); user(actor); likes.findByPostIdAndUserId(id, actor).ifPresent(likes::delete); likes.flush(); return view(p, actor); }"
         ]
@@ -1317,7 +1376,7 @@
         {
           "name": "locked",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 28,
+          "line": 34,
           "lines": [
             "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
           ]
@@ -1325,7 +1384,7 @@
         {
           "name": "user",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 26,
+          "line": 32,
           "lines": [
             "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
           ]
@@ -1333,9 +1392,9 @@
         {
           "name": "view",
           "file": "src/main/java/dev/portfolio/board/BoardService.java",
-          "line": 31,
+          "line": 37,
           "lines": [
-            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor), images.findByPostIdOrderByIdAsc(p.id).stream().map(i -> new ImageView(i.id, i.filename, i.contentType, i.content.length, \"/api/images/\" + i.id)).toList()); }"
           ]
         }
       ],
@@ -1345,7 +1404,7 @@
           "layer": "CONTROLLER",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardController.java",
-            "line": 28,
+            "line": 38,
             "lines": [
               "    @DeleteMapping(\"/posts/{id}/likes/me\") public BoardService.PostView unlike(@PathVariable Long id, @RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor) { return service.unlike(id, actor); }"
             ]
@@ -1357,7 +1416,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 28,
+            "line": 34,
             "lines": [
               "    private Post locked(Long id) { return posts.findLocked(id).orElseThrow(() -> missing(\"게시글\")); }"
             ]
@@ -1369,7 +1428,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 26,
+            "line": 32,
             "lines": [
               "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
             ]
@@ -1381,7 +1440,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 60,
+            "line": 99,
             "lines": [
               "    public PostView unlike(Long id, Long actor) { var p = locked(id); user(actor); likes.findByPostIdAndUserId(id, actor).ifPresent(likes::delete); likes.flush(); return view(p, actor); }"
             ]
@@ -1393,7 +1452,7 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 60,
+            "line": 99,
             "lines": [
               "    public PostView unlike(Long id, Long actor) { var p = locked(id); user(actor); likes.findByPostIdAndUserId(id, actor).ifPresent(likes::delete); likes.flush(); return view(p, actor); }"
             ]
@@ -1405,9 +1464,9 @@
           "layer": "SERVICE / JPA",
           "snippet": {
             "file": "src/main/java/dev/portfolio/board/BoardService.java",
-            "line": 31,
+            "line": 37,
             "lines": [
-              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor)); }"
+              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor), images.findByPostIdOrderByIdAsc(p.id).stream().map(i -> new ImageView(i.id, i.filename, i.contentType, i.content.length, \"/api/images/\" + i.id)).toList()); }"
             ]
           },
           "highlight": "new PostView"
@@ -1425,7 +1484,7 @@
         {
           "name": "PostRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 10,
+          "line": 14,
           "lines": [
             "interface PostRepository extends JpaRepository<Post, Long> {",
             "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
@@ -1437,7 +1496,7 @@
         {
           "name": "CommentRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 15,
+          "line": 19,
           "lines": [
             "interface CommentRepository extends JpaRepository<Comment, Long> {",
             "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
@@ -1449,12 +1508,353 @@
         {
           "name": "LikeRepository",
           "file": "src/main/java/dev/portfolio/board/Repositories.java",
-          "line": 20,
+          "line": 24,
           "lines": [
             "interface LikeRepository extends JpaRepository<PostLike, Long> {",
             "    Optional<PostLike> findByPostIdAndUserId(Long postId, Long userId);",
             "    boolean existsByPostIdAndUserId(Long postId, Long userId);",
             "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        },
+        {
+          "name": "ImageRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface ImageRepository extends JpaRepository<PostImage, Long> {",
+            "    List<PostImage> findByPostIdOrderByIdAsc(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "createMultipart",
+      "method": "createMultipart",
+      "endpoint": {
+        "method": "POST",
+        "path": "/api/posts",
+        "source": {
+          "file": "src/main/java/dev/portfolio/board/BoardController.java",
+          "line": 32
+        }
+      },
+      "controller": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 32,
+        "lines": [
+          "    public BoardService.PostView createMultipart(@RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestPart(\"data\") CreatePost data, @RequestPart(\"image\") MultipartFile image) { return service.createMultipart(actor, data.title(), data.body(), image); }"
+        ]
+      },
+      "service": {
+        "file": "src/main/java/dev/portfolio/board/BoardService.java",
+        "line": 50,
+        "lines": [
+          "    public PostView createMultipart(Long actor, String title, String body, MultipartFile image) {",
+          "        byte[] bytes = validateImage(image);",
+          "        var p = posts.saveAndFlush(new Post(user(actor), title.trim(), body.trim()));",
+          "        String filename = image.getOriginalFilename() == null ? \"image\" : image.getOriginalFilename().replace('\\\\', '/');",
+          "        filename = filename.substring(filename.lastIndexOf('/') + 1);",
+          "        if (filename.length() > 255) filename = filename.substring(filename.length() - 255);",
+          "        images.saveAndFlush(new PostImage(p, filename, image.getContentType(), bytes));",
+          "        return view(p, actor);",
+          "    }"
+        ]
+      },
+      "helpers": [
+        {
+          "name": "user",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 32,
+          "lines": [
+            "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+          ]
+        },
+        {
+          "name": "view",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 37,
+          "lines": [
+            "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor), images.findByPostIdOrderByIdAsc(p.id).stream().map(i -> new ImageView(i.id, i.filename, i.contentType, i.content.length, \"/api/images/\" + i.id)).toList()); }"
+          ]
+        },
+        {
+          "name": "validateImage",
+          "file": "src/main/java/dev/portfolio/board/BoardService.java",
+          "line": 59,
+          "lines": [
+            "    private byte[] validateImage(MultipartFile image) {",
+            "        if (image.isEmpty() || image.getSize() > 2 * 1024 * 1024) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, \"이미지는 2MB 이하로 첨부해 주세요.\");",
+            "        if (!List.of(\"image/png\", \"image/jpeg\").contains(image.getContentType())) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, \"PNG 또는 JPEG 이미지를 첨부해 주세요.\");",
+            "        try {",
+            "            byte[] bytes = image.getBytes();",
+            "            try (var stream = ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))) {",
+            "                var readers = ImageIO.getImageReaders(stream);",
+            "                if (!readers.hasNext()) throw new IOException(\"Invalid image\");",
+            "                var reader = readers.next();",
+            "                try {",
+            "                    reader.setInput(stream);",
+            "                    String format = reader.getFormatName().toLowerCase();",
+            "                    if (!(format.equals(\"png\") && image.getContentType().equals(\"image/png\") || format.equals(\"jpeg\") && image.getContentType().equals(\"image/jpeg\"))) throw new IOException(\"MIME mismatch\");",
+            "                    if (reader.getWidth(0) > 4096 || reader.getHeight(0) > 4096) throw new IOException(\"Image dimensions too large\");",
+            "                    if (reader.read(0) == null) throw new IOException(\"Invalid pixels\");",
+            "                } finally { reader.dispose(); }",
+            "            }",
+            "            return bytes;",
+            "        } catch (IOException error) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, \"올바른 이미지 파일인지 확인해 주세요. 최대 크기는 4096×4096입니다.\"); }",
+            "    }"
+          ]
+        }
+      ],
+      "trace": [
+        {
+          "label": "Controller → Service 호출",
+          "layer": "CONTROLLER",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardController.java",
+            "line": 32,
+            "lines": [
+              "    public BoardService.PostView createMultipart(@RequestHeader(value = \"X-Demo-User\", defaultValue = \"1\") Long actor, @Valid @RequestPart(\"data\") CreatePost data, @RequestPart(\"image\") MultipartFile image) { return service.createMultipart(actor, data.title(), data.body(), image); }"
+            ]
+          },
+          "highlight": "service.createMultipart("
+        },
+        {
+          "label": "파일 용량·MIME·실제 이미지 검증",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 59,
+            "lines": [
+              "    private byte[] validateImage(MultipartFile image) {",
+              "        if (image.isEmpty() || image.getSize() > 2 * 1024 * 1024) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, \"이미지는 2MB 이하로 첨부해 주세요.\");",
+              "        if (!List.of(\"image/png\", \"image/jpeg\").contains(image.getContentType())) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, \"PNG 또는 JPEG 이미지를 첨부해 주세요.\");",
+              "        try {",
+              "            byte[] bytes = image.getBytes();",
+              "            try (var stream = ImageIO.createImageInputStream(new ByteArrayInputStream(bytes))) {",
+              "                var readers = ImageIO.getImageReaders(stream);",
+              "                if (!readers.hasNext()) throw new IOException(\"Invalid image\");",
+              "                var reader = readers.next();",
+              "                try {",
+              "                    reader.setInput(stream);",
+              "                    String format = reader.getFormatName().toLowerCase();",
+              "                    if (!(format.equals(\"png\") && image.getContentType().equals(\"image/png\") || format.equals(\"jpeg\") && image.getContentType().equals(\"image/jpeg\"))) throw new IOException(\"MIME mismatch\");",
+              "                    if (reader.getWidth(0) > 4096 || reader.getHeight(0) > 4096) throw new IOException(\"Image dimensions too large\");",
+              "                    if (reader.read(0) == null) throw new IOException(\"Invalid pixels\");",
+              "                } finally { reader.dispose(); }",
+              "            }",
+              "            return bytes;",
+              "        } catch (IOException error) { throw new ResponseStatusException(HttpStatus.BAD_REQUEST, \"올바른 이미지 파일인지 확인해 주세요. 최대 크기는 4096×4096입니다.\"); }",
+              "    }"
+            ]
+          },
+          "highlight": "ImageIO.getImageReaders(stream)"
+        },
+        {
+          "label": "사용자 조회",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 32,
+            "lines": [
+              "    private AppUser user(Long id) { return users.findById(id).orElseThrow(() -> missing(\"사용자\")); }"
+            ]
+          },
+          "highlight": "users.findById(id)"
+        },
+        {
+          "label": "게시글 INSERT",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 50,
+            "lines": [
+              "    public PostView createMultipart(Long actor, String title, String body, MultipartFile image) {",
+              "        byte[] bytes = validateImage(image);",
+              "        var p = posts.saveAndFlush(new Post(user(actor), title.trim(), body.trim()));",
+              "        String filename = image.getOriginalFilename() == null ? \"image\" : image.getOriginalFilename().replace('\\\\', '/');",
+              "        filename = filename.substring(filename.lastIndexOf('/') + 1);",
+              "        if (filename.length() > 255) filename = filename.substring(filename.length() - 255);",
+              "        images.saveAndFlush(new PostImage(p, filename, image.getContentType(), bytes));",
+              "        return view(p, actor);",
+              "    }"
+            ]
+          },
+          "highlight": "posts.saveAndFlush"
+        },
+        {
+          "label": "이미지 BLOB INSERT · 같은 트랜잭션",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 50,
+            "lines": [
+              "    public PostView createMultipart(Long actor, String title, String body, MultipartFile image) {",
+              "        byte[] bytes = validateImage(image);",
+              "        var p = posts.saveAndFlush(new Post(user(actor), title.trim(), body.trim()));",
+              "        String filename = image.getOriginalFilename() == null ? \"image\" : image.getOriginalFilename().replace('\\\\', '/');",
+              "        filename = filename.substring(filename.lastIndexOf('/') + 1);",
+              "        if (filename.length() > 255) filename = filename.substring(filename.length() - 255);",
+              "        images.saveAndFlush(new PostImage(p, filename, image.getContentType(), bytes));",
+              "        return view(p, actor);",
+              "    }"
+            ]
+          },
+          "highlight": "images.saveAndFlush"
+        },
+        {
+          "label": "응답 DTO 생성",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 37,
+            "lines": [
+              "    private PostView view(Post p, Long actor) { return new PostView(p.id, p.author.getId(), p.author.getDisplayName(), p.title, p.body, p.createdAt, p.version, comments.countByPostId(p.id), likes.countByPostId(p.id), likes.existsByPostIdAndUserId(p.id, actor), images.findByPostIdOrderByIdAsc(p.id).stream().map(i -> new ImageView(i.id, i.filename, i.contentType, i.content.length, \"/api/images/\" + i.id)).toList()); }"
+            ]
+          },
+          "highlight": "new PostView"
+        }
+      ],
+      "repositories": [
+        {
+          "name": "UserRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 9,
+          "lines": [
+            "interface UserRepository extends JpaRepository<AppUser, Long> {}"
+          ]
+        },
+        {
+          "name": "PostRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 14,
+          "lines": [
+            "interface PostRepository extends JpaRepository<Post, Long> {",
+            "    @Lock(LockModeType.PESSIMISTIC_WRITE)",
+            "    @Query(\"select p from Post p where p.id = :id\")",
+            "    Optional<Post> findLocked(@Param(\"id\") Long id);",
+            "}"
+          ]
+        },
+        {
+          "name": "CommentRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 19,
+          "lines": [
+            "interface CommentRepository extends JpaRepository<Comment, Long> {",
+            "    List<Comment> findByPostIdOrderByIdAsc(Long postId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        },
+        {
+          "name": "LikeRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 24,
+          "lines": [
+            "interface LikeRepository extends JpaRepository<PostLike, Long> {",
+            "    Optional<PostLike> findByPostIdAndUserId(Long postId, Long userId);",
+            "    boolean existsByPostIdAndUserId(Long postId, Long userId);",
+            "    long countByPostId(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        },
+        {
+          "name": "ImageRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface ImageRepository extends JpaRepository<PostImage, Long> {",
+            "    List<PostImage> findByPostIdOrderByIdAsc(Long postId);",
+            "    void deleteByPostId(Long postId);",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "readImage",
+      "method": "readImage",
+      "endpoint": {
+        "method": "GET",
+        "path": "/api/images/{id}",
+        "source": {
+          "file": "src/main/java/dev/portfolio/board/BoardController.java",
+          "line": 34
+        }
+      },
+      "controller": {
+        "file": "src/main/java/dev/portfolio/board/BoardController.java",
+        "line": 34,
+        "lines": [
+          "    public ResponseEntity<byte[]> readImage(@PathVariable Long id) {",
+          "        var info = service.imageInfo(id);",
+          "        return ResponseEntity.ok().contentType(MediaType.parseMediaType(info.contentType())).header(\"X-Content-Type-Options\", \"nosniff\").cacheControl(CacheControl.noCache()).body(service.readImage(id));",
+          "    }"
+        ]
+      },
+      "service": {
+        "file": "src/main/java/dev/portfolio/board/BoardService.java",
+        "line": 82,
+        "lines": [
+          "    public byte[] readImage(Long id) { return images.findById(id).orElseThrow(() -> missing(\"이미지\")).content; }"
+        ]
+      },
+      "helpers": [],
+      "trace": [
+        {
+          "label": "Controller → Service 호출",
+          "layer": "CONTROLLER",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardController.java",
+            "line": 34,
+            "lines": [
+              "    public ResponseEntity<byte[]> readImage(@PathVariable Long id) {",
+              "        var info = service.imageInfo(id);",
+              "        return ResponseEntity.ok().contentType(MediaType.parseMediaType(info.contentType())).header(\"X-Content-Type-Options\", \"nosniff\").cacheControl(CacheControl.noCache()).body(service.readImage(id));",
+              "    }"
+            ]
+          },
+          "highlight": "service.imageInfo("
+        },
+        {
+          "label": "이미지 메타데이터 조회",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 80,
+            "lines": [
+              "    public ImageView imageInfo(Long id) { var i = images.findById(id).orElseThrow(() -> missing(\"이미지\")); return new ImageView(i.id, i.filename, i.contentType, i.content.length, \"/api/images/\" + i.id); }"
+            ]
+          },
+          "highlight": "images.findById(id)"
+        },
+        {
+          "label": "이미지 바이너리 조회",
+          "layer": "SERVICE / JPA",
+          "snippet": {
+            "file": "src/main/java/dev/portfolio/board/BoardService.java",
+            "line": 82,
+            "lines": [
+              "    public byte[] readImage(Long id) { return images.findById(id).orElseThrow(() -> missing(\"이미지\")).content; }"
+            ]
+          },
+          "highlight": "images.findById(id)"
+        }
+      ],
+      "repositories": [
+        {
+          "name": "ImageRepository",
+          "file": "src/main/java/dev/portfolio/board/Repositories.java",
+          "line": 10,
+          "lines": [
+            "interface ImageRepository extends JpaRepository<PostImage, Long> {",
+            "    List<PostImage> findByPostIdOrderByIdAsc(Long postId);",
             "    void deleteByPostId(Long postId);",
             "}"
           ]

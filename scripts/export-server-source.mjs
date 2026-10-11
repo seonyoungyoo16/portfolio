@@ -28,7 +28,7 @@ function method(name,methodName,argument=''){
   }
   throw Error('Unclosed method')
 }
-const repositories=['UserRepository','PostRepository','CommentRepository','LikeRepository'].map(name=>{
+const repositories=['UserRepository','PostRepository','CommentRepository','LikeRepository','ImageRepository'].map(name=>{
   const s=sources['Repositories.java'],start=s.lines.findIndex(l=>l.startsWith('interface '+name+' '))
   const end=s.lines[start].endsWith('{}')?start:s.lines.findIndex((l,i)=>i>start&&l==='}')
   return {name,...snippet('Repositories.java',start,end)}
@@ -42,25 +42,27 @@ const comment=step('댓글 조회 · 게시글 소속 확인','comment','comment
 const response=step('응답 DTO 생성','view','new PostView')
 const commentResponse=step('댓글 응답 DTO 생성','view','new CommentView')
 const sequences={
+  createMultipart:[step('파일 용량·MIME·실제 이미지 검증','validateImage','ImageIO.getImageReaders(stream)'),user,step('게시글 INSERT','createMultipart','posts.saveAndFlush'),step('이미지 BLOB INSERT · 같은 트랜잭션','createMultipart','images.saveAndFlush'),response],
+  readImage:[step('이미지 메타데이터 조회','imageInfo','images.findById(id)'),step('이미지 바이너리 조회','readImage','images.findById(id)')],
   create:[user,step('게시글 객체 생성','create','new Post(user(actor), title.trim(), body.trim())'),step('게시글 저장 · INSERT','create','posts.saveAndFlush'),response],
   like:[lock,user,step('좋아요 중복 확인','like','!likes.existsByPostIdAndUserId(id, actor)'),step('없는 경우에만 좋아요 INSERT','like','likes.saveAndFlush(new PostLike(p, u))'),response],
   unlike:[lock,user,step('현재 사용자 좋아요 조회 · 있으면 DELETE','unlike','likes.findByPostIdAndUserId(id, actor).ifPresent(likes::delete)'),step('변경 DB 반영','unlike','likes.flush()'),response],
   update:[lock,user,owner,step('버전 충돌 확인','update','!p.version.equals(version)'),step('제목·본문 변경','update','p.title = title.trim(); p.body = body.trim()'),step('변경 DB 반영 · UPDATE','update','posts.flush()'),response],
-  delete:[lock,user,owner,step('댓글 삭제','delete','comments.deleteByPostId(id)'),step('좋아요 삭제','delete','likes.deleteByPostId(id)'),step('연관 삭제 DB 반영','delete','comments.flush(); likes.flush()'),step('게시글 삭제 · DB 반영','delete','posts.delete(p); posts.flush()')],
+  delete:[lock,user,owner,step('첨부 이미지 삭제','delete','images.deleteByPostId(id)'),step('댓글 삭제','delete','comments.deleteByPostId(id)'),step('좋아요 삭제','delete','likes.deleteByPostId(id)'),step('연관 삭제 DB 반영','delete','comments.flush(); likes.flush()'),step('게시글 삭제 · DB 반영','delete','posts.delete(p); posts.flush()')],
   comment:[lock,user,step('댓글 객체 생성','addComment','new Comment(p, user(actor), body.trim())'),step('댓글 저장 · INSERT','addComment','comments.saveAndFlush'),commentResponse],
   commentUpdate:[lock,comment,user,owner,step('댓글 본문 변경','updateComment','c.body = body.trim()'),step('변경 DB 반영 · UPDATE','updateComment','comments.flush()'),commentResponse],
   commentDelete:[lock,comment,user,owner,step('댓글 삭제','deleteComment','comments.delete(c)')],
 }
 const operations=model.operations.map(op=>{
   const controller=method('BoardController.java',op.method),service=method('BoardService.java',op.method)
-  const helperNames=['locked','post','user','owner','comment','view'].filter(name=>new RegExp('\\b'+name+'\\(').test(service.lines.join('\n')))
+  const helperNames=['locked','post','user','owner','comment','view','validateImage'].filter(name=>new RegExp('\\b'+name+'\\(').test(service.lines.join('\n')))
   if(helperNames.includes('owner')&&!helperNames.includes('user'))helperNames.push('user')
   const helpers=helperNames.map(name=>({name,...method('BoardService.java',name,name==='view'&&op.id.startsWith('comment')?'Comment':'')}))
   const calls=[...service.lines,...helpers.flatMap(h=>h.lines)].join('\n')
-  const relevant=Object.entries({users:'UserRepository',posts:'PostRepository',comments:'CommentRepository',likes:'LikeRepository'}).filter(([variable])=>calls.includes(variable+'.')).map(([,name])=>name)
+  const relevant=Object.entries({users:'UserRepository',posts:'PostRepository',comments:'CommentRepository',likes:'LikeRepository',images:'ImageRepository'}).filter(([variable])=>calls.includes(variable+'.')).map(([,name])=>name)
   const endpoint=model.endpoints.find(e=>e.source.line===controller.line)
   if(!endpoint)throw Error('Missing endpoint '+op.id)
-  const trace=[{label:'Controller → Service 호출',layer:'CONTROLLER',snippet:controller,highlight:'service.'+op.method+'('},...sequences[op.id].map(step=>{
+  const trace=[{label:'Controller → Service 호출',layer:'CONTROLLER',snippet:controller,highlight:'service.'+(op.id==='readImage'?'imageInfo':op.method)+'('},...sequences[op.id].map(step=>{
     const code=method('BoardService.java',step.methodName,step.methodName==='view'&&op.id.startsWith('comment')?'Comment':'')
     if(!code.lines.join('\n').includes(step.highlight))throw Error('Missing trace evidence '+op.id+' / '+step.highlight)
     return {label:step.label,layer:'SERVICE / JPA',snippet:code,highlight:step.highlight}

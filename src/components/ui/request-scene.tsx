@@ -8,6 +8,8 @@ import ServerLogView from './ServerLogView'
 import source from '../../generated/server-source.json'
 
 const requests:Record<string,{method:string;path:string;sql:string;icon:'document'|'heart'}>={
+  createMultipart:{method:'POST',path:'/api/posts',sql:'게시글 INSERT → 이미지 BLOB INSERT · post_images',icon:'document'},
+  readImage:{method:'GET',path:'/api/images/{id}',sql:'이미지 SELECT → image/png 또는 image/jpeg 응답',icon:'document'},
   create:{method:'POST',path:'/api/posts',sql:'게시글 INSERT · posts',icon:'document'},
   update:{method:'PUT',path:'/api/posts/{id}',sql:'게시글 UPDATE · posts',icon:'document'},
   delete:{method:'DELETE',path:'/api/posts/{id}',sql:'댓글·좋아요 삭제 → 게시글 DELETE',icon:'document'},
@@ -63,7 +65,10 @@ export default function RequestScene(props:Props){
     const documentToken=new THREE.Group();box(documentToken,.52,.7,.06,0,0,0,white);for(let i=0;i<3;i++)box(documentToken,.34,.035,.02,0,.16-i*.14,.045,blue)
     const shape=new THREE.Shape();shape.moveTo(0,-.35);shape.bezierCurveTo(-.1,-.2,-.5,.05,-.5,.3);shape.bezierCurveTo(-.5,.65,-.05,.7,0,.4);shape.bezierCurveTo(.05,.7,.5,.65,.5,.3);shape.bezierCurveTo(.5,.05,.1,-.2,0,-.35)
     const heartGeo=new THREE.ExtrudeGeometry(shape,{depth:.11,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.04,bevelThickness:.04});geometries.push(heartGeo);const heart=new THREE.Mesh(heartGeo,red);heart.scale.setScalar(.67)
-    const packet=new THREE.Group();packet.add(documentToken,heart);scene.add(packet)
+    const imageToken=new THREE.Group();box(imageToken,.66,.52,.06,.52,0,0,white);box(imageToken,.52,.38,.02,.52,0,.045,blue);
+    const photoShape=new THREE.Shape();photoShape.moveTo(-.2,-.12);photoShape.lineTo(-.02,.12);photoShape.lineTo(.1,-.03);photoShape.lineTo(.2,.1);photoShape.lineTo(.24,-.12);photoShape.closePath();
+    const photoGeo=new THREE.ShapeGeometry(photoShape);geometries.push(photoGeo);const photo=new THREE.Mesh(photoGeo,green);photo.position.set(.5,0,.064);imageToken.add(photo);
+    const packet=new THREE.Group();packet.add(documentToken,heart,imageToken);scene.add(packet)
     const ackGeo=new THREE.SphereGeometry(.11,12,12);geometries.push(ackGeo);const ack=new THREE.Mesh(ackGeo,green);scene.add(ack)
     const route=new THREE.CatmullRomCurve3([new THREE.Vector3(-3.7,1.5,.65),new THREE.Vector3(0,1.8,.65),new THREE.Vector3(3.7,1.5,.65)])
     const wireGeo=new THREE.TubeGeometry(route,60,.022,8,false);geometries.push(wireGeo);scene.add(new THREE.Mesh(wireGeo,blue))
@@ -87,9 +92,11 @@ export default function RequestScene(props:Props){
       if(hasRun&&t>=2.4&&autoOpenedKey!==p.runKey){autoOpenedKey=p.runKey;setLogOpen(true)}
       if(seenPhase!==current){seenPhase=current;setPhase(current)}
       documentToken.visible=requests[p.operation]?.icon!=='heart';heart.visible=!documentToken.visible
+      imageToken.visible=p.operation==='createMultipart'||p.operation==='readImage'&&current==='response';documentToken.position.x=p.operation==='createMultipart'?-.2:0;
       packet.visible=hasRun&&!reduced&&t<2.4;packet.position.copy(route.getPoint(Math.min(t/2.4,1)));packet.rotation.y=Math.sin(time*3)*.15
+      if(p.operation==='readImage'&&current==='response'&&!reduced){packet.visible=true;documentToken.visible=false;packet.position.copy(route.getPoint(Math.max(0,Math.min(1,1-(t-serverEnd)))))}
       serverGlow.emissiveIntensity=current==='insert'?1.7:.2
-      ack.visible=current==='response'&&!reduced;ack.position.copy(route.getPoint(Math.max(0,Math.min(1,1-(t-serverEnd)))))
+      ack.visible=current==='response'&&!reduced&&p.operation!=='readImage';ack.position.copy(route.getPoint(Math.max(0,Math.min(1,1-(t-serverEnd)))))
       const distance=Math.max(5.5,11.5/(2*Math.tan(THREE.MathUtils.degToRad(18))*(width/height)))/9
       target.set(0,.85,0)
       if(p.view==='station'){target.set(bases[p.station],1,0);position.copy(target).add(new THREE.Vector3(0,2,5.5))}
@@ -108,7 +115,7 @@ export default function RequestScene(props:Props){
   const stage=phase==='request'?0:phase==='transfer'?1:phase==='insert'||phase==='response'||phase==='complete'?2:-1
   return <div className="request-scene"><div ref={root} className="request-canvas" aria-label="PC·앱에서 API를 거쳐 Spring Boot 서버로 전달되는 요청 흐름"><button ref={logTrigger} className="server-log-trigger" aria-label="서버 로그 화면 열기" aria-expanded={logOpen} onClick={()=>setLogOpen(true)}><span aria-hidden="true">&gt;_</span> 소스 로그 ↗</button></div>
     <div className="request-stages">{['사용자 · PC / 앱','API 요청','Spring Boot 서버'].map((name,i)=><button key={name} className={stage===i?'active':''} onClick={()=>i===2?setLogOpen(true):props.onStation(i)}>{name}</button>)}</div>
-    <div className="request-caption" aria-live="polite"><span>{request.method} {request.path}</span><strong>{phase==='idle'?'게시판을 조작하거나 흐름 다시 보기를 눌러보세요.':phase==='request'?'사용자 요청 · '+(request.icon==='heart'?'좋아요 전달':'문서 전달'):phase==='transfer'?'API 요청이 서버로 전달됩니다.':phase==='insert'?request.sql:phase==='response'?'처리 결과 응답 · 서버 → 사용자':'처리 완료 · '+request.sql}</strong></div>
+    <div className="request-caption" aria-live="polite"><span>{request.method} {request.path}</span><strong>{phase==='idle'?'게시판을 조작하거나 흐름 다시 보기를 눌러보세요.':phase==='request'?'사용자 요청 · '+(request.icon==='heart'?'좋아요 전달':props.operation==='createMultipart'?'JSON 데이터 + 이미지 전달':props.operation==='readImage'?'이미지 조회 요청':'문서 전달'):phase==='transfer'?'API 요청이 서버로 전달됩니다.':phase==='insert'?request.sql:phase==='response'?'처리 결과 응답 · 서버 → 사용자':'처리 완료 · '+request.sql}</strong></div>
     {error&&<p className="request-fallback">사용자 PC / 앱 → {request.method} {request.path} → 서버: {request.sql}</p>}
     {logOpen&&<ServerLogView operation={props.operation} phase={phase} traceIndex={traceIndex} runKey={props.runKey} playing={props.playing} onToggle={props.onToggle} onReplay={props.onReplay} onClose={()=>setLogOpen(false)}/>}
   </div>
