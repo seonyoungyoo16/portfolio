@@ -21,7 +21,7 @@ const requests:Record<string,{method:string;path:string;sql:string;icon:'documen
 }
 // Endpoint declarations must match the inspected controller snapshot.
 Object.values(requests).forEach(r=>{if(!model.endpoints.some(e=>e.method===r.method&&e.path===r.path))throw new Error('소스에 없는 API 경로')})
-type Props={view:View;playing:boolean;operation:string;runKey:number;station:number;onStation:(index:number)=>void;onToggle:()=>void;onReplay:()=>void}
+type Props={view:View;playing:boolean;operation:string;runKey:number;station:number;imagePayload?:{url:string;name:string}|null;onStation:(index:number)=>void;onToggle:()=>void;onReplay:()=>void}
 export default function RequestScene(props:Props){
   const root=useRef<HTMLDivElement>(null),latest=useRef(props)
   const [phase,setPhase]=useState('idle'),[error,setError]=useState(false),[logOpen,setLogOpen]=useState(false)
@@ -69,10 +69,28 @@ export default function RequestScene(props:Props){
     const photoShape=new THREE.Shape();photoShape.moveTo(-.2,-.12);photoShape.lineTo(-.02,.12);photoShape.lineTo(.1,-.03);photoShape.lineTo(.2,.1);photoShape.lineTo(.24,-.12);photoShape.closePath();
     const photoGeo=new THREE.ShapeGeometry(photoShape);geometries.push(photoGeo);const photo=new THREE.Mesh(photoGeo,green);photo.position.set(.5,0,.064);imageToken.add(photo);
     const packet=new THREE.Group();packet.add(documentToken,heart,imageToken);scene.add(packet)
+    // A billboard keeps the user's attached image readable from every camera angle.
+    const imageMaterial=new THREE.SpriteMaterial({depthTest:false,toneMapped:false});materials.push(imageMaterial)
+    const attachedImage=new THREE.Sprite(imageMaterial);attachedImage.visible=false;attachedImage.scale.set(1.35,1.02,1);attachedImage.position.set(.48,0,.12);imageToken.add(attachedImage)
+    let loadedImageUrl='',imageGeneration=0,imageTexture:THREE.CanvasTexture|null=null,disposed=false
+    function loadAttachedImage(url:string){
+      loadedImageUrl=url;const generation=++imageGeneration
+      imageTexture?.dispose();imageTexture=null;imageMaterial.map=null;imageMaterial.needsUpdate=true;attachedImage.visible=false
+      if(!url)return
+      const image=new Image();image.onload=()=>{
+        if(disposed||generation!==imageGeneration)return
+        const preview=document.createElement('canvas');preview.width=512;preview.height=384;const context=preview.getContext('2d')!
+        context.fillStyle='#f2f5fa';context.fillRect(0,0,512,384)
+        const scale=Math.min(480/image.naturalWidth,352/image.naturalHeight),w=image.naturalWidth*scale,h=image.naturalHeight*scale
+        context.drawImage(image,(512-w)/2,(384-h)/2,w,h)
+        imageTexture=new THREE.CanvasTexture(preview);imageTexture.colorSpace=THREE.SRGBColorSpace;imageMaterial.map=imageTexture;imageMaterial.needsUpdate=true;attachedImage.visible=true
+      };image.src=url
+    }
     const ackGeo=new THREE.SphereGeometry(.11,12,12);geometries.push(ackGeo);const ack=new THREE.Mesh(ackGeo,green);scene.add(ack)
     const route=new THREE.CatmullRomCurve3([new THREE.Vector3(-3.7,1.5,.65),new THREE.Vector3(0,1.8,.65),new THREE.Vector3(3.7,1.5,.65)])
     const wireGeo=new THREE.TubeGeometry(route,60,.022,8,false);geometries.push(wireGeo);scene.add(new THREE.Mesh(wireGeo,blue))
-    for(const x of [-1.9,1.9]){const g=new THREE.ConeGeometry(.09,.28,10);geometries.push(g);const arrow=new THREE.Mesh(g,blue);arrow.rotation.z=-Math.PI/2;arrow.position.set(x,1.72,.65);scene.add(arrow)}
+    const arrows:THREE.Mesh[]=[]
+    for(const x of [-1.9,1.9]){const g=new THREE.ConeGeometry(.09,.28,10);geometries.push(g);const arrow=new THREE.Mesh(g,blue);arrow.rotation.z=-Math.PI/2;arrow.position.set(x,1.72,.65);scene.add(arrow);arrows.push(arrow)}
     const grid=new THREE.GridHelper(16,24,0x334862,0x1b293b);grid.position.y=-.13;scene.add(grid)
     let width=1,height=1;const resize=()=>{width=host.clientWidth;height=host.clientHeight;renderer.setSize(width,height);camera.aspect=width/height;camera.updateProjectionMatrix()};const observer=new ResizeObserver(resize);observer.observe(host);resize()
     const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();let downX=0,downY=0
@@ -83,20 +101,29 @@ export default function RequestScene(props:Props){
     let frame=0,last=performance.now(),elapsed=0,seenKey=0,seenPhase='idle',seenTrace=-1,autoOpenedKey=0,time=0,lastView='',lastStation=-1,transition=1
     const target=new THREE.Vector3(),position=new THREE.Vector3()
     function draw(now:number){frame=requestAnimationFrame(draw);const dt=Math.max(0,Math.min((now-last)/1000,.05));last=now;const p=latest.current
-      if(seenKey!==p.runKey){seenKey=p.runKey;elapsed=0;if(!p.runKey)autoOpenedKey=0}
+      const imageFlow=p.operation==='createMultipart'||p.operation==='readImage'
+      if((p.imagePayload?.url||'')!==loadedImageUrl)loadAttachedImage(p.imagePayload?.url||'')
+      if(seenKey!==p.runKey){seenKey=p.runKey;elapsed=0;if(!p.runKey)autoOpenedKey=0;if(imageFlow)setLogOpen(false)}
       const steps=source.operations.find(o=>o.id===p.operation)!.trace.length,serverEnd=2.4+steps*1.4
-      if(p.playing){elapsed+=dt;time+=dt}const hasRun=p.runKey>0,t=reduced?serverEnd+1:elapsed
-      const current=!hasRun?'idle':t<1.2?'request':t<2.4?'transfer':t<serverEnd?'insert':t<serverEnd+1?'response':'complete'
+      const responseDuration=imageFlow?2.4:1
+      if(p.playing){elapsed+=dt;time+=dt}const hasRun=p.runKey>0,t=reduced?serverEnd+responseDuration:elapsed
+      const current=!hasRun?'idle':t<1.2?'request':t<2.4?'transfer':t<serverEnd?'insert':t<serverEnd+responseDuration?'response':'complete'
       const trace=!hasRun||t<2.4?-1:Math.min(steps-1,Math.floor((t-2.4)/1.4))
       if(seenTrace!==trace){seenTrace=trace;setTraceIndex(trace)}
-      if(hasRun&&t>=2.4&&autoOpenedKey!==p.runKey){autoOpenedKey=p.runKey;setLogOpen(true)}
+      if(hasRun&&t>=2.4&&autoOpenedKey!==p.runKey){autoOpenedKey=p.runKey;if(!imageFlow)setLogOpen(true)}
       if(seenPhase!==current){seenPhase=current;setPhase(current)}
       documentToken.visible=requests[p.operation]?.icon!=='heart';heart.visible=!documentToken.visible
-      imageToken.visible=p.operation==='createMultipart'||p.operation==='readImage'&&current==='response';documentToken.position.x=p.operation==='createMultipart'?-.2:0;
+      imageToken.visible=p.operation==='createMultipart'||p.operation==='readImage'&&(current==='response'||current==='complete');documentToken.position.x=p.operation==='createMultipart'?-.65:0;
+      photo.visible=!attachedImage.visible
       packet.visible=hasRun&&!reduced&&t<2.4;packet.position.copy(route.getPoint(Math.min(t/2.4,1)));packet.rotation.y=Math.sin(time*3)*.15
-      if(p.operation==='readImage'&&current==='response'&&!reduced){packet.visible=true;documentToken.visible=false;packet.position.copy(route.getPoint(Math.max(0,Math.min(1,1-(t-serverEnd)))))}
+      if(p.operation==='createMultipart'&&hasRun){packet.visible=true;if(t>=2.4)documentToken.visible=false}
+      if(p.operation==='readImage'&&(current==='response'||current==='complete')){packet.visible=hasRun;documentToken.visible=false;packet.position.copy(route.getPoint(Math.max(0,Math.min(1,1-(t-serverEnd)/responseDuration))))}
+      const returning=p.operation==='readImage'&&(current==='response'||current==='complete')
+      arrows.forEach(arrow=>{arrow.rotation.z=returning?Math.PI/2:-Math.PI/2;arrow.material=returning?green:blue})
+      host.dataset.imageDirection=imageFlow&&imageToken.visible?(returning?'server-to-pc':'pc-to-server'):''
+      host.dataset.imageProgress=String(returning?Math.min(1,Math.max(0,(t-serverEnd)/responseDuration)):Math.min(t/2.4,1))
       serverGlow.emissiveIntensity=current==='insert'?1.7:.2
-      ack.visible=current==='response'&&!reduced&&p.operation!=='readImage';ack.position.copy(route.getPoint(Math.max(0,Math.min(1,1-(t-serverEnd)))))
+      ack.visible=current==='response'&&!reduced&&p.operation!=='readImage';ack.position.copy(route.getPoint(Math.max(0,Math.min(1,1-(t-serverEnd)/responseDuration))))
       const distance=Math.max(5.5,11.5/(2*Math.tan(THREE.MathUtils.degToRad(18))*(width/height)))/9
       target.set(0,.85,0)
       if(p.view==='station'){target.set(bases[p.station],1,0);position.copy(target).add(new THREE.Vector3(0,2,5.5))}
@@ -109,13 +136,14 @@ export default function RequestScene(props:Props){
       if(logTrigger.current){const point=terminal.getWorldPosition(new THREE.Vector3());point.y-=.55;point.project(camera);const x=(point.x+1)*width/2,y=(1-point.y)*height/2;logTrigger.current.style.left=`${Math.min(width-55,Math.max(55,x))}px`;logTrigger.current.style.top=`${Math.min(height-15,Math.max(15,y))}px`}
     }
     camera.position.set(0,5.2,16);frame=requestAnimationFrame(draw)
-    return()=>{cancelAnimationFrame(frame);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointerup',up);controls.dispose();renderer.domElement.remove();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());grid.geometry.dispose();(grid.material as THREE.Material).dispose();renderer.dispose()}
+    return()=>{disposed=true;imageGeneration++;imageTexture?.dispose();cancelAnimationFrame(frame);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointerup',up);controls.dispose();renderer.domElement.remove();geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());grid.geometry.dispose();(grid.material as THREE.Material).dispose();renderer.dispose()}
   },[])
   const request=requests[props.operation]||requests.create
-  const stage=phase==='request'?0:phase==='transfer'?1:phase==='insert'||phase==='response'||phase==='complete'?2:-1
+  const returning=props.operation==='readImage'&&(phase==='response'||phase==='complete')
+  const stage=phase==='request'?0:phase==='transfer'?1:returning?0:phase==='insert'||phase==='response'||phase==='complete'?2:-1
   return <div className="request-scene"><div ref={root} className="request-canvas" aria-label="PC·앱에서 API를 거쳐 Spring Boot 서버로 전달되는 요청 흐름"><button ref={logTrigger} className="server-log-trigger" aria-label="서버 로그 화면 열기" aria-expanded={logOpen} onClick={()=>setLogOpen(true)}><span aria-hidden="true">&gt;_</span> 소스 로그 ↗</button></div>
     <div className="request-stages">{['사용자 · PC / 앱','API 요청','Spring Boot 서버'].map((name,i)=><button key={name} className={stage===i?'active':''} onClick={()=>i===2?setLogOpen(true):props.onStation(i)}>{name}</button>)}</div>
-    <div className="request-caption" aria-live="polite"><span>{request.method} {request.path}</span><strong>{phase==='idle'?'게시판을 조작하거나 흐름 다시 보기를 눌러보세요.':phase==='request'?'사용자 요청 · '+(request.icon==='heart'?'좋아요 전달':props.operation==='createMultipart'?'JSON 데이터 + 이미지 전달':props.operation==='readImage'?'이미지 조회 요청':'문서 전달'):phase==='transfer'?'API 요청이 서버로 전달됩니다.':phase==='insert'?request.sql:phase==='response'?'처리 결과 응답 · 서버 → 사용자':'처리 완료 · '+request.sql}</strong></div>
+    <div className="request-caption" aria-live="polite"><span>{request.method} {request.path}</span><strong>{returning?(phase==='complete'?'이미지 PC 도착 · ':'이미지 서버 → API → PC · ')+(props.imagePayload?.name||'이미지'):props.operation==='createMultipart'&&(phase==='request'||phase==='transfer')?'첨부 이미지 PC → API → 서버 · '+(props.imagePayload?.name||'이미지'):phase==='idle'?'게시판을 조작하거나 흐름 다시 보기를 눌러보세요.':phase==='request'?'사용자 요청 · '+(request.icon==='heart'?'좋아요 전달':props.operation==='readImage'?'이미지 조회 요청':'문서 전달'):phase==='transfer'?'API 요청이 서버로 전달됩니다.':phase==='insert'?request.sql:phase==='response'?'처리 결과 응답 · 서버 → 사용자':'처리 완료 · '+request.sql}</strong></div>
     {error&&<p className="request-fallback">사용자 PC / 앱 → {request.method} {request.path} → 서버: {request.sql}</p>}
     {logOpen&&<ServerLogView operation={props.operation} phase={phase} traceIndex={traceIndex} runKey={props.runKey} playing={props.playing} onToggle={props.onToggle} onReplay={props.onReplay} onClose={()=>setLogOpen(false)}/>}
   </div>
