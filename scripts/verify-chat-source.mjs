@@ -17,4 +17,6 @@ for(const [flow,steps] of Object.entries(model.flows))for(const step of steps){
   count++
 }
 assert.ok(sources.get('src/main/java/dev/portfolio/chat/SocketConfig.java').includes('addHandler(socket, "/ws/chat")'))
+assert.deepEqual(model.flows.join.slice(0,3).map(step=>step.highlight),['const ws=new WebSocket','ws.onopen=',"ws.send(JSON.stringify({type:'join'"])
+assert.equal(model.flows.disconnect[0].highlight,'socket?.close();socket=null')
 console.log('Verified '+count+' source steps and '+sources.size+' file hashes at '+model.revision)

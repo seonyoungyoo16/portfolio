@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/seonyoungyoo16/springboot-chat-lab",
-  "revision": "43f835a7753275506601ca7437468cca1ff8a191",
+  "revision": "638fcb5ff4440142a605b36e81054117662d3298",
   "bodyMax": 2000,
   "historyMax": 100,
   "rooms": [
@@ -25,6 +25,30 @@
           "  const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws/chat');socket=ws;",
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);"
+        ]
+      },
+      {
+        "label": "소켓 OPEN · 양방향 연결 완료",
+        "node": "server",
+        "highlight": "ws.onopen=",
+        "file": "src/main/resources/static/chat.js",
+        "line": 18,
+        "lines": [
+          "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
+          "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
+          "    if(event.type==='joined'){joined=true;attempt=0;for(const m of event.messages)messages.set(m.id,m);status('● 연결됨 · '+room);$('notice').textContent='연결되었습니다. 최근 대화를 불러왔습니다.';render();flush()}"
+        ]
+      },
+      {
+        "label": "JOIN 프레임 전송",
+        "node": "sender",
+        "highlight": "ws.send(JSON.stringify({type:'join'",
+        "file": "src/main/resources/static/chat.js",
+        "line": 18,
+        "lines": [
+          "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
+          "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
+          "    if(event.type==='joined'){joined=true;attempt=0;for(const m of event.messages)messages.set(m.id,m);status('● 연결됨 · '+room);$('notice').textContent='연결되었습니다. 최근 대화를 불러왔습니다.';render();flush()}"
         ]
       },
       {
@@ -237,6 +261,18 @@
       }
     ],
     "disconnect": [
+      {
+        "label": "클라이언트가 소켓 CLOSE",
+        "node": "sender",
+        "highlight": "socket?.close();socket=null",
+        "file": "src/main/resources/static/chat.js",
+        "line": 29,
+        "lines": [
+          "function disconnect(){wanted=false;joined=false;generation++;clearTimeout(retry);socket?.close();socket=null;status('연결 종료');$('presence').textContent='—'}",
+          "$('connect').onclick=()=>{name=$('name').value.trim();if(!name||name.length>20){$('notice').textContent='이름은 1~20자입니다.';return}wanted=true;connect()};$('disconnect').onclick=disconnect;",
+          "$('room').onchange=()=>{const again=wanted;disconnect();room=$('room').value;messages=new Map();$('room-name').textContent=$('room').selectedOptions[0].textContent;$('notice').textContent='';render();if(again){wanted=true;connect()}};"
+        ]
+      },
       {
         "label": "연결 종료 감지",
         "node": "server",
