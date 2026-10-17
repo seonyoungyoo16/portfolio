@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import {emptyChat,storeChat,deliverChat,chatHistory,waitingChat,readChat,hasReadChat,nextReadChat,type ChatClient} from '../src/chat-demo.ts'
-const client=(id:string,roomId='lobby',connected=true):ChatClient=>({id,name:id,roomId,connected,messages:[]})
+const client=(id:string,roomId='lobby',connected=true):ChatClient=>({id,name:id,roomId,connected,viewOpen:true,messages:[]})
 const a=client('a'),b=client('b'),outside=client('c','design'),offline=client('d','lobby',false)
 let db=emptyChat();const first=storeChat(db,a,'안녕하세요','request-1');db=first.database
 const recipients=deliverChat([a,b,outside,offline],first.message)
@@ -24,6 +24,15 @@ assert.equal(nextReadChat(db,{...asleep,connected:false}),0)
 assert.throws(()=>readChat(db,{...asleep,connected:false},duringSleep.message.id))
 assert.throws(()=>readChat(db,outside,duringSleep.message.id))
 assert.throws(()=>readChat(db,{...asleep,messages:[]},duringSleep.message.id))
+const closed={...recipients[1],viewOpen:false}
+const closedDelivered=deliverChat([closed],duringSleep.message)[0]
+assert.equal(closedDelivered.connected,true)
+assert.equal(closedDelivered.viewOpen,false)
+assert.equal(closedDelivered.messages.length,2)
+assert.equal(nextReadChat(db,closedDelivered),0)
+assert.equal(hasReadChat(db.reads||[],duringSleep.message,closedDelivered.id),false)
+assert.throws(()=>readChat(db,closedDelivered,duringSleep.message.id))
+assert.equal(nextReadChat(db,{...closedDelivered,viewOpen:true}),duringSleep.message.id)
 db=readChat(db,asleep,duringSleep.message.id)
 assert.equal(hasReadChat(db.reads||[],duringSleep.message,b.id),true)
 assert.equal(hasReadChat(db.reads||[],duringSleep.message,'other'),false)

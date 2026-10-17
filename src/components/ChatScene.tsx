@@ -23,7 +23,7 @@ export default function ChatScene(props:Props){
     function mesh(g:THREE.BufferGeometry,m:THREE.Material,parent:THREE.Object3D=scene){geometries.push(g);const obj=new THREE.Mesh(g,m);parent.add(obj);return obj}
     function box(parent:THREE.Object3D,w:number,h:number,d:number,x:number,y:number,z:number,m:THREE.Material){const obj=mesh(new RoundedBoxGeometry(w,h,d,2,.06),m,parent);obj.position.set(x,y,z);return obj}
     const positions=[new THREE.Vector3(-3,0,0),new THREE.Vector3(3,0,0)],server=new THREE.Vector3(0,.2,0),db=new THREE.Vector3(0,-.5,1.8)
-    const pcs=positions.map((v,i)=>{const group=new THREE.Group();group.position.copy(v);scene.add(group);box(group,1.45,.95,.14,0,.35,0,shell);box(group,1.25,.72,.04,0,.35,.1,screen);box(group,.13,.38,.14,0,-.27,0,shell);box(group,.7,.07,.4,0,-.48,.05,shell);box(group,.45,.06,.03,0,.35,.14,i?accent:blue);box(group,.35,.7,.1,.95,-.05,.15,shell);box(group,.27,.52,.03,.95,-.05,.22,screen);return group})
+    const pcs=positions.map((v,i)=>{const group=new THREE.Group();group.position.copy(v);scene.add(group);box(group,1.45,.95,.14,0,.35,0,shell);group.userData.display=box(group,1.25,.72,.04,0,.35,.1,screen);box(group,.13,.38,.14,0,-.27,0,shell);box(group,.7,.07,.4,0,-.48,.05,shell);box(group,.45,.06,.03,0,.35,.14,i?accent:blue);box(group,.35,.7,.1,.95,-.05,.15,shell);box(group,.27,.52,.03,.95,-.05,.22,screen);return group})
     const rack=new THREE.Group();rack.position.copy(server);scene.add(rack);box(rack,.95,1.5,.7,0,.2,0,shell)
     for(let i=0;i<3;i++){box(rack,.8,.3,.07,0,.65-i*.45,.4,screen);box(rack,.1,.06,.03,.25,.65-i*.45,.45,green)}
     for(let i=0;i<3;i++){const disk=mesh(new THREE.CylinderGeometry(.5,.5,.2,40),i===2?green:shell);disk.position.copy(db).add(new THREE.Vector3(0,i*.22,0))}
@@ -43,7 +43,7 @@ export default function ChatScene(props:Props){
     function animate(now:number){frame=requestAnimationFrame(animate);const dt=Math.min(now-last,50);last=now;if(!visible||document.hidden)return
       const p=latest.current,newKey=p.run+':'+p.step;if(key!==newKey){key=newKey;elapsed=0}if(p.playing)elapsed+=dt
       const progress=reduced?.7:Math.min(elapsed/1000,1),same=p.clients[0].roomId===p.clients[1].roomId
-      pcs.forEach((pc,i)=>{pc.scale.setScalar(p.clients[i].connected?1:.92);rings[i].visible=p.clients[i].connected;rings[i].material=same?green:muted;lines[i].material=(p.clients[i].connected||(p.run>0&&p.kind==='join'&&i===p.actor&&p.step>=1))?green:muted})
+      pcs.forEach((pc,i)=>{pc.scale.setScalar(p.clients[i].connected?1:.92);pc.userData.display.material=p.clients[i].viewOpen?screen:muted;rings[i].visible=p.clients[i].connected;rings[i].material=same?green:muted;lines[i].material=(p.clients[i].connected||(p.run>0&&p.kind==='join'&&i===p.actor&&p.step>=1))?green:muted})
       const pending=Math.max(...p.waiting.filter((_,i)=>!p.clients[i].connected),0);storedCards.forEach((card,i)=>{card.visible=i<Math.min(pending,6)})
       const routes:[THREE.Vector3,THREE.Vector3][]=[];let label=''
       const actor=positions[p.actor].clone().add(new THREE.Vector3(0,.35,.2)),hub=server.clone().add(new THREE.Vector3(0,.45,.6))
@@ -66,9 +66,9 @@ export default function ChatScene(props:Props){
   },[])
   return <div ref={host} className="chat-three-scene" role="img" aria-label={`고정 위치: 왼쪽 참가자 A, 오른쪽 참가자 B. ${props.clients[props.actor].name}의 ${props.kind} 단계 ${props.step+1}`}>
     {failed&&<p className="chat-three-fallback">3D 화면을 불러올 수 없습니다. 아래 단계에서 같은 흐름을 확인하세요.</p>}
-    <span className="scene-label scene-a"><b>참가자 A</b><small>{props.clients[0].connected?'● 온라인':'○ 오프라인'} · {props.clients[0].roomId}</small></span>
+    <span className="scene-label scene-a"><b>참가자 A</b><small>{props.clients[0].connected?'● 온라인':'○ 오프라인'} · {props.clients[0].roomId}</small><small className="scene-view-state">{props.clients[0].viewOpen?'대화창 열림':'대화창 닫힘'}</small></span>
     <span className="scene-label scene-server"><b>WebSocket 서버</b><small>/ws/chat</small></span>
-    <span className="scene-label scene-b"><b>참가자 B</b><small>{props.clients[1].connected?'● 온라인':'○ 오프라인'} · {props.clients[1].roomId}</small></span>
+    <span className="scene-label scene-b"><b>참가자 B</b><small>{props.clients[1].connected?'● 온라인':'○ 오프라인'} · {props.clients[1].roomId}</small><small className="scene-view-state">{props.clients[1].viewOpen?'대화창 열림':'대화창 닫힘'}</small></span>
     <span className="scene-label scene-db">서버 대화 기록 · {props.stored}건<small>{props.kind==='read'&&props.step>=2?'읽음 위치 #'+props.readUpTo:props.clients.map((c,i)=>!c.connected&&props.waiting[i]>0?`${i?'B':'A'} 미수신 ${props.waiting[i]}건`:null).filter(Boolean).join(' · ')||'오프라인이어도 서버에 보관'}</small></span>
   </div>
 }

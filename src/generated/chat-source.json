@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/seonyoungyoo16/springboot-chat-lab",
-  "revision": "6580d3b0718ef5957d9b60ec3cd8041240fd6585",
+  "revision": "0564f4031bb6ad80a407874918f11098a3ec5cb1",
   "bodyMax": 2000,
   "historyMax": 100,
   "rooms": [
@@ -20,7 +20,7 @@
         "node": "sender",
         "highlight": "const ws=new WebSocket",
         "file": "src/main/resources/static/chat.js",
-        "line": 26,
+        "line": 27,
         "lines": [
           "  const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws/chat');socket=ws;",
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
@@ -32,7 +32,7 @@
         "node": "server",
         "highlight": "ws.onopen=",
         "file": "src/main/resources/static/chat.js",
-        "line": 27,
+        "line": 28,
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
@@ -44,7 +44,7 @@
         "node": "sender",
         "highlight": "ws.send(JSON.stringify({type:'join'",
         "file": "src/main/resources/static/chat.js",
-        "line": 27,
+        "line": 28,
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
@@ -118,7 +118,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 23,
+        "line": 24,
         "lines": [
           "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
           "function connect(){",
@@ -204,7 +204,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 23,
+        "line": 24,
         "lines": [
           "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
           "function connect(){",
@@ -278,7 +278,7 @@
         "node": "sender",
         "highlight": "socket?.close();socket=null",
         "file": "src/main/resources/static/chat.js",
-        "line": 39,
+        "line": 40,
         "lines": [
           "function disconnect(){wanted=false;joined=false;generation++;clearTimeout(retry);socket?.close();socket=null;status('연결 종료');$('presence').textContent='—'}",
           "$('connect').onclick=()=>{name=$('name').value.trim();if(!name||name.length>20){$('notice').textContent='이름은 1~20자입니다.';return}wanted=true;connect()};$('disconnect').onclick=disconnect;",
@@ -314,11 +314,11 @@
       {
         "label": "대화 화면에 메시지 표시",
         "node": "sender",
-        "highlight": "if(document.hidden||!joined",
+        "highlight": "if(document.hidden||!viewOpen||!joined",
         "file": "src/main/resources/static/chat.js",
-        "line": 16,
+        "line": 17,
         "lines": [
-          "  if(document.hidden||!joined||socket?.readyState!==WebSocket.OPEN)return;",
+          "  if(document.hidden||!viewOpen||!joined||socket?.readyState!==WebSocket.OPEN)return;",
           "  const area=$('messages');if(area.scrollHeight-area.scrollTop-area.clientHeight>24)return;",
           "  const end=area.lastElementChild?.getBoundingClientRect();if(!end||end.bottom<=0||end.bottom>innerHeight+2)return;"
         ]
@@ -328,7 +328,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'read'",
         "file": "src/main/resources/static/chat.js",
-        "line": 21,
+        "line": 22,
         "lines": [
           "  readRequested=latest;socket.send(JSON.stringify({type:'read',upToId:latest}));",
           "}",
@@ -364,11 +364,11 @@
         "node": "recipient",
         "highlight": "receipt.textContent=",
         "file": "src/main/resources/static/chat.js",
-        "line": 14,
+        "line": 15,
         "lines": [
           "function bubble(m,waiting){const div=document.createElement('article');div.className='bubble'+(m.clientId===clientId?' mine':'')+(waiting?' pending':'');const small=document.createElement('small');small.textContent=m.sender+' · '+(waiting?'서버 확인 대기':'#'+m.id+' · '+new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));const p=document.createElement('p');p.textContent=m.body;div.append(small,p);if(!waiting&&m.clientId===clientId){const receipt=document.createElement('span');receipt.className='read-state';receipt.textContent=[...reads.values()].some(r=>r.clientId!==clientId&&r.roomId===room&&r.lastReadId>=m.id)?'읽음':'안 읽음';div.append(receipt)}return div}",
           "function markVisibleRead(){",
-          "  if(document.hidden||!joined||socket?.readyState!==WebSocket.OPEN)return;"
+          "  if(document.hidden||!viewOpen||!joined||socket?.readyState!==WebSocket.OPEN)return;"
         ]
       }
     ]
@@ -400,7 +400,7 @@
     },
     {
       "file": "src/main/resources/static/chat.js",
-      "sha256": "7bc3aa0fff7ede9801ee2534daa63d97013c46928a64584e20ee1c78dbe6ca0d"
+      "sha256": "fac73bd18961bd5926fbda51ba6f152659637edd535005102d79718809a4a307"
     }
   ]
 }
