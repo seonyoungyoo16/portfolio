@@ -3,6 +3,8 @@ export type ChatDatabase={messages:ChatMessage[];nextId:number}
 export type ChatClient={id:string;name:string;roomId:string;connected:boolean;messages:ChatMessage[]}
 export function emptyChat():ChatDatabase{return {messages:[],nextId:1}}
 export function chatHistory(db:ChatDatabase,roomId:string){return db.messages.filter(m=>m.roomId===roomId).sort((a,b)=>a.id-b.id).slice(-100)}
+// This is a demo-side comparison with the loaded history, not a server read receipt.
+export function waitingChat(db:ChatDatabase,client:ChatClient){const loaded=new Set(client.messages.map(m=>m.id));return chatHistory(db,client.roomId).filter(m=>!loaded.has(m.id))}
 export function storeChat(db:ChatDatabase,client:ChatClient,body:string,requestId:string){
   if(!client.connected)throw Error('먼저 채팅방에 연결해 주세요.')
   if(!['lobby','design'].includes(client.roomId))throw Error('존재하지 않는 채팅방입니다.')

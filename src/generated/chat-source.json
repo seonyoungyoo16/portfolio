@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/seonyoungyoo16/springboot-chat-lab",
-  "revision": "638fcb5ff4440142a605b36e81054117662d3298",
+  "revision": "937a9218ed09d77a1ecccf1614eead21ce20234c",
   "bodyMax": 2000,
   "historyMax": 100,
   "rooms": [
@@ -76,7 +76,19 @@
         ]
       },
       {
-        "label": "입장 결과와 대화 복구",
+        "label": "저장소 → 서버 · 최근 대화 반환",
+        "node": "database-return",
+        "highlight": "messages.findTop100ByRoomIdOrderByIdDesc",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 27,
+        "lines": [
+          "        return messages.findTop100ByRoomIdOrderByIdDesc(roomId).stream().sorted(Comparator.comparing(m -> m.id)).map(this::view).toList();",
+          "    }",
+          "    @Transactional"
+        ]
+      },
+      {
+        "label": "서버 → PC · 보관된 대화 전달",
         "node": "recipient",
         "highlight": "\"type\", \"joined\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",

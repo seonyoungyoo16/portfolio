@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 import type {ChatClient} from '../chat-demo'
 
-type Props={clients:ChatClient[];actor:number;kind:string;step:number;node:string;body:string;run:number;playing:boolean;running:boolean;total:number}
+type Props={clients:ChatClient[];actor:number;kind:string;step:number;node:string;body:string;run:number;playing:boolean;running:boolean;total:number;waiting:number[];stored:number;recoveryCount:number}
 export default function ChatScene(props:Props){
   const host=useRef<HTMLDivElement>(null),latest=useRef(props),[failed,setFailed]=useState(false)
   latest.current=props
@@ -27,6 +27,7 @@ export default function ChatScene(props:Props){
     const rack=new THREE.Group();rack.position.copy(server);scene.add(rack);box(rack,.95,1.5,.7,0,.2,0,shell)
     for(let i=0;i<3;i++){box(rack,.8,.3,.07,0,.65-i*.45,.4,screen);box(rack,.1,.06,.03,.25,.65-i*.45,.45,green)}
     for(let i=0;i<3;i++){const disk=mesh(new THREE.CylinderGeometry(.5,.5,.2,40),i===2?green:shell);disk.position.copy(db).add(new THREE.Vector3(0,i*.22,0))}
+    const storedCards=Array.from({length:6},(_,i)=>box(scene,.62,.28,.04,-.78+i*.055,-.05+i*.09,1.85,accent))
     const rings=positions.map(v=>{const ring=mesh(new THREE.TorusGeometry(1.15,.018,8,70),green);ring.rotation.x=Math.PI/2;ring.position.copy(v).add(new THREE.Vector3(.15,-.5,0));return ring})
     const lines=positions.map(v=>{const curve=new THREE.QuadraticBezierCurve3(v.clone().add(new THREE.Vector3(0,.25,0)),new THREE.Vector3(v.x/2,.3,-.8),server);return mesh(new THREE.TubeGeometry(curve,40,.018,6,false),green)})
     const dbCurve=new THREE.LineCurve3(server,db);mesh(new THREE.TubeGeometry(dbCurve,12,.014,6,false),muted)
@@ -43,10 +44,11 @@ export default function ChatScene(props:Props){
       const p=latest.current,newKey=p.run+':'+p.step;if(key!==newKey){key=newKey;elapsed=0}if(p.playing)elapsed+=dt
       const progress=reduced?.7:Math.min(elapsed/1000,1),same=p.clients[0].roomId===p.clients[1].roomId
       pcs.forEach((pc,i)=>{pc.scale.setScalar(p.clients[i].connected?1:.92);rings[i].visible=p.clients[i].connected;rings[i].material=same?green:muted;lines[i].material=(p.clients[i].connected||(p.run>0&&p.kind==='join'&&i===p.actor&&p.step>=1))?green:muted})
+      const pending=Math.max(...p.waiting.filter((_,i)=>!p.clients[i].connected),0);storedCards.forEach((card,i)=>{card.visible=i<Math.min(pending,6)})
       const routes:[THREE.Vector3,THREE.Vector3][]=[];let label=''
       const actor=positions[p.actor].clone().add(new THREE.Vector3(0,.35,.2)),hub=server.clone().add(new THREE.Vector3(0,.45,.6))
       if(p.run>0){
-        if(p.kind==='join'){if(p.step===0){routes.push([actor,hub]);label='CONNECT'}else if(p.step===1){routes.push([hub,actor]);label='OPEN'}else if(p.step===2){routes.push([actor,hub]);label='JOIN'}else if(p.node==='database'){routes.push([hub,db]);label='SELECT'}else if(p.step===p.total-1){p.clients.forEach((c,i)=>{if(c.connected&&c.roomId===p.clients[p.actor].roomId)routes.push([hub,positions[i]])});label='PRESENCE'}else if(p.node==='recipient'){routes.push([hub,actor]);label='HISTORY'}}
+        if(p.kind==='join'){if(p.step===0){routes.push([actor,hub]);label='CONNECT'}else if(p.step===1){routes.push([hub,actor]);label='OPEN'}else if(p.step===2){routes.push([actor,hub]);label='JOIN'}else if(p.node==='database-return'){routes.push([db,hub]);label=p.recoveryCount?'미수신 '+p.recoveryCount+'건':'최근 대화'}else if(p.node==='database'){routes.push([hub,db]);label='SELECT'}else if(p.step===p.total-1){p.clients.forEach((c,i)=>{if(c.connected&&c.roomId===p.clients[p.actor].roomId)routes.push([hub,positions[i]])});label='PRESENCE'}else if(p.node==='recipient'){routes.push([hub,actor]);label=p.recoveryCount?'미수신 '+p.recoveryCount+'건':'최근 대화'}}
         else if(p.kind==='disconnect'){if(p.step===0){routes.push([actor,hub]);label='CLOSE'}else if(p.step===1){routes.push([hub,hub]);label='닫힘 감지'}else{const other=p.clients[1-p.actor];if(other.connected&&same)routes.push([hub,positions[1-p.actor]]);label='PRESENCE'}}
         else if(p.step===0){routes.push([actor,hub]);label=p.body.slice(0,10)}
         else if(p.step===p.total-1){routes.push([hub,actor]);label='ACK ✓'}
@@ -63,9 +65,9 @@ export default function ChatScene(props:Props){
   },[])
   return <div ref={host} className="chat-three-scene" role="img" aria-label={`고정 위치: 왼쪽 참가자 A, 오른쪽 참가자 B. ${props.clients[props.actor].name}의 ${props.kind} 단계 ${props.step+1}`}>
     {failed&&<p className="chat-three-fallback">3D 화면을 불러올 수 없습니다. 아래 단계에서 같은 흐름을 확인하세요.</p>}
-    <span className="scene-label scene-a"><b>참가자 A</b><small>{props.clients[0].connected?'● 연결됨':'○ 연결 전 / 종료'} · {props.clients[0].roomId}</small></span>
+    <span className="scene-label scene-a"><b>참가자 A</b><small>{props.clients[0].connected?'● 온라인':'○ 오프라인'} · {props.clients[0].roomId}</small></span>
     <span className="scene-label scene-server"><b>WebSocket 서버</b><small>/ws/chat</small></span>
-    <span className="scene-label scene-b"><b>참가자 B</b><small>{props.clients[1].connected?'● 연결됨':'○ 연결 전 / 종료'} · {props.clients[1].roomId}</small></span>
-    <span className="scene-label scene-db">메시지 저장소</span>
+    <span className="scene-label scene-b"><b>참가자 B</b><small>{props.clients[1].connected?'● 온라인':'○ 오프라인'} · {props.clients[1].roomId}</small></span>
+    <span className="scene-label scene-db">서버 대화 기록 · {props.stored}건<small>{props.clients.map((c,i)=>!c.connected&&props.waiting[i]>0?`${i?'B':'A'} 미수신 ${props.waiting[i]}건`:null).filter(Boolean).join(' · ')||'오프라인이어도 서버에 보관'}</small></span>
   </div>
 }
