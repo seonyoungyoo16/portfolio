@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/seonyoungyoo16/springboot-chat-lab",
-  "revision": "0564f4031bb6ad80a407874918f11098a3ec5cb1",
+  "revision": "a46785ea141577a9c43cff6342144bdcc83bb2a1",
   "bodyMax": 2000,
   "historyMax": 100,
   "rooms": [
@@ -20,7 +20,7 @@
         "node": "sender",
         "highlight": "const ws=new WebSocket",
         "file": "src/main/resources/static/chat.js",
-        "line": 27,
+        "line": 45,
         "lines": [
           "  const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws/chat');socket=ws;",
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
@@ -32,7 +32,7 @@
         "node": "server",
         "highlight": "ws.onopen=",
         "file": "src/main/resources/static/chat.js",
-        "line": 28,
+        "line": 46,
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
@@ -44,7 +44,7 @@
         "node": "sender",
         "highlight": "ws.send(JSON.stringify({type:'join'",
         "file": "src/main/resources/static/chat.js",
-        "line": 28,
+        "line": 46,
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
@@ -56,7 +56,7 @@
         "node": "server",
         "highlight": "service.validateRoom(roomId)",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 35,
+        "line": 36,
         "lines": [
           "        String name = service.text(input.path(\"name\").asText(), 20, \"이름\"); service.validateRoom(roomId);",
           "        var history = service.history(roomId);",
@@ -92,7 +92,7 @@
         "node": "recipient",
         "highlight": "\"type\", \"joined\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 38,
+        "line": 39,
         "lines": [
           "        emit(socket, Map.of(\"type\", \"joined\", \"roomId\", roomId, \"clientId\", clientId, \"messages\", history, \"reads\", service.reads(roomId)));",
           "        presence(roomId);",
@@ -104,7 +104,7 @@
         "node": "recipient",
         "highlight": "\"type\", \"presence\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 69,
+        "line": 84,
         "lines": [
           "        broadcast(roomId, Map.of(\"type\", \"presence\", \"roomId\", roomId, \"names\", names));",
           "    }",
@@ -118,7 +118,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 24,
+        "line": 42,
         "lines": [
           "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
           "function connect(){",
@@ -178,7 +178,7 @@
         "node": "recipient",
         "highlight": "if (!saved.duplicate()) broadcast",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 46,
+        "line": 47,
         "lines": [
           "        if (!saved.duplicate()) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
@@ -190,7 +190,7 @@
         "node": "sender",
         "highlight": "\"type\", \"ack\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 47,
+        "line": 48,
         "lines": [
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
           "    }",
@@ -204,7 +204,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 24,
+        "line": 42,
         "lines": [
           "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
           "function connect(){",
@@ -252,7 +252,7 @@
         "node": "server",
         "highlight": "if (!saved.duplicate()) broadcast",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 46,
+        "line": 47,
         "lines": [
           "        if (!saved.duplicate()) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
@@ -264,7 +264,7 @@
         "node": "sender",
         "highlight": "\"type\", \"ack\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 47,
+        "line": 48,
         "lines": [
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
           "    }",
@@ -278,9 +278,9 @@
         "node": "sender",
         "highlight": "socket?.close();socket=null",
         "file": "src/main/resources/static/chat.js",
-        "line": 40,
+        "line": 59,
         "lines": [
-          "function disconnect(){wanted=false;joined=false;generation++;clearTimeout(retry);socket?.close();socket=null;status('연결 종료');$('presence').textContent='—'}",
+          "function disconnect(){sendTyping(false);peerTyping.clear();renderTyping();wanted=false;joined=false;generation++;clearTimeout(retry);socket?.close();socket=null;status('연결 종료');$('presence').textContent='—'}",
           "$('connect').onclick=()=>{name=$('name').value.trim();if(!name||name.length>20){$('notice').textContent='이름은 1~20자입니다.';return}wanted=true;connect()};$('disconnect').onclick=disconnect;",
           "$('room').onchange=()=>{const again=wanted;disconnect();room=$('room').value;messages=new Map();reads=new Map();readRequested=0;$('room-name').textContent=$('room').selectedOptions[0].textContent;$('notice').textContent='';render();if(again){wanted=true;connect()}};"
         ]
@@ -290,10 +290,10 @@
         "node": "server",
         "highlight": "afterConnectionClosed(WebSocketSession",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 71,
+        "line": 86,
         "lines": [
           "    @Override public synchronized void afterConnectionClosed(WebSocketSession socket, CloseStatus status) {",
-          "        var member = members.remove(socket.getId()); if (member != null) presence(member.roomId());",
+          "        var member = members.remove(socket.getId()); if (member != null) { relayTyping(member, false); presence(member.roomId()); }",
           "    }"
         ]
       },
@@ -302,9 +302,9 @@
         "node": "recipient",
         "highlight": "members.remove(socket.getId())",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 72,
+        "line": 87,
         "lines": [
-          "        var member = members.remove(socket.getId()); if (member != null) presence(member.roomId());",
+          "        var member = members.remove(socket.getId()); if (member != null) { relayTyping(member, false); presence(member.roomId()); }",
           "    }",
           "}"
         ]
@@ -316,7 +316,7 @@
         "node": "sender",
         "highlight": "if(document.hidden||!viewOpen||!joined",
         "file": "src/main/resources/static/chat.js",
-        "line": 17,
+        "line": 18,
         "lines": [
           "  if(document.hidden||!viewOpen||!joined||socket?.readyState!==WebSocket.OPEN)return;",
           "  const area=$('messages');if(area.scrollHeight-area.scrollTop-area.clientHeight>24)return;",
@@ -328,11 +328,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'read'",
         "file": "src/main/resources/static/chat.js",
-        "line": 22,
+        "line": 23,
         "lines": [
           "  readRequested=latest;socket.send(JSON.stringify({type:'read',upToId:latest}));",
           "}",
-          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}"
+          "function sendTyping(active){"
         ]
       },
       {
@@ -352,11 +352,11 @@
         "node": "recipient",
         "highlight": "\"type\", \"read\", \"receipt\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 54,
+        "line": 55,
         "lines": [
           "        broadcast(member.roomId(), Map.of(\"type\", \"read\", \"receipt\", receipt));",
           "    }",
-          "    private void emit(WebSocketSession socket, Object event) throws IOException {"
+          "    private void typing(WebSocketSession socket, JsonNode input) {"
         ]
       },
       {
@@ -364,11 +364,61 @@
         "node": "recipient",
         "highlight": "receipt.textContent=",
         "file": "src/main/resources/static/chat.js",
-        "line": 15,
+        "line": 16,
         "lines": [
           "function bubble(m,waiting){const div=document.createElement('article');div.className='bubble'+(m.clientId===clientId?' mine':'')+(waiting?' pending':'');const small=document.createElement('small');small.textContent=m.sender+' · '+(waiting?'서버 확인 대기':'#'+m.id+' · '+new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));const p=document.createElement('p');p.textContent=m.body;div.append(small,p);if(!waiting&&m.clientId===clientId){const receipt=document.createElement('span');receipt.className='read-state';receipt.textContent=[...reads.values()].some(r=>r.clientId!==clientId&&r.roomId===room&&r.lastReadId>=m.id)?'읽음':'안 읽음';div.append(receipt)}return div}",
           "function markVisibleRead(){",
           "  if(document.hidden||!viewOpen||!joined||socket?.readyState!==WebSocket.OPEN)return;"
+        ]
+      }
+    ],
+    "typing": [
+      {
+        "label": "입력 상태 프레임 전송",
+        "node": "sender",
+        "highlight": "socket.send(JSON.stringify({type:'typing',active}))",
+        "file": "src/main/resources/static/chat.js",
+        "line": 30,
+        "lines": [
+          "  typingSent=active;lastTypingAt=now;socket.send(JSON.stringify({type:'typing',active}));",
+          "}",
+          "function renderTyping(){"
+        ]
+      },
+      {
+        "label": "입장 세션과 입력 상태 검증",
+        "node": "server",
+        "highlight": "if (!input.path(\"active\").isBoolean())",
+        "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
+        "line": 60,
+        "lines": [
+          "        if (!input.path(\"active\").isBoolean()) throw new IllegalArgumentException(\"입력 상태는 boolean이어야 합니다.\");",
+          "        relayTyping(member, input.path(\"active\").asBoolean());",
+          "    }"
+        ]
+      },
+      {
+        "label": "같은 방의 상대에게 중계 · DB 저장 없음",
+        "node": "server",
+        "highlight": "if (!peer.roomId().equals(source.roomId()) ||",
+        "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
+        "line": 67,
+        "lines": [
+          "            if (!peer.roomId().equals(source.roomId()) || peer.clientId().equals(source.clientId())) continue;",
+          "            try { emit(peer.socket(), event); } catch (IOException | IllegalStateException error) { try { peer.socket().close(CloseStatus.SERVER_ERROR); } catch (IOException ignored) {} }",
+          "        }"
+        ]
+      },
+      {
+        "label": "상대의 입력 중 표시 갱신",
+        "node": "recipient",
+        "highlight": "$('typing-status').textContent=",
+        "file": "src/main/resources/static/chat.js",
+        "line": 34,
+        "lines": [
+          "  $('typing-status').textContent=[...peerTyping.values()].map(entry=>entry.name+' 입력 중…').join(' · ');",
+          "}",
+          "function receiveTyping(event){"
         ]
       }
     ]
@@ -376,7 +426,7 @@
   "sources": [
     {
       "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-      "sha256": "abbf2d72f6d56324405698ffec79672c5515f24d70a9ab461efb91096f9e0357"
+      "sha256": "b5f15bf3a25bffb1c18bfc229078e5367841acdd792b800ce522b5f9e970ddaf"
     },
     {
       "file": "src/main/java/dev/portfolio/chat/ChatService.java",
@@ -400,7 +450,7 @@
     },
     {
       "file": "src/main/resources/static/chat.js",
-      "sha256": "fac73bd18961bd5926fbda51ba6f152659637edd535005102d79718809a4a307"
+      "sha256": "db20ababbcccbf8d5e0b228efc940556197e7d7f950fc843096e3e6d413f98c8"
     }
   ]
 }

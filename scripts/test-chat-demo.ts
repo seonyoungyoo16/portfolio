@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import {emptyChat,storeChat,deliverChat,chatHistory,waitingChat,readChat,hasReadChat,nextReadChat,type ChatClient} from '../src/chat-demo.ts'
+import {relayChatTyping,cleanChatTyping,visibleChatTyping} from '../src/chat-typing.ts'
 const client=(id:string,roomId='lobby',connected=true):ChatClient=>({id,name:id,roomId,connected,viewOpen:true,messages:[]})
 const a=client('a'),b=client('b'),outside=client('c','design'),offline=client('d','lobby',false)
 let db=emptyChat();const first=storeChat(db,a,'안녕하세요','request-1');db=first.database
@@ -44,3 +45,17 @@ assert.throws(()=>storeChat(db,offline,'메시지','r2'));assert.throws(()=>stor
 for(let i=0;i<105;i++)db=storeChat(db,a,'메시지 '+i,'batch-'+i).database
 assert.equal(chatHistory(db,'lobby').length,100);assert.equal(chatHistory(db,'lobby').at(-1)?.id,107)
 console.log('Chat demo: room isolation, offline exclusion, duplicate ACK, history and input rules passed.')
+const typing=relayChatTyping([], [a,b,outside,offline],0,true,1000)
+assert.deepEqual(visibleChatTyping(typing,b,1000),[a.name])
+assert.deepEqual(visibleChatTyping(typing,a,1000),[])
+assert.deepEqual(visibleChatTyping(typing,outside,1000),[])
+assert.deepEqual(visibleChatTyping(typing,{...b,viewOpen:false},1000),[])
+assert.deepEqual(visibleChatTyping(typing,b,5000),[])
+assert.equal(relayChatTyping(typing,[a,b],0,true,2000).length,1)
+assert.equal(relayChatTyping(typing,[a,b],0,false,2000).length,0)
+assert.equal(cleanChatTyping(typing,[{...a,viewOpen:false},b],1100).length,0)
+assert.equal(cleanChatTyping(typing,[a,{...b,connected:false}],1100).length,0)
+assert.equal(cleanChatTyping(typing,[a,{...b,roomId:'design'}],1100).length,0)
+assert.equal(cleanChatTyping(typing,[a,b],5000).length,0)
+assert.equal(db.messages.length,107)
+console.log('Typing: same-room relay, sender exclusion, closed/offline states, refresh, stop and expiry passed.')

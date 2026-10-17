@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 import type {ChatClient} from '../chat-demo'
 
-type Props={clients:ChatClient[];actor:number;kind:string;step:number;node:string;body:string;run:number;playing:boolean;running:boolean;total:number;waiting:number[];stored:number;recoveryCount:number;readUpTo:number}
+type Props={clients:ChatClient[];actor:number;kind:string;step:number;node:string;body:string;run:number;playing:boolean;running:boolean;total:number;waiting:number[];stored:number;recoveryCount:number;readUpTo:number;typingActive:boolean}
 export default function ChatScene(props:Props){
   const host=useRef<HTMLDivElement>(null),latest=useRef(props),[failed,setFailed]=useState(false)
   latest.current=props
@@ -42,13 +42,14 @@ export default function ChatScene(props:Props){
     const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches
     function animate(now:number){frame=requestAnimationFrame(animate);const dt=Math.min(now-last,50);last=now;if(!visible||document.hidden)return
       const p=latest.current,newKey=p.run+':'+p.step;if(key!==newKey){key=newKey;elapsed=0}if(p.playing)elapsed+=dt
-      const progress=reduced?.7:Math.min(elapsed/1000,1),same=p.clients[0].roomId===p.clients[1].roomId
+      const progress=reduced?.7:Math.min(elapsed/(p.kind==='typing'?350:1000),1),same=p.clients[0].roomId===p.clients[1].roomId
       pcs.forEach((pc,i)=>{pc.scale.setScalar(p.clients[i].connected?1:.92);pc.userData.display.material=p.clients[i].viewOpen?screen:muted;rings[i].visible=p.clients[i].connected;rings[i].material=same?green:muted;lines[i].material=(p.clients[i].connected||(p.run>0&&p.kind==='join'&&i===p.actor&&p.step>=1))?green:muted})
       const pending=Math.max(...p.waiting.filter((_,i)=>!p.clients[i].connected),0);storedCards.forEach((card,i)=>{card.visible=i<Math.min(pending,6)})
       const routes:[THREE.Vector3,THREE.Vector3][]=[];let label=''
       const actor=positions[p.actor].clone().add(new THREE.Vector3(0,.35,.2)),hub=server.clone().add(new THREE.Vector3(0,.45,.6))
       if(p.run>0){
-        if(p.kind==='read'){if(p.step===0){routes.push([actor,actor]);label='대화 읽기'}else if(p.step===1){routes.push([actor,hub]);label='READ #'+p.readUpTo}else if(p.step===2){routes.push([hub,db]);label='읽음 저장'}else{const other=p.clients[1-p.actor];routes.push([hub,other.connected&&same?positions[1-p.actor]:hub]);label=p.step===3?'읽음 확인':'읽음 ✓'}}
+        if(p.kind==='typing'){if(p.step===0){routes.push([actor,hub])}else if(p.step<3){routes.push([hub,hub])}else{const other=p.clients[1-p.actor];if(other.connected&&same)routes.push([hub,positions[1-p.actor]])}label=p.typingActive?'TYPING …':'입력 표시 해제'}
+        else if(p.kind==='read'){if(p.step===0){routes.push([actor,actor]);label='대화 읽기'}else if(p.step===1){routes.push([actor,hub]);label='READ #'+p.readUpTo}else if(p.step===2){routes.push([hub,db]);label='읽음 저장'}else{const other=p.clients[1-p.actor];routes.push([hub,other.connected&&same?positions[1-p.actor]:hub]);label=p.step===3?'읽음 확인':'읽음 ✓'}}
         else if(p.kind==='join'){if(p.step===0){routes.push([actor,hub]);label='CONNECT'}else if(p.step===1){routes.push([hub,actor]);label='OPEN'}else if(p.step===2){routes.push([actor,hub]);label='JOIN'}else if(p.node==='database-return'){routes.push([db,hub]);label=p.recoveryCount?'미수신 '+p.recoveryCount+'건':'최근 대화'}else if(p.node==='database'){routes.push([hub,db]);label='SELECT'}else if(p.step===p.total-1){p.clients.forEach((c,i)=>{if(c.connected&&c.roomId===p.clients[p.actor].roomId)routes.push([hub,positions[i]])});label='PRESENCE'}else if(p.node==='recipient'){routes.push([hub,actor]);label=p.recoveryCount?'미수신 '+p.recoveryCount+'건':'최근 대화'}}
         else if(p.kind==='disconnect'){if(p.step===0){routes.push([actor,hub]);label='CLOSE'}else if(p.step===1){routes.push([hub,hub]);label='닫힘 감지'}else{const other=p.clients[1-p.actor];if(other.connected&&same)routes.push([hub,positions[1-p.actor]]);label='PRESENCE'}}
         else if(p.step===0){routes.push([actor,hub]);label=p.body.slice(0,10)}
@@ -69,6 +70,6 @@ export default function ChatScene(props:Props){
     <span className="scene-label scene-a"><b>참가자 A</b><small>{props.clients[0].connected?'● 온라인':'○ 오프라인'} · {props.clients[0].roomId}</small><small className="scene-view-state">{props.clients[0].viewOpen?'대화창 열림':'대화창 닫힘'}</small></span>
     <span className="scene-label scene-server"><b>WebSocket 서버</b><small>/ws/chat</small></span>
     <span className="scene-label scene-b"><b>참가자 B</b><small>{props.clients[1].connected?'● 온라인':'○ 오프라인'} · {props.clients[1].roomId}</small><small className="scene-view-state">{props.clients[1].viewOpen?'대화창 열림':'대화창 닫힘'}</small></span>
-    <span className="scene-label scene-db">서버 대화 기록 · {props.stored}건<small>{props.kind==='read'&&props.step>=2?'읽음 위치 #'+props.readUpTo:props.clients.map((c,i)=>!c.connected&&props.waiting[i]>0?`${i?'B':'A'} 미수신 ${props.waiting[i]}건`:null).filter(Boolean).join(' · ')||'오프라인이어도 서버에 보관'}</small></span>
+    <span className="scene-label scene-db">서버 대화 기록 · {props.stored}건<small>{props.kind==='typing'?'입력 신호 · DB 저장 없음':props.kind==='read'&&props.step>=2?'읽음 위치 #'+props.readUpTo:props.clients.map((c,i)=>!c.connected&&props.waiting[i]>0?`${i?'B':'A'} 미수신 ${props.waiting[i]}건`:null).filter(Boolean).join(' · ')||'오프라인이어도 서버에 보관'}</small></span>
   </div>
 }
