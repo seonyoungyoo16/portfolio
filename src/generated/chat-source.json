@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/seonyoungyoo16/springboot-chat-lab",
-  "revision": "937a9218ed09d77a1ecccf1614eead21ce20234c",
+  "revision": "6580d3b0718ef5957d9b60ec3cd8041240fd6585",
   "bodyMax": 2000,
   "historyMax": 100,
   "rooms": [
@@ -20,7 +20,7 @@
         "node": "sender",
         "highlight": "const ws=new WebSocket",
         "file": "src/main/resources/static/chat.js",
-        "line": 17,
+        "line": 26,
         "lines": [
           "  const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws/chat');socket=ws;",
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
@@ -32,11 +32,11 @@
         "node": "server",
         "highlight": "ws.onopen=",
         "file": "src/main/resources/static/chat.js",
-        "line": 18,
+        "line": 27,
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
-          "    if(event.type==='joined'){joined=true;attempt=0;for(const m of event.messages)messages.set(m.id,m);status('● 연결됨 · '+room);$('notice').textContent='연결되었습니다. 최근 대화를 불러왔습니다.';render();flush()}"
+          "    if(event.type==='joined'){reads=new Map((event.reads||[]).map(r=>[r.clientId,r]));joined=true;attempt=0;for(const m of event.messages)messages.set(m.id,m);status('● 연결됨 · '+room);$('notice').textContent='연결되었습니다. 최근 대화를 불러왔습니다.';render();flush()}"
         ]
       },
       {
@@ -44,11 +44,11 @@
         "node": "sender",
         "highlight": "ws.send(JSON.stringify({type:'join'",
         "file": "src/main/resources/static/chat.js",
-        "line": 18,
+        "line": 27,
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
-          "    if(event.type==='joined'){joined=true;attempt=0;for(const m of event.messages)messages.set(m.id,m);status('● 연결됨 · '+room);$('notice').textContent='연결되었습니다. 최근 대화를 불러왔습니다.';render();flush()}"
+          "    if(event.type==='joined'){reads=new Map((event.reads||[]).map(r=>[r.clientId,r]));joined=true;attempt=0;for(const m of event.messages)messages.set(m.id,m);status('● 연결됨 · '+room);$('notice').textContent='연결되었습니다. 최근 대화를 불러왔습니다.';render();flush()}"
         ]
       },
       {
@@ -56,7 +56,7 @@
         "node": "server",
         "highlight": "service.validateRoom(roomId)",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 34,
+        "line": 35,
         "lines": [
           "        String name = service.text(input.path(\"name\").asText(), 20, \"이름\"); service.validateRoom(roomId);",
           "        var history = service.history(roomId);",
@@ -68,7 +68,7 @@
         "node": "database",
         "highlight": "messages.findTop100ByRoomIdOrderByIdDesc",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 27,
+        "line": 45,
         "lines": [
           "        return messages.findTop100ByRoomIdOrderByIdDesc(roomId).stream().sorted(Comparator.comparing(m -> m.id)).map(this::view).toList();",
           "    }",
@@ -80,7 +80,7 @@
         "node": "database-return",
         "highlight": "messages.findTop100ByRoomIdOrderByIdDesc",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 27,
+        "line": 45,
         "lines": [
           "        return messages.findTop100ByRoomIdOrderByIdDesc(roomId).stream().sorted(Comparator.comparing(m -> m.id)).map(this::view).toList();",
           "    }",
@@ -92,9 +92,9 @@
         "node": "recipient",
         "highlight": "\"type\", \"joined\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 37,
+        "line": 38,
         "lines": [
-          "        emit(socket, Map.of(\"type\", \"joined\", \"roomId\", roomId, \"clientId\", clientId, \"messages\", history));",
+          "        emit(socket, Map.of(\"type\", \"joined\", \"roomId\", roomId, \"clientId\", clientId, \"messages\", history, \"reads\", service.reads(roomId)));",
           "        presence(roomId);",
           "    }"
         ]
@@ -104,7 +104,7 @@
         "node": "recipient",
         "highlight": "\"type\", \"presence\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 61,
+        "line": 69,
         "lines": [
           "        broadcast(roomId, Map.of(\"type\", \"presence\", \"roomId\", roomId, \"names\", names));",
           "    }",
@@ -118,11 +118,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 14,
+        "line": 23,
         "lines": [
           "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
           "function connect(){",
-          "  clearTimeout(retry);const version=++generation;joined=false;status('연결 중…');"
+          "  clearTimeout(retry);const version=++generation;joined=false;readRequested=0;status('연결 중…');"
         ]
       },
       {
@@ -142,7 +142,7 @@
         "node": "server",
         "highlight": "body = text(body, 2000",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 31,
+        "line": 49,
         "lines": [
           "        validateRoom(roomId); identifier(clientId); identifier(requestId); text(sender, 20, \"이름\"); body = text(body, 2000, \"메시지\");",
           "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
@@ -154,7 +154,7 @@
         "node": "database",
         "highlight": "messages.findByClientIdAndRequestId",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 32,
+        "line": 50,
         "lines": [
           "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
           "        if (previous.isPresent()) {",
@@ -166,7 +166,7 @@
         "node": "database",
         "highlight": "messages.saveAndFlush",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 37,
+        "line": 55,
         "lines": [
           "        var message = messages.saveAndFlush(new ChatMessage(roomId, clientId, requestId, sender, body));",
           "        return new Saved(view(message), false);",
@@ -178,7 +178,7 @@
         "node": "recipient",
         "highlight": "if (!saved.duplicate()) broadcast",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 45,
+        "line": 46,
         "lines": [
           "        if (!saved.duplicate()) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
@@ -190,11 +190,11 @@
         "node": "sender",
         "highlight": "\"type\", \"ack\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 46,
+        "line": 47,
         "lines": [
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
           "    }",
-          "    private void emit(WebSocketSession socket, Object event) throws IOException {"
+          "    private void read(WebSocketSession socket, JsonNode input) {"
         ]
       }
     ],
@@ -204,11 +204,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 14,
+        "line": 23,
         "lines": [
           "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
           "function connect(){",
-          "  clearTimeout(retry);const version=++generation;joined=false;status('연결 중…');"
+          "  clearTimeout(retry);const version=++generation;joined=false;readRequested=0;status('연결 중…');"
         ]
       },
       {
@@ -228,7 +228,7 @@
         "node": "database",
         "highlight": "messages.findByClientIdAndRequestId",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 32,
+        "line": 50,
         "lines": [
           "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
           "        if (previous.isPresent()) {",
@@ -240,7 +240,7 @@
         "node": "database",
         "highlight": "return new Saved(view(previous.get()), true)",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 35,
+        "line": 53,
         "lines": [
           "            return new Saved(view(previous.get()), true);",
           "        }",
@@ -252,7 +252,7 @@
         "node": "server",
         "highlight": "if (!saved.duplicate()) broadcast",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 45,
+        "line": 46,
         "lines": [
           "        if (!saved.duplicate()) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
@@ -264,11 +264,11 @@
         "node": "sender",
         "highlight": "\"type\", \"ack\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 46,
+        "line": 47,
         "lines": [
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
           "    }",
-          "    private void emit(WebSocketSession socket, Object event) throws IOException {"
+          "    private void read(WebSocketSession socket, JsonNode input) {"
         ]
       }
     ],
@@ -278,11 +278,11 @@
         "node": "sender",
         "highlight": "socket?.close();socket=null",
         "file": "src/main/resources/static/chat.js",
-        "line": 29,
+        "line": 39,
         "lines": [
           "function disconnect(){wanted=false;joined=false;generation++;clearTimeout(retry);socket?.close();socket=null;status('연결 종료');$('presence').textContent='—'}",
           "$('connect').onclick=()=>{name=$('name').value.trim();if(!name||name.length>20){$('notice').textContent='이름은 1~20자입니다.';return}wanted=true;connect()};$('disconnect').onclick=disconnect;",
-          "$('room').onchange=()=>{const again=wanted;disconnect();room=$('room').value;messages=new Map();$('room-name').textContent=$('room').selectedOptions[0].textContent;$('notice').textContent='';render();if(again){wanted=true;connect()}};"
+          "$('room').onchange=()=>{const again=wanted;disconnect();room=$('room').value;messages=new Map();reads=new Map();readRequested=0;$('room-name').textContent=$('room').selectedOptions[0].textContent;$('notice').textContent='';render();if(again){wanted=true;connect()}};"
         ]
       },
       {
@@ -290,7 +290,7 @@
         "node": "server",
         "highlight": "afterConnectionClosed(WebSocketSession",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 63,
+        "line": 71,
         "lines": [
           "    @Override public synchronized void afterConnectionClosed(WebSocketSession socket, CloseStatus status) {",
           "        var member = members.remove(socket.getId()); if (member != null) presence(member.roomId());",
@@ -302,11 +302,73 @@
         "node": "recipient",
         "highlight": "members.remove(socket.getId())",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 64,
+        "line": 72,
         "lines": [
           "        var member = members.remove(socket.getId()); if (member != null) presence(member.roomId());",
           "    }",
           "}"
+        ]
+      }
+    ],
+    "read": [
+      {
+        "label": "대화 화면에 메시지 표시",
+        "node": "sender",
+        "highlight": "if(document.hidden||!joined",
+        "file": "src/main/resources/static/chat.js",
+        "line": 16,
+        "lines": [
+          "  if(document.hidden||!joined||socket?.readyState!==WebSocket.OPEN)return;",
+          "  const area=$('messages');if(area.scrollHeight-area.scrollTop-area.clientHeight>24)return;",
+          "  const end=area.lastElementChild?.getBoundingClientRect();if(!end||end.bottom<=0||end.bottom>innerHeight+2)return;"
+        ]
+      },
+      {
+        "label": "READ 프레임 · 마지막 읽은 ID 전송",
+        "node": "sender",
+        "highlight": "socket.send(JSON.stringify({type:'read'",
+        "file": "src/main/resources/static/chat.js",
+        "line": 21,
+        "lines": [
+          "  readRequested=latest;socket.send(JSON.stringify({type:'read',upToId:latest}));",
+          "}",
+          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}"
+        ]
+      },
+      {
+        "label": "읽음 위치 저장 · 이전보다 앞으로만",
+        "node": "database",
+        "highlight": "UPDATE chat_reads SET last_read_id",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 23,
+        "lines": [
+          "        int updated = jdbc.update(\"UPDATE chat_reads SET last_read_id = GREATEST(last_read_id, ?) WHERE room_id = ? AND client_id = ?\", upToId, roomId, clientId);",
+          "        if (updated == 0) jdbc.update(\"INSERT INTO chat_reads(room_id, client_id, last_read_id) VALUES (?, ?, ?)\", roomId, clientId, upToId);",
+          "        long saved = jdbc.queryForObject(\"SELECT last_read_id FROM chat_reads WHERE room_id = ? AND client_id = ?\", Long.class, roomId, clientId);"
+        ]
+      },
+      {
+        "label": "같은 방에 읽음 이벤트 전달",
+        "node": "recipient",
+        "highlight": "\"type\", \"read\", \"receipt\"",
+        "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
+        "line": 54,
+        "lines": [
+          "        broadcast(member.roomId(), Map.of(\"type\", \"read\", \"receipt\", receipt));",
+          "    }",
+          "    private void emit(WebSocketSession socket, Object event) throws IOException {"
+        ]
+      },
+      {
+        "label": "발신자 화면을 읽음으로 갱신",
+        "node": "recipient",
+        "highlight": "receipt.textContent=",
+        "file": "src/main/resources/static/chat.js",
+        "line": 14,
+        "lines": [
+          "function bubble(m,waiting){const div=document.createElement('article');div.className='bubble'+(m.clientId===clientId?' mine':'')+(waiting?' pending':'');const small=document.createElement('small');small.textContent=m.sender+' · '+(waiting?'서버 확인 대기':'#'+m.id+' · '+new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));const p=document.createElement('p');p.textContent=m.body;div.append(small,p);if(!waiting&&m.clientId===clientId){const receipt=document.createElement('span');receipt.className='read-state';receipt.textContent=[...reads.values()].some(r=>r.clientId!==clientId&&r.roomId===room&&r.lastReadId>=m.id)?'읽음':'안 읽음';div.append(receipt)}return div}",
+          "function markVisibleRead(){",
+          "  if(document.hidden||!joined||socket?.readyState!==WebSocket.OPEN)return;"
         ]
       }
     ]
@@ -314,11 +376,11 @@
   "sources": [
     {
       "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-      "sha256": "7ad07273e6143290af9f8e48b06407a53dd5767a55ecf4c05d1f688fb28a1687"
+      "sha256": "abbf2d72f6d56324405698ffec79672c5515f24d70a9ab461efb91096f9e0357"
     },
     {
       "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-      "sha256": "8ccfc10e1384ca7152b8890d0eb4d5685b70343f9a83bcf9b2b694a7329973cf"
+      "sha256": "29eb5e8bd0e7891dcd3080b7cc198cfd16dc28cc8173c43b68f81e8bd6b55857"
     },
     {
       "file": "src/main/java/dev/portfolio/chat/MessageRepository.java",
@@ -334,11 +396,11 @@
     },
     {
       "file": "src/main/resources/schema.sql",
-      "sha256": "5db5b26b34cf09e99c80e1ae06e682cb65d2ef2ef2030b96efcc808dbe5808a2"
+      "sha256": "42e666ec7ce608247f7e58d2ee343789a69126d88669f93915bebeac723cbfa4"
     },
     {
       "file": "src/main/resources/static/chat.js",
-      "sha256": "cd5049a318071178dfc3d68f349c6b9f805e92c4b654412eb2cdab2e3587df33"
+      "sha256": "7bc3aa0fff7ede9801ee2534daa63d97013c46928a64584e20ee1c78dbe6ca0d"
     }
   ]
 }

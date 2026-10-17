@@ -19,4 +19,7 @@ for(const [flow,steps] of Object.entries(model.flows))for(const step of steps){
 assert.ok(sources.get('src/main/java/dev/portfolio/chat/SocketConfig.java').includes('addHandler(socket, "/ws/chat")'))
 assert.deepEqual(model.flows.join.slice(0,3).map(step=>step.highlight),['const ws=new WebSocket','ws.onopen=',"ws.send(JSON.stringify({type:'join'"])
 assert.equal(model.flows.disconnect[0].highlight,'socket?.close();socket=null')
+assert.equal(model.flows.read.length,5)
+assert.ok(sources.get('src/main/resources/schema.sql').includes('PRIMARY KEY(room_id, client_id)'))
+assert.ok(sources.get('src/main/java/dev/portfolio/chat/ChatService.java').includes('GREATEST(last_read_id, ?)'))
 console.log('Verified '+count+' source steps and '+sources.size+' file hashes at '+model.revision)

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import {emptyChat,storeChat,deliverChat,chatHistory,waitingChat,type ChatClient} from '../src/chat-demo.ts'
+import {emptyChat,storeChat,deliverChat,chatHistory,waitingChat,readChat,hasReadChat,nextReadChat,type ChatClient} from '../src/chat-demo.ts'
 const client=(id:string,roomId='lobby',connected=true):ChatClient=>({id,name:id,roomId,connected,messages:[]})
 const a=client('a'),b=client('b'),outside=client('c','design'),offline=client('d','lobby',false)
 let db=emptyChat();const first=storeChat(db,a,'안녕하세요','request-1');db=first.database
@@ -18,6 +18,19 @@ assert.equal(waitingChat(storeChat(db,a,'중복','offline-1').database,asleep).l
 asleep={...asleep,connected:true,messages:chatHistory(db,asleep.roomId)}
 assert.equal(waitingChat(db,asleep).length,0)
 assert.equal(asleep.messages.at(-1)?.body,'오프라인 중 서버 보관')
+assert.equal(hasReadChat(db.reads||[],duringSleep.message,b.id),false)
+assert.equal(nextReadChat(db,asleep),duringSleep.message.id)
+assert.equal(nextReadChat(db,{...asleep,connected:false}),0)
+assert.throws(()=>readChat(db,{...asleep,connected:false},duringSleep.message.id))
+assert.throws(()=>readChat(db,outside,duringSleep.message.id))
+assert.throws(()=>readChat(db,{...asleep,messages:[]},duringSleep.message.id))
+db=readChat(db,asleep,duringSleep.message.id)
+assert.equal(hasReadChat(db.reads||[],duringSleep.message,b.id),true)
+assert.equal(hasReadChat(db.reads||[],duringSleep.message,'other'),false)
+assert.equal(nextReadChat(db,asleep),0)
+assert.deepEqual(readChat(db,asleep,first.message.id).reads,db.reads)
+assert.equal(storeChat(db,a,'중복','offline-1').database.reads?.[0].lastReadId,duringSleep.message.id)
+assert.equal(JSON.parse(JSON.stringify(db)).reads[0].lastReadId,duringSleep.message.id)
 assert.throws(()=>storeChat(db,offline,'메시지','r2'));assert.throws(()=>storeChat(db,a,'  ','r2'));assert.throws(()=>storeChat(db,a,'a'.repeat(2001),'r2'));assert.throws(()=>storeChat(db,{...a,roomId:'design'},'재전송','request-1'))
 for(let i=0;i<105;i++)db=storeChat(db,a,'메시지 '+i,'batch-'+i).database
 assert.equal(chatHistory(db,'lobby').length,100);assert.equal(chatHistory(db,'lobby').at(-1)?.id,107)
