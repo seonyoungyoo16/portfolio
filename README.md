@@ -51,3 +51,9 @@ Java API 통합 테스트 5개 통과. 브라우저 시뮬레이션은 CRUD/권�
 ### 이미지 업로드 및 조회 체험
 새 글 작성에서 PNG/JPEG 한 장(2MB, 4096×4096 이하)을 첨부합니다. data JSON + image 파일의 FormData 구성을 표시하고, 게시글 INSERT → post_images BLOB INSERT 소스 순서를 재생합니다. 저장된 이미지를 클릭하면 GET /api/images/{id} 조회 흐름을 재생합니다. Pages는 브라우저 저장 시뮬레이션이며 실제 서버 전송은 Spring Boot 저장소 UI에서 실행합니다.
 모델 재생성: Spring Boot 저장소의 scripts/export-model.mjs로 board-model.json을 추출한 뒤 node scripts/export-server-source.mjs를 실행합니다.
+
+## 실시간 채팅 프로젝트
+`#project/chat`에서 두 참가자의 메시지 전송, 방 격리, 재접속, 중복 요청 처리를 체험합니다. 메시지가 발신자 → WebSocket 서버 → DB → 같은 방 참가자로 이동하고, 실제 코드의 현재 단계를 강조합니다.
+
+실제 서버: https://github.com/seonyoungyoo16/springboot-chat-lab
+구현 및 검증: [docs/chat-project.md](docs/chat-project.md)
