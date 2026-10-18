@@ -1,9 +1,10 @@
 {
-  "source": "4058f773f37ca0f2ae965e7e39ee8b6c199ebeed",
+  "source": "d7e3f67142cd9f4583a60a0778ad6d124fb31e6a",
   "loginSource": "a2bf485592c2d59d34c5e109a8b9bc839713f138",
-  "builtAt": "2026-10-18T05:04:30.029Z",
+  "builtAt": "2026-10-18T06:08:32.201Z",
   "assets": [
-    "index-9TIlp0rY.js",
-    "index-DYay_dsP.css"
-  ]
+    "index-ZWzEkLpX.js",
+    "index-B0GkFHfa.css"
+  ],
+  "chatSource": "4e8ea0b1084b25bcf90b93d035ab1108a5700793"
 }
