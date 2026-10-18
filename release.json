@@ -1,16 +1,16 @@
 {
-  "source": "0a47653a3523c93401bf73e73e1b2151034628fb",
+  "source": "befa4dade5d40da8bf29cbbb41a6aadddcf354a3",
   "signupSource": "b5294ab9bdcf27d424ae7326f186bc02fed82f9b",
   "loginSource": "a2bf485592c2d59d34c5e109a8b9bc839713f138",
-  "chatSource": "b939dc95600a2d887e530c70e366f4bf4646f1b1",
-  "builtAt": "2026-10-18T07:48:39.130Z",
+  "chatSource": "2c8f8f26f113fe663a7c2de9e31ef4514d669be7",
+  "builtAt": "2026-10-18T07:57:30.850Z",
   "assets": [
-    "index-Wz3HrgYC.js",
-    "index-y8EHfITY.css"
+    "index-DXDqKQoz.js",
+    "index-Cp8wa3je.css"
   ],
   "hashes": {
-    "index.html": "2c7d57df06c31f3901b324dffa170172b7ed09e7615deb9d4604fa64a225c34a",
-    "assets/index-Wz3HrgYC.js": "1c003df6f7d4762d0f36d89746f8647707abf3a2cabf650fc397afbe7567748b",
-    "assets/index-y8EHfITY.css": "616dbf33b5d2ea4d0ad8285f6edce831b27bad045bf2630ff97d641daec27dda"
+    "index.html": "ccebadc6e45790d0e26f0335c6840765e7301046291588d854270442d71dba80",
+    "assets/index-DXDqKQoz.js": "06652dafd427b4ae3399b4cd154594b28ac661fe51f4ab4b5bd6a38422c8edff",
+    "assets/index-Cp8wa3je.css": "3a78dcd10a8e431b4aac1a119c32c85121e15c00e80be9a0b4e7e473b6e5565b"
   }
 }
