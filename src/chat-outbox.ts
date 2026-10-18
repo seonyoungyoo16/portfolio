@@ -39,10 +39,15 @@ export function markChatAttempted(outbox:PendingChat[],request:PendingChat){
   return outbox.map(p=>p.clientId===request.clientId&&p.roomId===request.roomId&&p.requestId===request.requestId?{...p,cancelable:false}:p)
 }
 
-export type CanceledChat=PendingChat&{requeuedAs?:string}
-export function requeueCanceledChat(outbox:PendingChat[],canceled:CanceledChat,newRequestId:string){
+export type CanceledChat=PendingChat&{requeuedAs?:string;requeuedBody?:string}
+export function prepareRequeueBody(editedBody:string){
+  if(typeof editedBody!=='string'||!editedBody.trim()||editedBody.trim().length>2000)throw Error('메시지는 1~2000자입니다.')
+  return editedBody.trim()
+}
+export function requeueCanceledChat(outbox:PendingChat[],canceled:CanceledChat,newRequestId:string,editedBody=canceled.body){
   if(canceled.requeuedAs||outbox.some(p=>p.clientId===canceled.clientId&&p.roomId===canceled.roomId&&p.requeuedFrom===canceled.requestId))throw Error('이미 대기열에 다시 추가한 요청입니다.')
   if(!/^[A-Za-z0-9_-]{1,80}$/.test(newRequestId)||newRequestId===canceled.requestId||outbox.some(p=>p.requestId===newRequestId))throw Error('새 요청 ID가 필요합니다.')
-  const request:PendingChat={clientId:canceled.clientId,roomId:canceled.roomId,requestId:newRequestId,body:canceled.body,mode:canceled.mode||'direct',queued:true,cancelable:true,requeuedFrom:canceled.requestId}
+  const body=prepareRequeueBody(editedBody)
+  const request:PendingChat={clientId:canceled.clientId,roomId:canceled.roomId,requestId:newRequestId,body,mode:canceled.mode||'direct',queued:true,cancelable:true,requeuedFrom:canceled.requestId}
   return {outbox:[...outbox,request],request}
 }

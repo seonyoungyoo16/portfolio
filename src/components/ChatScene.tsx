@@ -64,7 +64,7 @@ export default function ChatScene(props:Props){
       const routes:[THREE.Vector3,THREE.Vector3][]=[];let label=''
       const actor=positions[p.actor].clone().add(new THREE.Vector3(0,.35,.2)),hub=server.clone().add(new THREE.Vector3(0,.45,.6))
       if(p.run>0){
-        if(p.kind==='requeue'){routes.push([actor,actor]);label=p.step===0?'새 요청 ID 발급':p.step===1?'대기열 맨 뒤에 추가':'대기열 저장 ✓'}
+        if(p.kind==='requeue'){routes.push([actor,actor]);label=p.step===0?'다시 보낼 내용 확인':p.step===1?'새 요청 ID 발급':p.step===2?'대기열 맨 뒤에 추가':'대기열 저장 ✓'}
         else if(p.kind==='cancel'){routes.push([actor,actor]);label=p.step===0?'대기 취소':p.step===1?'목록에서 제거':'재전송 제외 ✓'}
         else if(p.kind==='databaseUnavailable'){if(p.step===0){routes.push([actor,hub]);label='저장 요청'}else if(p.step===1){routes.push([hub,hub.clone().lerp(db,.65)]);label='DB 접근 실패 ×'}else if(p.step===2){routes.push([hub,actor]);label='저장 실패 · ACK 없음'}else{routes.push([actor,actor]);label='PC 전송 대기'}}
         else if(p.kind==='kafkaPublish'){routes.push(p.step===0?[db,broker]:[broker,broker]);label=p.step===0?'이벤트 재발행':'Kafka 기록'}

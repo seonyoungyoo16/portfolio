@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/seonyoungyoo16/springboot-chat-lab",
-  "revision": "2c8f8f26f113fe663a7c2de9e31ef4514d669be7",
+  "revision": "428219d86fe7d16a2caa15e579df6f31f16f8fbb",
   "bodyMax": 2000,
   "historyMax": 100,
   "rooms": [
@@ -20,7 +20,7 @@
         "node": "sender",
         "highlight": "const ws=new WebSocket",
         "file": "src/main/resources/static/chat.js",
-        "line": 101,
+        "line": 122,
         "lines": [
           "  const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws/chat');socket=ws;",
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
@@ -32,7 +32,7 @@
         "node": "server",
         "highlight": "ws.onopen=",
         "file": "src/main/resources/static/chat.js",
-        "line": 102,
+        "line": 123,
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
@@ -44,7 +44,7 @@
         "node": "sender",
         "highlight": "ws.send(JSON.stringify({type:'join'",
         "file": "src/main/resources/static/chat.js",
-        "line": 102,
+        "line": 123,
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
@@ -118,7 +118,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 85,
+        "line": 106,
         "lines": [
           "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
           "}",
@@ -204,7 +204,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 85,
+        "line": 106,
         "lines": [
           "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
           "}",
@@ -278,7 +278,7 @@
         "node": "sender",
         "highlight": "socket?.close();socket=null",
         "file": "src/main/resources/static/chat.js",
-        "line": 122,
+        "line": 143,
         "lines": [
           "function disconnect(){sendTyping(false);sendQueue.reset();peerTyping.clear();renderTyping();wanted=false;joined=false;generation++;clearTimeout(retry);socket?.close();socket=null;status('연결 종료');$('presence').textContent='—'}",
           "$('connect').onclick=()=>{name=$('name').value.trim();if(!name||name.length>20){$('notice').textContent='이름은 1~20자입니다.';return}wanted=true;connect()};$('disconnect').onclick=disconnect;",
@@ -316,7 +316,7 @@
         "node": "sender",
         "highlight": "if(databaseBlocked||document.hidden||!viewOpen||!joined",
         "file": "src/main/resources/static/chat.js",
-        "line": 41,
+        "line": 61,
         "lines": [
           "  if(databaseBlocked||document.hidden||!viewOpen||!joined||socket?.readyState!==WebSocket.OPEN)return;",
           "  const area=$('messages');if(area.scrollHeight-area.scrollTop-area.clientHeight>24)return;",
@@ -328,7 +328,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'read'",
         "file": "src/main/resources/static/chat.js",
-        "line": 46,
+        "line": 66,
         "lines": [
           "  readRequested.set(mode,latest);socket.send(JSON.stringify({type:'read',upToId:latest}));}",
           "}",
@@ -364,7 +364,7 @@
         "node": "recipient",
         "highlight": "receipt.textContent=",
         "file": "src/main/resources/static/chat.js",
-        "line": 39,
+        "line": 59,
         "lines": [
           "function bubble(m,waiting){const div=document.createElement('article');div.className='bubble'+(m.clientId===clientId?' mine':'')+(waiting?' pending':'');const small=document.createElement('small');small.textContent=m.sender+' · '+(waiting?(m.id?'#'+m.id+' · ACK 확인 대기':'서버 확인 대기'):'#'+m.id+' · '+new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));const p=document.createElement('p');p.textContent=m.body;div.append(small,p);if(!waiting&&m.clientId===clientId){const receipt=document.createElement('span');receipt.className='read-state';receipt.textContent=[...reads.values()].some(r=>r.clientId!==clientId&&r.roomId===room&&(r.deliveryMode||'direct')===(m.deliveryMode||'direct')&&r.lastReadId>=m.id)?'읽음':'안 읽음';div.append(receipt)}return div}",
           "function markVisibleRead(){",
@@ -378,7 +378,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'typing',active}))",
         "file": "src/main/resources/static/chat.js",
-        "line": 53,
+        "line": 73,
         "lines": [
           "  typingSent=active;lastTypingAt=now;socket.send(JSON.stringify({type:'typing',active}));",
           "}",
@@ -414,7 +414,7 @@
         "node": "recipient",
         "highlight": "$('typing-status').textContent=",
         "file": "src/main/resources/static/chat.js",
-        "line": 57,
+        "line": 77,
         "lines": [
           "  $('typing-status').textContent=[...peerTyping.values()].map(entry=>entry.name+' 입력 중…').join(' · ');",
           "}",
@@ -428,7 +428,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 85,
+        "line": 106,
         "lines": [
           "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
           "}",
@@ -500,7 +500,7 @@
         "node": "sender",
         "highlight": "function interruptBeforeAck",
         "file": "src/main/resources/static/chat.js",
-        "line": 94,
+        "line": 115,
         "lines": [
           "function interruptBeforeAck(message){",
           "  // Deterministic demo: receive the committed broadcast, then ignore queued ACKs from this socket.",
@@ -514,7 +514,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 85,
+        "line": 106,
         "lines": [
           "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
           "}",
@@ -586,7 +586,7 @@
         "node": "sender",
         "highlight": "pending=remaining; // Matching ACK",
         "file": "src/main/resources/static/chat.js",
-        "line": 91,
+        "line": 112,
         "lines": [
           "  pending=remaining; // Matching ACK removes only this request; preserve the tail in original order.",
           "  store();render();flush();$('notice').textContent=event.duplicate?'재전송 ACK · 기존 메시지 #'+event.message.id+' · 추가 저장/방송 없음 · '+event.requestId:'서버 저장 확인 · #'+event.message.id;",
@@ -600,7 +600,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 85,
+        "line": 106,
         "lines": [
           "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
           "}",
@@ -686,7 +686,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 85,
+        "line": 106,
         "lines": [
           "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
           "}",
@@ -734,7 +734,7 @@
         "node": "sender",
         "highlight": "function interruptBeforeAck",
         "file": "src/main/resources/static/chat.js",
-        "line": 94,
+        "line": 115,
         "lines": [
           "function interruptBeforeAck(message){",
           "  // Deterministic demo: receive the committed broadcast, then ignore queued ACKs from this socket.",
@@ -860,7 +860,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 85,
+        "line": 106,
         "lines": [
           "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
           "}",
@@ -946,7 +946,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 85,
+        "line": 106,
         "lines": [
           "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
           "}",
@@ -994,7 +994,7 @@
         "node": "sender",
         "highlight": "function interruptBeforeAck",
         "file": "src/main/resources/static/chat.js",
-        "line": 94,
+        "line": 115,
         "lines": [
           "function interruptBeforeAck(message){",
           "  // Deterministic demo: receive the committed broadcast, then ignore queued ACKs from this socket.",
@@ -1032,7 +1032,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 85,
+        "line": 106,
         "lines": [
           "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
           "}",
@@ -1068,7 +1068,7 @@
         "node": "sender",
         "highlight": "Keep the joined socket open",
         "file": "src/main/resources/static/chat.js",
-        "line": 114,
+        "line": 135,
         "lines": [
           "        // Keep the joined socket open; retry this exact request only after DB recovery.",
           "        if(event.operation==='join'){ws.close();}",
@@ -1082,7 +1082,7 @@
         "node": "sender",
         "highlight": "requestId:p.requestId,body:p.body",
         "file": "src/main/resources/static/chat.js",
-        "line": 85,
+        "line": 106,
         "lines": [
           "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
           "}",
@@ -1168,7 +1168,7 @@
         "node": "sender",
         "highlight": "requestId:p.requestId,body:p.body",
         "file": "src/main/resources/static/chat.js",
-        "line": 85,
+        "line": 106,
         "lines": [
           "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
           "}",
@@ -1254,7 +1254,7 @@
         "node": "sender",
         "highlight": "requestId:p.requestId,body:p.body",
         "file": "src/main/resources/static/chat.js",
-        "line": 85,
+        "line": 106,
         "lines": [
           "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
           "}",
@@ -1340,7 +1340,7 @@
         "node": "sender",
         "highlight": "if (!request || !this.canCancel(request))",
         "file": "src/main/resources/static/chat-queue.js",
-        "line": 17,
+        "line": 21,
         "lines": [
           "    if (!request || !this.canCancel(request)) return pending;",
           "    return pending.filter(p => p !== request); // Cancellation preserves the original order of the survivors.",
@@ -1352,11 +1352,11 @@
         "node": "sender",
         "highlight": "Cancellation preserves the original order",
         "file": "src/main/resources/static/chat-queue.js",
-        "line": 18,
+        "line": 22,
         "lines": [
           "    return pending.filter(p => p !== request); // Cancellation preserves the original order of the survivors.",
           "  }",
-          "  requeue(pending, canceled, newRequestId) {"
+          "  requeue(pending, canceled, newRequestId, editedBody = canceled.body) {"
         ]
       },
       {
@@ -1364,7 +1364,7 @@
         "node": "sender",
         "highlight": "pending=remaining; // Cancel before transport",
         "file": "src/main/resources/static/chat.js",
-        "line": 68,
+        "line": 88,
         "lines": [
           "  pending=remaining; // Cancel before transport; this request is never sent to the server.",
           "  cancellations.push(request);if(cancellations.length>20)cancellations.shift();if(cutRequest===requestId)cutRequest=null;",
@@ -1374,14 +1374,26 @@
     ],
     "requeue": [
       {
+        "label": "수정한 본문 확인 · 1~2000자 검증",
+        "node": "sender",
+        "highlight": "const body=prepareRequeueBody(editedBody);",
+        "file": "src/main/resources/static/chat.js",
+        "line": 95,
+        "lines": [
+          "    const body=prepareRequeueBody(editedBody); // Validate the edited body before allocating a fresh identity.",
+          "    const requestId=crypto.randomUUID(); // New identity for a canceled message.",
+          "    const restored=sendQueue.requeue(pending,canceled,requestId,body);if(!store(restored.pending))return;"
+        ]
+      },
+      {
         "label": "새 요청 ID 발급 · 이전 ID는 취소 유지",
         "node": "sender",
         "highlight": "// New identity for a canceled message.",
         "file": "src/main/resources/static/chat.js",
-        "line": 75,
+        "line": 96,
         "lines": [
           "    const requestId=crypto.randomUUID(); // New identity for a canceled message.",
-          "    const restored=sendQueue.requeue(pending,canceled,requestId);if(!store(restored.pending))return;",
+          "    const restored=sendQueue.requeue(pending,canceled,requestId,body);if(!store(restored.pending))return;",
           "    pending=restored.pending; // Append at tail before dispatch; existing request order is unchanged."
         ]
       },
@@ -1390,7 +1402,7 @@
         "node": "sender",
         "highlight": "Append a fresh request at the tail",
         "file": "src/main/resources/static/chat-queue.js",
-        "line": 24,
+        "line": 29,
         "lines": [
           "    return {pending:[...pending,request],request}; // Append a fresh request at the tail; never restore the old position.",
           "  }",
@@ -1402,10 +1414,10 @@
         "node": "sender",
         "highlight": "pending=restored.pending; // Append at tail",
         "file": "src/main/resources/static/chat.js",
-        "line": 77,
+        "line": 98,
         "lines": [
           "    pending=restored.pending; // Append at tail before dispatch; existing request order is unchanged.",
-          "    canceled.requeuedAs=requestId;render(false);$('notice').textContent='새 요청 ID '+requestId+' · 대기열 맨 뒤에 추가했습니다. 기존 순서는 유지합니다.';flush();",
+          "    canceled.requeuedAs=requestId;canceled.requeuedBody=body;requeueDrafts.delete(canceled.requestId);render(false);$('notice').textContent='새 요청 ID '+requestId+' · 수정한 내용을 대기열 맨 뒤에 추가했습니다. 기존 내용·ID·순서는 유지합니다.';flush();",
           "  }catch(error){$('notice').textContent=error.message}"
         ]
       }
@@ -1414,7 +1426,7 @@
   "sources": [
     {
       "file": "src/main/resources/static/chat-queue.js",
-      "sha256": "2b71aa42435039b7a7f6bd0b7af0bcb7854c5e711ec0ac28c7eb8f7c09d597ec"
+      "sha256": "ff20c5dac6a865293a2445110e009754c8f4ca29df51e32e509f8c9e13cf3984"
     },
     {
       "file": "src/main/java/dev/portfolio/chat/DatabaseAvailability.java",
@@ -1450,7 +1462,7 @@
     },
     {
       "file": "src/main/resources/static/chat.js",
-      "sha256": "85cec547cd3a64dd4c5cc8708dad4f068001a592c9a800f11cbfc49a95a51c8c"
+      "sha256": "31d34ada85bbb96c4dfd2f77c9e859686ab66dc6d3fcc20cb0e23fbbfcfcf0fe"
     }
   ]
 }

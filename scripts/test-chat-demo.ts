@@ -258,3 +258,25 @@ for(const mode of ['direct','kafka'] as const){
   assert.equal(again.request.requeuedFrom,restored.request.requestId);assert.deepEqual(again.outbox.slice(0,-1),canceledAgain)
 }
 console.log('Canceled resend: old ID excluded, new ID at tail, survivor order, original mode/body, one use, reload, recancel and duplicate ACK passed in both modes.')
+
+for(const mode of ['direct','kafka'] as const){
+  const requests:PendingChat[]=[1,2,3].map(n=>({clientId:a.id,roomId:a.roomId,requestId:'edit-'+mode+'-'+n,body:'원문 '+n,mode,cancelable:true}))
+  const canceled=requests[1],pending=cancelPendingChat(requests,canceled),snapshot=JSON.stringify({pending,canceled})
+  for(const invalid of ['', ' \n\t ', '가'.repeat(2001)]){
+    assert.throws(()=>requeueCanceledChat(pending,canceled,'edit-'+mode+'-invalid',invalid))
+    assert.equal(JSON.stringify({pending,canceled}),snapshot)
+  }
+  const edited='수정한 두 번째 메시지\n줄바꿈도 유지합니다.',restored=requeueCanceledChat(pending,canceled,'edit-'+mode+'-new','  '+edited+'  ')
+  assert.equal(JSON.stringify({pending,canceled}),snapshot);assert.equal(canceled.body,'원문 2')
+  assert.equal(restored.request.body,edited);assert.equal(restored.request.mode,mode);assert.equal(restored.request.requeuedFrom,canceled.requestId)
+  assert.deepEqual(restored.outbox.slice(0,-1),pending)
+  const reloaded:PendingChat[]=JSON.parse(JSON.stringify(restored.outbox))
+  let database=emptyChat(),peers=[a,b,outside]
+  for(const request of reloaded){const saved=storeChat(database,a,request.body,request.requestId,request.mode);database=saved.database;if(mode==='direct')peers=deliverChat(peers,saved.message);else database=publishChatEvent(database,saved.message.id)}
+  if(mode==='kafka')for(let event=nextDelivery(database);event;event=nextDelivery(database)){peers=deliverChat(peers,database.messages.find(m=>m.id===event.messageId)!);database=consumeChatEvent(database,event.messageId)}
+  assert.deepEqual(database.messages.map(m=>m.body),['원문 1','원문 3',edited]);assert.deepEqual(peers[1].messages.map(m=>m.body),['원문 1','원문 3',edited])
+  assert.equal(database.messages.some(m=>m.requestId===canceled.requestId),false)
+  assert.equal(storeChat(database,a,edited,restored.request.requestId,mode).duplicate,true)
+  assert.equal(requeueCanceledChat([],canceled,'edit-'+mode+'-boundary','가'.repeat(2000)).request.body.length,2000)
+}
+console.log('Edited canceled resend: validation is atomic, original body/IDs/order unchanged, new ID/body persisted at tail and delivered once in both modes.')
