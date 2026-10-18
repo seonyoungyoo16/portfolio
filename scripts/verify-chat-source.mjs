@@ -54,3 +54,8 @@ assert.equal(model.flows.cancel.length,3)
 assert.ok(model.flows.cancel.every(step=>step.node==='sender'))
 assert.ok(model.flows.cancel[1].highlight.includes('Cancellation preserves'))
 assert.ok(sources.get('src/main/resources/static/chat-queue.js').includes('request.cancelable = false'))
+
+assert.equal(model.flows.requeue.length,3)
+assert.ok(model.flows.requeue.every(step=>step.node==='sender'))
+assert.ok(model.flows.requeue[0].highlight.includes('New identity'))
+assert.ok(model.flows.requeue[1].highlight.includes('tail'))

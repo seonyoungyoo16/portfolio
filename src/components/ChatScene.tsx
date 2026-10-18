@@ -64,7 +64,8 @@ export default function ChatScene(props:Props){
       const routes:[THREE.Vector3,THREE.Vector3][]=[];let label=''
       const actor=positions[p.actor].clone().add(new THREE.Vector3(0,.35,.2)),hub=server.clone().add(new THREE.Vector3(0,.45,.6))
       if(p.run>0){
-        if(p.kind==='cancel'){routes.push([actor,actor]);label=p.step===0?'대기 취소':p.step===1?'목록에서 제거':'재전송 제외 ✓'}
+        if(p.kind==='requeue'){routes.push([actor,actor]);label=p.step===0?'새 요청 ID 발급':p.step===1?'대기열 맨 뒤에 추가':'대기열 저장 ✓'}
+        else if(p.kind==='cancel'){routes.push([actor,actor]);label=p.step===0?'대기 취소':p.step===1?'목록에서 제거':'재전송 제외 ✓'}
         else if(p.kind==='databaseUnavailable'){if(p.step===0){routes.push([actor,hub]);label='저장 요청'}else if(p.step===1){routes.push([hub,hub.clone().lerp(db,.65)]);label='DB 접근 실패 ×'}else if(p.step===2){routes.push([hub,actor]);label='저장 실패 · ACK 없음'}else{routes.push([actor,actor]);label='PC 전송 대기'}}
         else if(p.kind==='kafkaPublish'){routes.push(p.step===0?[db,broker]:[broker,broker]);label=p.step===0?'이벤트 재발행':'Kafka 기록'}
         else if(['kafkaSend','kafkaInterrupted','kafkaUnavailable','kafkaUnavailableInterrupted','databaseRetryKafka','databaseRetryOutbox'].includes(p.kind)){
@@ -95,7 +96,7 @@ export default function ChatScene(props:Props){
         else{routes.push([hub,hub]);label=(p.kind==='duplicate'||p.kind==='retry')?'중복 확인':'VALIDATE'}
       }
       if(label!==text){text=label;ctx.clearRect(0,0,512,160);ctx.fillStyle='#14212f';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='500 47px sans-serif';ctx.fillText(label,256,80);texture.needsUpdate=true}
-      packets.forEach((packet,i)=>{packet.visible=!!routes[i];if(routes[i]){(packet.children[0] as THREE.Mesh).material=p.kind==='cancel'?muted:accent;const [a,b]=routes[i];packet.position.lerpVectors(a,b,progress);packet.position.y+=Math.sin(progress*Math.PI)*.6+.35;packet.quaternion.copy(camera.quaternion)}})
+      packets.forEach((packet,i)=>{packet.visible=!!routes[i];if(routes[i]){(packet.children[0] as THREE.Mesh).material=p.kind==='cancel'?muted:p.kind==='requeue'?blue:accent;const [a,b]=routes[i];packet.position.lerpVectors(a,b,progress);packet.position.y+=Math.sin(progress*Math.PI)*.6+.35;packet.quaternion.copy(camera.quaternion)}})
       renderer.render(scene,camera)
     }
     frame=requestAnimationFrame(animate)

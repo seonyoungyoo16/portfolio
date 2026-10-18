@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import {emptyChat,storeChat,deliverChat,chatHistory,waitingChat,readChat,hasReadChat,nextReadChat,type ChatClient} from '../src/chat-demo.ts'
 import {relayChatTyping,cleanChatTyping,visibleChatTyping} from '../src/chat-typing.ts'
-import {attemptChat,enqueueChat,acknowledgeChat,pendingFor,nextPendingChat,canCancelChat,cancelPendingChat,markChatAttempted,type PendingChat} from '../src/chat-outbox.ts'
+import {attemptChat,enqueueChat,acknowledgeChat,pendingFor,nextPendingChat,canCancelChat,cancelPendingChat,markChatAttempted,requeueCanceledChat,type PendingChat} from '../src/chat-outbox.ts'
 const client=(id:string,roomId='lobby',connected=true):ChatClient=>({id,name:id,roomId,connected,viewOpen:true,messages:[]})
 const a=client('a'),b=client('b'),outside=client('c','design'),offline=client('d','lobby',false)
 let db=emptyChat();const first=storeChat(db,a,'안녕하세요','request-1');db=first.database
@@ -232,3 +232,29 @@ for(const mode of ['direct','kafka'] as const){
   let all=[...requests];for(const request of requests)all=cancelPendingChat(all,request);assert.equal(nextPendingChat(all,peers),null)
 }
 console.log('Canceled pending: no replay/write/delivery, original survivor IDs/order, all cancel, scoped identity and persisted in-flight guard passed.')
+
+for(const mode of ['direct','kafka'] as const){
+  let database=emptyChat(),peers=[a,b,outside]
+  const requests:PendingChat[]=[1,2,3].map(n=>({clientId:a.id,roomId:a.roomId,requestId:'requeue-'+mode+'-'+n,body:'다시 보내기 '+n,mode,cancelable:true}))
+  const canceled={...requests[1],cut:true,failed:true};let pending=cancelPendingChat(requests,requests[1])
+  const head=pending[0];pending=markChatAttempted(pending,head)
+  const snapshot=JSON.stringify(pending),restored=requeueCanceledChat(pending,canceled,'requeue-'+mode+'-fresh')
+  assert.equal(JSON.stringify(pending),snapshot)
+  const expected=[requests[0].requestId,requests[2].requestId,restored.request.requestId]
+  assert.deepEqual(restored.outbox.map(p=>p.requestId),expected)
+  assert.notEqual(restored.request.requestId,canceled.requestId);assert.equal(restored.request.clientId,canceled.clientId);assert.equal(restored.request.roomId,canceled.roomId)
+  assert.equal(restored.request.body,canceled.body);assert.equal(restored.request.mode,mode);assert.equal(restored.request.requeuedFrom,canceled.requestId)
+  assert.equal(restored.request.cancelable,true);assert.equal(restored.request.cut,undefined);assert.equal(restored.request.failed,undefined)
+  assert.throws(()=>requeueCanceledChat(restored.outbox,canceled,'requeue-'+mode+'-second'))
+  assert.throws(()=>requeueCanceledChat([], {...canceled,requeuedAs:restored.request.requestId},'requeue-'+mode+'-second'))
+  assert.throws(()=>requeueCanceledChat(pending,canceled,canceled.requestId));assert.throws(()=>requeueCanceledChat(pending,canceled,head.requestId))
+  pending=JSON.parse(JSON.stringify(restored.outbox))
+  while(pending.length){const next=nextPendingChat(pending,peers)!,saved=storeChat(database,peers[next.actor],next.request.body,next.request.requestId,next.request.mode);database=saved.database;pending=acknowledgeChat(pending,saved.message);if(mode==='direct')peers=deliverChat(peers,saved.message);else database=publishChatEvent(database,saved.message.id)}
+  if(mode==='kafka')for(let event=nextDelivery(database);event;event=nextDelivery(database)){peers=deliverChat(peers,database.messages.find(m=>m.id===event.messageId)!);database=consumeChatEvent(database,event.messageId)}
+  assert.deepEqual(database.messages.map(m=>m.requestId),expected);assert.deepEqual(peers[1].messages.map(m=>m.requestId),expected)
+  assert.equal(database.messages.some(m=>m.requestId===canceled.requestId),false);assert.equal(database.messages.length,3)
+  const last=database.messages.at(-1)!;assert.equal(storeChat(database,a,last.body,last.requestId,mode).duplicate,true)
+  const canceledAgain=cancelPendingChat(restored.outbox,restored.request);const again=requeueCanceledChat(canceledAgain,restored.request,'requeue-'+mode+'-fresh-again')
+  assert.equal(again.request.requeuedFrom,restored.request.requestId);assert.deepEqual(again.outbox.slice(0,-1),canceledAgain)
+}
+console.log('Canceled resend: old ID excluded, new ID at tail, survivor order, original mode/body, one use, reload, recancel and duplicate ACK passed in both modes.')
