@@ -58,6 +58,32 @@ Java API 통합 테스트 5개 통과. 브라우저 시뮬레이션은 CRUD/권�
 실제 서버: https://github.com/seonyoungyoo16/springboot-chat-lab
 구현 및 검증: [docs/chat-project.md](docs/chat-project.md)
 
+## 로그인·로그인 유지 프로젝트
+
+`#project/login`에서 로그인 발급, 서버 A·B의 공유 세션, 유휴·절대 만료, 로그인 유지 복원, 동시 요청, 기기 폐기와 장애 흐름을 체험합니다. 선택한 단계에 맞춰 데이터 스냅샷과 실제 Java 코드가 바뀝니다.
+
+독립 프로젝트: https://github.com/seonyoungyoo16/springboot-login-lab
+
+Pages 화면은 브라우저 시뮬레이션입니다. 실제 Spring Boot A·B, Redis, PostgreSQL과 HTTPS 브라우저 검증은 독립 프로젝트에서 실행합니다. 화면의 검증 결과·상세 설계·실행 방법은 고정 소스 커밋으로 연결합니다.
+
+로그인 체험 검증:
+
+```sh
+npm run test:login
+npm run verify:login-source
+npm run test:login-browser
+```
+
+브라우저 검증은 개발 서버가 실행 중일 때 수행합니다. 최초 1회 `npx playwright install chromium`으로 런타임을 준비합니다. 공개 배포 URL 검증은 PowerShell에서 다음을 실행합니다.
+
+```powershell
+$env:PORTFOLIO_URL='https://seonyoungyoo16.github.io/portfolio/'
+npm run test:login-browser
+Remove-Item Env:PORTFOLIO_URL
+```
+
+소스 갱신은 독립 프로젝트의 변경을 커밋한 다음 `node scripts/export-login-source.mjs <login-checkout>`으로 추출합니다. `verify:login-source`는 고정 커밋의 파일 해시·행·코드 조각·정책 값을 확인합니다. [검증 기록과 범위](docs/login-project.md)
+
 ### 전송 중 연결 끊김 / 자동 재전송
 
 참가자를 같은 방에 연결하고 `다음 전송: 저장 후 ACK 수신 전 연결 끊기`를 체크해 보냅니다. 서버 저장·방송 후 발신자가 ACK를 받기 전에 오프라인이 됩니다. `다시 접속`하면 대화 기록을 복구한 뒤 같은 requestId와 본문으로 대기 요청을 자동 재전송합니다. 서버 중복 조회 → 기존 메시지 반환 → INSERT/방송 생략 → ACK → 대기 목록 제거 순서가 3D와 소스 단계에 표시됩니다. 대기 요청은 sessionStorage에 보관하며 방송/기록 수신만으로 제거하지 않습니다. 실제 Java 앱에도 같은 장애 체험과 ACK 기준 대기 처리를 적용했습니다.

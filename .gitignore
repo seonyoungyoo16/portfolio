@@ -3,3 +3,4 @@ dist/
 *.tsbuildinfo
 *.tar.gz
 preview*.jpg
+*.log

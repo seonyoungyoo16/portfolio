@@ -1,0 +1,79 @@
+{
+  "status": "passed",
+  "completedAt": "2026-10-18T05:02:44.893Z",
+  "revision": "a2bf485592c2d59d34c5e109a8b9bc839713f138",
+  "checks": [
+    {
+      "file": "backend/src/main/java/dev/portfolio/loginlab/AuthOperations.java",
+      "status": 200,
+      "sha256": "4b12981f5f7d8baf281003d5aa4982ec6925d505b4d290e81f3d225cf2e559c4"
+    },
+    {
+      "file": "backend/src/main/java/dev/portfolio/loginlab/AuthService.java",
+      "status": 200,
+      "sha256": "dd2f058009a1527c3c694ee1897c17e8c971ba9b21c7a01cd5d8c0dce83925ea"
+    },
+    {
+      "file": "backend/src/main/java/dev/portfolio/loginlab/CleanupService.java",
+      "status": 200,
+      "sha256": "c55db6650a7bdc1b743e4ee2ae609f004a5ea8bf85aa20de4b21de024962d790"
+    },
+    {
+      "file": "backend/src/main/java/dev/portfolio/loginlab/Faults.java",
+      "status": 200,
+      "sha256": "adf1eceff6847c1954c4b3ae3ee6d2c03f53a2cfee1a23088f1a1656e7811fcf"
+    },
+    {
+      "file": "backend/src/main/java/dev/portfolio/loginlab/LoginLimiter.java",
+      "status": 200,
+      "sha256": "dd3385aecabd504b750e586a4ad285aa3443943f8941e9fae3f3da1e80327d66"
+    },
+    {
+      "file": "backend/src/main/java/dev/portfolio/loginlab/SecurityConfig.java",
+      "status": 200,
+      "sha256": "66f97f879e77bd34dbbeb9c266f03168bf30c43afb365802bb570eaaa6b0479d"
+    },
+    {
+      "file": "backend/src/main/java/dev/portfolio/loginlab/SessionStore.java",
+      "status": 200,
+      "sha256": "30fdb88943958bc6e0c1b9fccb5d9a65e4fe1ff82322da1129d3566dd335088c"
+    },
+    {
+      "file": "backend/src/main/java/dev/portfolio/loginlab/TraceFilter.java",
+      "status": 200,
+      "sha256": "d244825f00a440d8c66cab451136961515001f2206c95b028734584f6f03fd01"
+    },
+    {
+      "file": "backend/src/main/java/dev/portfolio/loginlab/TraceLog.java",
+      "status": 200,
+      "sha256": "a92021bc0e1eeb44d9a77c542074390e3aa47b435ddbe957b4b4d56b8ee06d07"
+    },
+    {
+      "file": "scripts/gateway.mjs",
+      "status": 200,
+      "sha256": "d112aa4654f6994988256f20dfd09caa0057b3788a26a083a707f190e50c0956"
+    },
+    {
+      "file": "backend/src/main/java/dev/portfolio/loginlab/Policy.java",
+      "status": 200,
+      "sha256": "ae5e7c215092ebf79c6683b9f1c31fd2405c8a9d69d2b0bb55659cdf751b548d"
+    },
+    {
+      "file": "backend/src/main/java/dev/portfolio/loginlab/AuthController.java",
+      "status": 200,
+      "sha256": "bfa8989a018e6d4789027a5dfd17f568fc5d04a0aefedd652da392b0ba0a39af"
+    },
+    {
+      "file": "README.md",
+      "status": 200
+    },
+    {
+      "file": "docs/DESIGN.md",
+      "status": 200
+    },
+    {
+      "file": "docs/verification/RESULTS.md",
+      "status": 200
+    }
+  ]
+}
