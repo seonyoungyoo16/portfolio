@@ -1,0 +1,38 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-18T07:17:13.480Z",
+  "base": "https://seonyoungyoo16.github.io/portfolio/",
+  "release": {
+    "source": "0f0b0c5be03b42e3c2e16796434aa870753b1ce8",
+    "signupSource": "b5294ab9bdcf27d424ae7326f186bc02fed82f9b",
+    "loginSource": "a2bf485592c2d59d34c5e109a8b9bc839713f138",
+    "chatSource": "7bf172f6cbcaf3235f3c34aa2e9bda6595d347a3",
+    "builtAt": "2026-10-18T07:16:35.131Z",
+    "assets": [
+      "index-CidgMJFT.css",
+      "index-DIlfT2Kq.js"
+    ],
+    "hashes": {
+      "index.html": "63959db59b77fc3fcad40bec4bef8f2489d18a70694f81f8c30cd278c895ea96",
+      "assets/index-CidgMJFT.css": "6ac3afd231feaf09e7f030296e566a6d9f23f805d577be93ca6fc5fa09337fb4",
+      "assets/index-DIlfT2Kq.js": "efcf2133336d6fa8f7640fa07893ebba55afa647025ca4ec3a096cb1fa60ffbf"
+    }
+  },
+  "resources": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "sha256": "63959db59b77fc3fcad40bec4bef8f2489d18a70694f81f8c30cd278c895ea96"
+    },
+    {
+      "file": "assets/index-CidgMJFT.css",
+      "status": 200,
+      "sha256": "6ac3afd231feaf09e7f030296e566a6d9f23f805d577be93ca6fc5fa09337fb4"
+    },
+    {
+      "file": "assets/index-DIlfT2Kq.js",
+      "status": 200,
+      "sha256": "efcf2133336d6fa8f7640fa07893ebba55afa647025ca4ec3a096cb1fa60ffbf"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "completedAt": "2026-10-18T07:17:26.063Z",
+  "base": "https://seonyoungyoo16.github.io/portfolio/",
+  "scope": "static portfolio experience; actual backend 50 cases linked separately",
+  "sourceRevision": "b5294ab9bdcf27d424ae7326f186bc02fed82f9b",
+  "checks": [
+    "four project cards, signup route, explicit boundary and fixed actual evidence",
+    "email queue, SMTP reception, GET and explicit POST remain separate",
+    "atomic signup, no automatic login and same request replay",
+    "independent context cannot consume the copied mail link",
+    "resend cooldown and old generation refusal",
+    "address change invalidates proof and blocks account form",
+    "two independently verified flows conflict at the shared email constraint",
+    "committed signup recovers after response connection loss",
+    "SMTP acknowledgement loss permits duplicate mail but single verification/account",
+    "SMTP outage preserves outbox and recovery delivers",
+    "Redis and DB outages produce 503 without a phantom account",
+    "SSO defaults to own email verification and OIDC identity ownership",
+    "same provider email never silently links an existing local account",
+    "existing login, external proof and final explicit link preserve account",
+    "logout and recent-auth expiry reject pending identity links",
+    "only explicitly trusted main skips email; expired proof refuses signup",
+    "flow snapshots, fixed-commit source popup navigation and published source SHA-256",
+    "responsive panels at 390/768/1440/1800 and existing project routes"
+  ],
+  "sourceLinks": [
+    "https://github.com/seonyoungyoo16/springboot-signup-lab/blob/b5294ab9bdcf27d424ae7326f186bc02fed82f9b/backend/src/main/java/dev/portfolio/signuplab/TraceLog.java#L52",
+    "https://github.com/seonyoungyoo16/springboot-signup-lab/blob/b5294ab9bdcf27d424ae7326f186bc02fed82f9b/backend/src/main/java/dev/portfolio/signuplab/SignupService.java#L358"
+  ],
+  "unexpectedBackendRequests": [],
+  "pageErrors": []
+}

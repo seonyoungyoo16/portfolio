@@ -21,3 +21,5 @@ F01 등의 지정 실패는 코드 체크포인트다. F02/F09는 실제 앱 종
 SMTP 접수는 인터넷 메일 도착·스팸 판정·읽음까지 증명하지 않는다. 여러 RP 간 SSO(T01~T04), 부하 한계, 운영 가용성은 검증 범위에 포함하지 않는다. 실제 백엔드는 루프백 Windows 실험 환경이며 공개 GitHub Pages는 정적 빌드다.
 
 실행 결과: [설명 모델](signup-verification/model.json), [배포 전 브라우저](signup-verification/local/browser.json), [배포 후 브라우저](signup-verification/published/browser.json). 기존 게시판·채팅 모델과 로그인 18개 설명 모델/브라우저 회귀도 함께 확인한다.
+
+최종 공개 검증: Pages 배포 `80d9b47`의 workflow가 성공했고, 공개 HTML·JS·CSS 3개 해시가 소스 `0f0b0c5` 빌드와 일치했다. 회원가입 18개 브라우저 그룹과 기존 로그인 18개 브라우저 그룹을 공개 주소에서 통과했다. 테스트 중 페이지 오류와 의도치 않은 백엔드 요청은 없었다. [공개 빌드 대조](signup-verification/published/release.json).
