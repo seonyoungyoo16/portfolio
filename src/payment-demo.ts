@@ -60,6 +60,24 @@ export type Frame = {
   message: string;
   source: string;
   snapshot: State;
+  visual?: FlowVisual;
+};
+export type FlowVisual = {
+  kind:
+    | "request"
+    | "query"
+    | "response"
+    | "commit"
+    | "reserve"
+    | "dedupe"
+    | "blocked"
+    | "state";
+  from: Node;
+  to: Node;
+  packets?: number;
+  forwarded?: number;
+  operation?: string;
+  lost?: boolean;
 };
 export type Result = {
   state: State;
@@ -74,6 +92,7 @@ export type Input = {
   expectedVersion?: number;
   seconds?: number;
   dropBrowser?: boolean;
+  requests?: number;
 };
 export const emptyPayment = (): State => ({
   now: 0,
@@ -111,8 +130,19 @@ export function executePayment(
     frames: Frame[] = [];
   let status = 200,
     code = "OK";
-  const frame = (node: Node, message: string, source: string) =>
-    frames.push({ node, message, source, snapshot: structuredClone(s) });
+  const frame = (
+    node: Node,
+    message: string,
+    source: string,
+    visual?: FlowVisual,
+  ) =>
+    frames.push({
+      node,
+      message,
+      source,
+      snapshot: structuredClone(s),
+      visual,
+    });
   const result = (n: number, c: string) => {
     status = n;
     code = c;
@@ -122,6 +152,12 @@ export function executePayment(
         ? "응답 유실 · 결과를 추정하지 않고 기존 작업 조회"
         : n + " · " + c,
       "Frontend.receive",
+      {
+        kind: "response",
+        from: "Server",
+        to: "Browser",
+        lost: !!input.dropBrowser,
+      },
     );
     return {
       state: s,
@@ -193,6 +229,7 @@ export function executePayment(
       "DB",
       "PG 거래 유일성 검사 · 원장·작업·주문·outbox 함께 반영",
       "PaymentProcessor.apply",
+      { kind: "commit", from: "Server", to: "DB" },
     );
   };
   const send = (op: Op) => {
@@ -203,11 +240,17 @@ export function executePayment(
         "Server",
         "PG 도착 전 연결 실패 · 작업과 예약 유지",
         "Workers.process",
+        { kind: "blocked", from: "Server", to: "PG", operation: op.id },
       );
       return false;
     }
     s.pgCalls++;
-    frame("PG", "고정 작업 식별자·동일 PG 멱등 키 전송", "PspClient.call");
+    frame("PG", "고정 작업 식별자·동일 PG 멱등 키 전송", "PspClient.call", {
+      kind: "request",
+      from: "Server",
+      to: "PG",
+      operation: op.id,
+    });
     if (!s.transactions.some((t) => t.operation === op.id)) {
       s.transactions.push({
         id: "pg-tx-" + (s.transactions.length + 1),
@@ -218,7 +261,12 @@ export function executePayment(
       if (op.kind === "CONFIRM") s.pgCaptured += op.amount;
       else s.pgCanceled += op.amount;
     }
-    frame("PG DB", "독립 PG 승인/취소 거래 커밋", "Psp.commitOperation");
+    frame("PG DB", "독립 PG 승인/취소 거래 커밋", "Psp.commitOperation", {
+      kind: "commit",
+      from: "PG",
+      to: "PG DB",
+      operation: op.id,
+    });
     if (s.fault === "pg-response" || s.fault === "db-apply") {
       op.state = "UNKNOWN";
       s.sync = "UNKNOWN";
@@ -230,13 +278,28 @@ export function executePayment(
         s.fault === "pg-response"
           ? "Psp.commitOperation"
           : "PaymentProcessor.apply",
+        s.fault === "pg-response"
+          ? {
+              kind: "response",
+              from: "PG",
+              to: "Server",
+              operation: op.id,
+              lost: true,
+            }
+          : { kind: "blocked", from: "Server", to: "DB", operation: op.id },
       );
       return false;
     }
     apply();
     return true;
   };
-  frame("Browser", "명시한 사용자 동작 · " + action, "RequestFilter.request");
+  const requests = action === "confirm" && input.requests === 24 ? 24 : 1;
+  frame("Browser", "명시한 사용자 동작 · " + action, "RequestFilter.request", {
+    kind: "request",
+    from: "Browser",
+    to: "Server",
+    packets: requests,
+  });
   if (action === "tick") {
     s.now += input.seconds ?? 30;
     if (s.order === "OPEN" && s.now >= s.expires) {
@@ -270,12 +333,14 @@ export function executePayment(
         "DB",
         "서명 검증 후 eventId inbox 접수 · 중복 제거",
         "ApiController.webhook",
+        { kind: "request", from: "PG", to: "DB" },
       );
     }
     frame(
       "PG DB",
       "현재 PG 거래를 다시 조회 · 금액만으로 작업 성공 추정 금지",
       "Psp.query",
+      { kind: "query", from: "Server", to: "PG DB" },
     );
     if (s.fault === "db-apply") return result(503, "LOCAL_APPLY_UNAVAILABLE");
     apply();
@@ -321,6 +386,7 @@ export function executePayment(
       "PG DB",
       "상점 작업과 연결되지 않은 PG 외부 취소 사실",
       "Psp.commitOperation",
+      { kind: "commit", from: "PG", to: "PG DB" },
     );
     return result(200, "EXTERNAL_CHANGE");
   }
@@ -336,13 +402,23 @@ export function executePayment(
     return result(202, "CLOSE_REQUESTED");
   }
   if (s.fault === "redis") {
-    frame("Redis", "신규 변경 접수 시 Redis 연결 확인 불가", "Limiter.limit");
+    frame(
+      "Redis",
+      "신규 변경 접수 시 Redis 연결 확인 불가",
+      "Limiter.reserve",
+      {
+        kind: "blocked",
+        from: "Server",
+        to: "Redis",
+      },
+    );
     return result(503, "REDIS_UNAVAILABLE");
   }
   frame(
     "Redis",
     "공유 요청 제한 · Redis 잠금에 정합성을 의존하지 않음",
-    "Limiter.limit",
+    "Limiter.reserve",
+    { kind: "query", from: "Server", to: "Redis" },
   );
   if (action === "order") {
     if (s.order === "NONE") {
@@ -351,6 +427,7 @@ export function executePayment(
         "DB",
         "서버 상품 가격 스냅샷·checkout intent 유일성 커밋",
         "PaymentService.createOrder",
+        { kind: "commit", from: "Server", to: "DB" },
       );
       return result(201, "ORDER_CREATED");
     }
@@ -364,6 +441,7 @@ export function executePayment(
       "PG",
       "별도 인증과 소유·주문·금액 검증 · 승인 없음",
       "PaymentService.callback",
+      { kind: "response", from: "PG", to: "Server" },
     );
     return result(200, "AUTHORIZED_ONLY");
   }
@@ -374,11 +452,25 @@ export function executePayment(
     )
       return result(400, "ORDER_AMOUNT_MISMATCH");
     const old = s.ops.find((o) => o.kind === "CONFIRM");
-    if (old)
+    if (old) {
+      frame(
+        "Server",
+        "같은 승인 요청은 기존 canonical 작업으로 합류",
+        "PaymentService.confirm",
+        {
+          kind: "dedupe",
+          from: "Browser",
+          to: "Server",
+          packets: requests,
+          forwarded: 0,
+          operation: old.id,
+        },
+      );
       return result(
         old.state === "SUCCEEDED" ? 200 : 202,
         "CANONICAL_" + old.state,
       );
+    }
     if (!s.authorized || s.order !== "OPEN" || s.now >= s.expires)
       return result(409, "ORDER_NOT_PAYABLE");
     const op: Op = {
@@ -390,7 +482,26 @@ export function executePayment(
       version: s.version,
     };
     s.ops.push(op);
-    frame("DB", "승인 작업·고정 PG 키·job 접수 커밋", "PaymentService.confirm");
+    frame(
+      "DB",
+      "승인 작업·고정 PG 키·job 접수 커밋",
+      "PaymentService.confirm",
+      { kind: "commit", from: "Server", to: "DB", operation: op.id },
+    );
+    if (requests > 1)
+      frame(
+        "Server",
+        "승인 요청 24개 → canonical 작업 1개 · 중복 23개 합류",
+        "PaymentService.confirm",
+        {
+          kind: "dedupe",
+          from: "Browser",
+          to: "Server",
+          packets: 24,
+          forwarded: 1,
+          operation: op.id,
+        },
+      );
     send(op);
     return result(202, "CONFIRM_" + op.state);
   }
@@ -446,6 +557,7 @@ export function executePayment(
       "DB",
       "취소 금액 예약·작업·job 동일 트랜잭션 커밋",
       "PaymentService.reserveCancel",
+      { kind: "reserve", from: "Server", to: "DB", operation: op.id },
     );
     send(op);
     return result(202, "CANCEL_" + op.state);

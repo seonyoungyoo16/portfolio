@@ -1,0 +1,53 @@
+/* Shared card tracks prevent intrinsic artwork widths and old per-card margins from changing the list. */
+.home-projects .project-list {
+  display: grid;
+  gap: 24px;
+  width: 100%;
+}
+.home-projects .project-list > .featured-project {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.home-projects .project-list > .featured-project > * {
+  min-width: 0;
+}
+.home-projects .project-list > .featured-project > :first-child {
+  min-height: 320px;
+}
+.home-projects .project-list .featured-copy {
+  padding: clamp(28px, 3.2vw, 45px);
+}
+.home-projects .project-list .chat-project-art {
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 28px;
+}
+.home-projects .project-list .project-art {
+  padding: clamp(22px, 3vw, 45px);
+  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) 45px minmax(0, 1fr);
+}
+.home-projects .project-list .project-art > div {
+  font-size: clamp(12px, 1.3vw, 17px);
+  padding: 18px 10px;
+  overflow-wrap: anywhere;
+}
+.home-projects .project-list .project-art small {
+  font-size: 11px;
+}
+@media (max-width: 800px) {
+  .home-projects .project-list {
+    gap: 20px;
+  }
+  .home-projects .project-list > .featured-project {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-projects .project-list > .featured-project > :first-child {
+    min-height: 230px;
+  }
+  .home-projects .project-list .featured-copy {
+    padding: 26px;
+  }
+}

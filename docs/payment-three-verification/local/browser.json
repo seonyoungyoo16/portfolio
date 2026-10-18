@@ -1,0 +1,436 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-18T09:38:10.464Z",
+  "base": "http://127.0.0.1:5190/",
+  "checks": [
+    "real WebGL canvas initializes and keeps native source controls",
+    "24 packets converge to one new canonical approval and one real displayed source",
+    "replayed approval joins the existing operation without a second PG ledger row",
+    "PG commit and merchant commit have different visible rows and exact source selections",
+    "a raycast on the actual PG ledger plate selects the frame where that transaction appeared",
+    "request packets change real rendered pixels while playing and stop when paused",
+    "replay at the final step starts from the first request snapshot",
+    "cancel reservation ring is pending before either cancellation ledger is committed",
+    "lost PG cancellation response keeps R and both independent ledger facts",
+    "recovery query keeps pending R until merchant apply and does not add another PG transaction",
+    "REVIEW keeps external canceled 5000 and unresolved reserved 7000 visible together",
+    "320 390 768 1440 1800 widths keep nodes separate and mobile flow/source usable",
+    "five project cards have the same widths, column ratios, and uniform vertical gaps",
+    "reduced motion uses a still selected snapshot and native keyboard source navigation",
+    "WebGL context loss preserves controls and restores a single synchronized canvas",
+    "route unmount and revisit rebuild a single fresh renderer",
+    "disabled WebGL retains functional flow controls and actual source"
+  ],
+  "layout": [
+    {
+      "renderer": {
+        "webgl": true,
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "width": 455,
+        "height": 310
+      }
+    },
+    {
+      "paymentWidth": 320,
+      "sceneWidth": 254
+    },
+    {
+      "paymentWidth": 390,
+      "sceneWidth": 319
+    },
+    {
+      "paymentWidth": 768,
+      "sceneWidth": 344
+    },
+    {
+      "paymentWidth": 1440,
+      "sceneWidth": 455
+    },
+    {
+      "paymentWidth": 1800,
+      "sceneWidth": 576
+    },
+    {
+      "homeWidth": 320,
+      "cards": [
+        {
+          "r": {
+            "x": 19.1875,
+            "y": 142.65625,
+            "width": 281.625,
+            "height": 755.34375,
+            "top": 142.65625,
+            "right": 300.8125,
+            "bottom": 898,
+            "left": 19.1875
+          },
+          "cols": "279.625px"
+        },
+        {
+          "r": {
+            "x": 19.1875,
+            "y": 918,
+            "width": 281.625,
+            "height": 771.84375,
+            "top": 918,
+            "right": 300.8125,
+            "bottom": 1689.84375,
+            "left": 19.1875
+          },
+          "cols": "279.625px"
+        },
+        {
+          "r": {
+            "x": 19.1875,
+            "y": 1709.84375,
+            "width": 281.625,
+            "height": 764.34375,
+            "top": 1709.84375,
+            "right": 300.8125,
+            "bottom": 2474.1875,
+            "left": 19.1875
+          },
+          "cols": "279.625px"
+        },
+        {
+          "r": {
+            "x": 19.1875,
+            "y": 2494.1875,
+            "width": 281.625,
+            "height": 744.84375,
+            "top": 2494.1875,
+            "right": 300.8125,
+            "bottom": 3239.03125,
+            "left": 19.1875
+          },
+          "cols": "279.625px"
+        },
+        {
+          "r": {
+            "x": 19.1875,
+            "y": 3259.03125,
+            "width": 281.625,
+            "height": 744.84375,
+            "top": 3259.03125,
+            "right": 300.8125,
+            "bottom": 4003.875,
+            "left": 19.1875
+          },
+          "cols": "279.625px"
+        }
+      ],
+      "gaps": [
+        20,
+        20,
+        20,
+        20
+      ]
+    },
+    {
+      "homeWidth": 390,
+      "cards": [
+        {
+          "r": {
+            "x": 23.390625,
+            "y": 142.265625,
+            "width": 343.21875,
+            "height": 615.5625,
+            "top": 142.265625,
+            "right": 366.609375,
+            "bottom": 757.828125,
+            "left": 23.390625
+          },
+          "cols": "341.219px"
+        },
+        {
+          "r": {
+            "x": 23.390625,
+            "y": 777.828125,
+            "width": 343.21875,
+            "height": 675.34375,
+            "top": 777.828125,
+            "right": 366.609375,
+            "bottom": 1453.171875,
+            "left": 23.390625
+          },
+          "cols": "341.219px"
+        },
+        {
+          "r": {
+            "x": 23.390625,
+            "y": 1473.171875,
+            "width": 343.21875,
+            "height": 705.84375,
+            "top": 1473.171875,
+            "right": 366.609375,
+            "bottom": 2179.015625,
+            "left": 23.390625
+          },
+          "cols": "341.219px"
+        },
+        {
+          "r": {
+            "x": 23.390625,
+            "y": 2199.015625,
+            "width": 343.21875,
+            "height": 705.84375,
+            "top": 2199.015625,
+            "right": 366.609375,
+            "bottom": 2904.859375,
+            "left": 23.390625
+          },
+          "cols": "341.219px"
+        },
+        {
+          "r": {
+            "x": 23.390625,
+            "y": 2924.859375,
+            "width": 343.21875,
+            "height": 744.84375,
+            "top": 2924.859375,
+            "right": 366.609375,
+            "bottom": 3669.703125,
+            "left": 23.390625
+          },
+          "cols": "341.219px"
+        }
+      ],
+      "gaps": [
+        20,
+        20,
+        20,
+        20
+      ]
+    },
+    {
+      "homeWidth": 768,
+      "cards": [
+        {
+          "r": {
+            "x": 46.078125,
+            "y": 90.25,
+            "width": 675.84375,
+            "height": 590.171875,
+            "top": 90.25,
+            "right": 721.921875,
+            "bottom": 680.421875,
+            "left": 46.078125
+          },
+          "cols": "673.844px"
+        },
+        {
+          "r": {
+            "x": 46.078125,
+            "y": 700.421875,
+            "width": 675.84375,
+            "height": 590.171875,
+            "top": 700.421875,
+            "right": 721.921875,
+            "bottom": 1290.59375,
+            "left": 46.078125
+          },
+          "cols": "673.844px"
+        },
+        {
+          "r": {
+            "x": 46.078125,
+            "y": 1310.59375,
+            "width": 675.84375,
+            "height": 590.171875,
+            "top": 1310.59375,
+            "right": 721.921875,
+            "bottom": 1900.765625,
+            "left": 46.078125
+          },
+          "cols": "673.844px"
+        },
+        {
+          "r": {
+            "x": 46.078125,
+            "y": 1920.765625,
+            "width": 675.84375,
+            "height": 590.171875,
+            "top": 1920.765625,
+            "right": 721.921875,
+            "bottom": 2510.9375,
+            "left": 46.078125
+          },
+          "cols": "673.844px"
+        },
+        {
+          "r": {
+            "x": 46.078125,
+            "y": 2530.9375,
+            "width": 675.84375,
+            "height": 590.171875,
+            "top": 2530.9375,
+            "right": 721.921875,
+            "bottom": 3121.109375,
+            "left": 46.078125
+          },
+          "cols": "673.844px"
+        }
+      ],
+      "gaps": [
+        20,
+        20,
+        20,
+        20
+      ]
+    },
+    {
+      "homeWidth": 1440,
+      "cards": [
+        {
+          "r": {
+            "x": 86.390625,
+            "y": 90.25,
+            "width": 1267.21875,
+            "height": 398.171875,
+            "top": 90.25,
+            "right": 1353.609375,
+            "bottom": 488.421875,
+            "left": 86.390625
+          },
+          "cols": "632.609px 632.609px"
+        },
+        {
+          "r": {
+            "x": 86.390625,
+            "y": 512.421875,
+            "width": 1267.21875,
+            "height": 398.171875,
+            "top": 512.421875,
+            "right": 1353.609375,
+            "bottom": 910.59375,
+            "left": 86.390625
+          },
+          "cols": "632.609px 632.609px"
+        },
+        {
+          "r": {
+            "x": 86.390625,
+            "y": 934.59375,
+            "width": 1267.21875,
+            "height": 398.171875,
+            "top": 934.59375,
+            "right": 1353.609375,
+            "bottom": 1332.765625,
+            "left": 86.390625
+          },
+          "cols": "632.609px 632.609px"
+        },
+        {
+          "r": {
+            "x": 86.390625,
+            "y": 1356.765625,
+            "width": 1267.21875,
+            "height": 398.171875,
+            "top": 1356.765625,
+            "right": 1353.609375,
+            "bottom": 1754.9375,
+            "left": 86.390625
+          },
+          "cols": "632.609px 632.609px"
+        },
+        {
+          "r": {
+            "x": 86.390625,
+            "y": 1778.9375,
+            "width": 1267.21875,
+            "height": 398.171875,
+            "top": 1778.9375,
+            "right": 1353.609375,
+            "bottom": 2177.109375,
+            "left": 86.390625
+          },
+          "cols": "632.609px 632.609px"
+        }
+      ],
+      "gaps": [
+        24,
+        24,
+        24,
+        24
+      ]
+    },
+    {
+      "homeWidth": 1800,
+      "cards": [
+        {
+          "r": {
+            "x": 266.390625,
+            "y": 90.25,
+            "width": 1267.21875,
+            "height": 398.171875,
+            "top": 90.25,
+            "right": 1533.609375,
+            "bottom": 488.421875,
+            "left": 266.390625
+          },
+          "cols": "632.609px 632.609px"
+        },
+        {
+          "r": {
+            "x": 266.390625,
+            "y": 512.421875,
+            "width": 1267.21875,
+            "height": 398.171875,
+            "top": 512.421875,
+            "right": 1533.609375,
+            "bottom": 910.59375,
+            "left": 266.390625
+          },
+          "cols": "632.609px 632.609px"
+        },
+        {
+          "r": {
+            "x": 266.390625,
+            "y": 934.59375,
+            "width": 1267.21875,
+            "height": 398.171875,
+            "top": 934.59375,
+            "right": 1533.609375,
+            "bottom": 1332.765625,
+            "left": 266.390625
+          },
+          "cols": "632.609px 632.609px"
+        },
+        {
+          "r": {
+            "x": 266.390625,
+            "y": 1356.765625,
+            "width": 1267.21875,
+            "height": 398.171875,
+            "top": 1356.765625,
+            "right": 1533.609375,
+            "bottom": 1754.9375,
+            "left": 266.390625
+          },
+          "cols": "632.609px 632.609px"
+        },
+        {
+          "r": {
+            "x": 266.390625,
+            "y": 1778.9375,
+            "width": 1267.21875,
+            "height": 398.171875,
+            "top": 1778.9375,
+            "right": 1533.609375,
+            "bottom": 2177.109375,
+            "left": 266.390625
+          },
+          "cols": "632.609px 632.609px"
+        }
+      ],
+      "gaps": [
+        24,
+        24,
+        24,
+        24
+      ]
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Public browser simulation visualization; independent backend's frozen verification is separate."
+}

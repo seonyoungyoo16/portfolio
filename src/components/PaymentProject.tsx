@@ -6,10 +6,9 @@ import {
   type Action,
   type Input,
   type Result,
-  type State,
-  type Node,
   type Fault,
 } from "../payment-demo";
+import PaymentScene from "./PaymentScene";
 import "../payment.css";
 const sources = model.sources as Record<
   string,
@@ -18,50 +17,12 @@ const sources = model.sources as Record<
 const href = (file: string, line?: number) =>
   `${model.repo}/blob/${model.revision}/${file}${line ? "#L" + line : ""}`;
 const won = (n: number) => n.toLocaleString("ko-KR") + "원";
-const positions: Record<Node, [number, number]> = {
-  Browser: [80, 135],
-  Server: [280, 135],
-  Redis: [480, 45],
-  DB: [480, 135],
-  PG: [280, 255],
-  "PG DB": [500, 255],
-};
-function Scene({ node }: { node?: Node }) {
-  return (
-    <svg
-      viewBox="0 0 600 315"
-      role="img"
-      aria-label={
-        "브라우저·서버·Redis·상점 DB·PG·PG DB 흐름. 현재 " + (node || "대기")
-      }
-      className="payment-scene"
-    >
-      <path d="M80 135H280L480 45M280 135H480M280 135V255H500" />
-      {Object.entries(positions).map(([id, [x, y]]) => (
-        <g
-          key={id}
-          transform={`translate(${x},${y})`}
-          className={node === id ? "active" : ""}
-        >
-          <rect x="-67" y="-26" width="134" height="52" rx="9" />
-          <text y="4" textAnchor="middle">
-            {id === "DB"
-              ? "MERCHANT DB"
-              : id === "PG"
-                ? "LOCAL PSP"
-                : id.toUpperCase()}
-          </text>
-          {node === id && <circle cx="56" cy="-15" r="4" />}
-        </g>
-      ))}
-    </svg>
-  );
-}
 export default function PaymentProject() {
   const [state, setState] = useState(emptyPayment),
     [result, setResult] = useState<Result | null>(null),
     [step, setStep] = useState(0),
     [playing, setPlaying] = useState(false),
+    [runVersion, setRunVersion] = useState(0),
     [tab, setTab] = useState("service"),
     [amount, setAmount] = useState("3000"),
     [drop, setDrop] = useState(false),
@@ -82,18 +43,25 @@ export default function PaymentProject() {
     const next = executePayment(state, action, { dropBrowser: drop, ...input });
     setState(next.state);
     setResult(next);
+    setRunVersion((v) => v + 1);
     setStep(0);
     setPlaying(true);
   };
   const reset = () => {
     setState(emptyPayment());
     setResult(null);
+    setRunVersion((v) => v + 1);
     setStep(0);
     setPlaying(false);
     setAmount("3000");
     setDrop(false);
   };
   const sourceKeys = Object.keys(sources);
+  const selectStep = (index: number) => {
+    setPlaying(false);
+    setStep(index);
+    setSourceOpen(true);
+  };
   return (
     <main className="payment-project">
       <a className="back-link" href="#projects">
@@ -269,6 +237,12 @@ export default function PaymentProject() {
             </button>
             <button
               disabled={busy}
+              onClick={() => run("confirm", { requests: 24 })}
+            >
+              같은 승인 24개 동시 요청
+            </button>
+            <button
+              disabled={busy}
               onClick={() => run("confirm", { amount: 1 })}
             >
               승인 금액 변조
@@ -360,7 +334,14 @@ export default function PaymentProject() {
             </small>
           </div>
           <div className="payment-actions">
-            <button disabled={!result} onClick={() => setPlaying(!playing)}>
+            <button
+              disabled={!result}
+              onClick={() => {
+                if (!playing && result && step === result.frames.length - 1)
+                  setStep(0);
+                setPlaying(!playing);
+              }}
+            >
               {playing ? "일시 정지 Ⅱ" : "재생 ▷"}
             </button>
             <button
@@ -382,7 +363,17 @@ export default function PaymentProject() {
               마지막으로 ⇥
             </button>
           </div>
-          <Scene node={current?.node} />
+          <PaymentScene
+            view={view}
+            frames={result?.frames || []}
+            step={step}
+            playing={playing}
+            run={runVersion}
+            onSelectStep={selectStep}
+          />
+          <p className="payment-subtle">
+            노드·원장을 선택하면 해당 처리 단계와 실제 소스를 엽니다.
+          </p>
           <div className="payment-current">
             <b>
               {current?.message ||
@@ -395,10 +386,7 @@ export default function PaymentProject() {
               <li key={i}>
                 <button
                   aria-current={i === step ? "step" : undefined}
-                  onClick={() => {
-                    setPlaying(false);
-                    setStep(i);
-                  }}
+                  onClick={() => selectStep(i)}
                 >
                   {i + 1} · {f.message}
                   <small>{f.node}</small>
@@ -584,8 +572,10 @@ export default function PaymentProject() {
                 code: "SOURCE_VIEW",
               };
               setResult(next);
+              setRunVersion((v) => v + 1);
               setStep(0);
               setPlaying(false);
+              setSourceOpen(true);
             }}
           >
             {sourceKeys.map((k) => (

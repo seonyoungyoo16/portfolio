@@ -9,6 +9,7 @@ import signupModel from "./generated/signup-source.json";
 import loginModel from "./generated/login-source.json";
 import chatModel from "./generated/chat-source.json";
 import model from "./generated/board-model.json";
+import "./project-list.css";
 export default function App() {
   const [route, setRoute] = useState(location.hash);
   useEffect(() => {
@@ -91,170 +92,178 @@ export default function App() {
                 설계 설명의 출발점이 됩니다.
               </p>
             </div>
-            <a className="featured-project" href="#project/board">
-              <div className="project-art" aria-hidden="true">
-                <div>
-                  app_users<small>PK id</small>
+            <div className="project-list">
+              <a className="featured-project" href="#project/board">
+                <div className="project-art" aria-hidden="true">
+                  <div>
+                    app_users<small>PK id</small>
+                  </div>
+                  <i>1 → N</i>
+                  <div>
+                    posts<small>FK author_id</small>
+                  </div>
+                  <div>
+                    comments<small>FK post_id</small>
+                  </div>
+                  <i>N ← 1</i>
+                  <div>
+                    post_likes<small>UQ post_id, user_id</small>
+                  </div>
                 </div>
-                <i>1 → N</i>
-                <div>
-                  posts<small>FK author_id</small>
+                <div className="featured-copy">
+                  <span className="eyebrow">01 / SOURCE-BASED PROJECT</span>
+                  <h3>Spring Boot Board Lab</h3>
+                  <p>
+                    글·이미지·댓글·좋아요를 구현한 게시판.
+                    <br />
+                    사용자 요청이 서버에 전달되는 과정을 보고,
+                    <br />
+                    동작에 따라 변하는 데이터를 확인합니다.
+                  </p>
+                  <div className="tags">
+                    <span>Spring Boot</span>
+                    <span>JPA</span>
+                    <span>H2</span>
+                    <span>
+                      {model.tables.length} Tables / {model.relations.length}{" "}
+                      FKs
+                    </span>
+                  </div>
+                  <strong>
+                    프로젝트 설계와 체험 열기 <span>↗</span>
+                  </strong>
                 </div>
-                <div>
-                  comments<small>FK post_id</small>
+              </a>
+              <a
+                className="featured-project chat-featured"
+                href="#project/chat"
+              >
+                <div className="chat-project-art" aria-hidden="true">
+                  <b>CLIENT A</b>
+                  <i>↔</i>
+                  <b>WebSocket</b>
+                  <i>↔</i>
+                  <b>CLIENT B</b>
                 </div>
-                <i>N ← 1</i>
-                <div>
-                  post_likes<small>UQ post_id, user_id</small>
+                <div className="featured-copy">
+                  <span className="eyebrow">02 / REALTIME MESSAGE FLOW</span>
+                  <h3>Spring Boot Chat Lab</h3>
+                  <p>
+                    연결된 두 참가자 사이로 오가는 실시간 메시지.
+                    <br />
+                    서버 저장과 같은 방 방송, ACK 응답을 따라가며
+                    <br />
+                    재접속과 중복 전송의 처리 방식을 살펴봅니다.
+                  </p>
+                  <div className="tags">
+                    <span>WebSocket</span>
+                    <span>Spring Boot</span>
+                    <span>JPA · H2</span>
+                    <span>Room Broadcast</span>
+                  </div>
+                  <strong>
+                    채팅 흐름과 체험 열기 <span>↗</span>
+                  </strong>
                 </div>
-              </div>
-              <div className="featured-copy">
-                <span className="eyebrow">01 / SOURCE-BASED PROJECT</span>
-                <h3>Spring Boot Board Lab</h3>
-                <p>
-                  글·이미지·댓글·좋아요를 구현한 게시판.
-                  <br />
-                  사용자 요청이 서버에 전달되는 과정을 보고,
-                  <br />
-                  동작에 따라 변하는 데이터를 확인합니다.
-                </p>
-                <div className="tags">
-                  <span>Spring Boot</span>
-                  <span>JPA</span>
-                  <span>H2</span>
-                  <span>
-                    {model.tables.length} Tables / {model.relations.length} FKs
+              </a>
+              <a
+                className="featured-project login-featured"
+                href="#project/login"
+              >
+                <div className="login-project-art" aria-hidden="true">
+                  <b>BROWSER · A / B</b>
+                  <i>↓</i>
+                  <b>SPRING SECURITY</b>
+                  <i>↙ ↘</i>
+                  <small>REDIS SESSION / POSTGRESQL</small>
+                </div>
+                <div className="featured-copy">
+                  <span className="eyebrow">03 / AUTHENTICATION LIFECYCLE</span>
+                  <h3>Spring Boot Login Lab</h3>
+                  <p>
+                    로그인부터 세션 만료, 로그인 유지와 기기별 폐기까지.
+                    <br />
+                    서버·Redis·DB 사이의 인증 상태 변화를 따라가며
+                    <br />
+                    동시 복원과 장애 상황을 실제 소스와 함께 살펴봅니다.
+                  </p>
+                  <div className="tags">
+                    <span>Spring Security</span>
+                    <span>Redis Session</span>
+                    <span>PostgreSQL</span>
+                    <span>41 Browser Scenarios</span>
+                  </div>
+                  <strong>
+                    로그인 흐름과 체험 열기 <span>↗</span>
+                  </strong>
+                </div>
+              </a>
+              <a
+                className="featured-project signup-featured"
+                href="#project/signup"
+              >
+                <div className="signup-project-art" aria-hidden="true">
+                  <b>EMAIL OWNERSHIP</b>
+                  <i>↓</i>
+                  <b>ATOMIC SIGNUP</b>
+                  <i>↔</i>
+                  <small>POSTGRESQL / REDIS / SMTP / OIDC</small>
+                </div>
+                <div className="featured-copy">
+                  <span className="eyebrow">
+                    04 / IDENTITY &amp; ONBOARDING
                   </span>
+                  <h3>Spring Boot Signup Lab</h3>
+                  <p>
+                    이메일 인증부터 중복 가입 방지와 외부 신원 연결까지.
+                    <br />
+                    메일 접수와 확인, 계정 확정의 경계를 따라가며
+                    <br />
+                    장애와 동시 요청의 처리 흐름을 실제 소스로 살펴봅니다.
+                  </p>
+                  <div className="tags">
+                    <span>Spring Security</span>
+                    <span>SMTP · Outbox</span>
+                    <span>OIDC · PKCE</span>
+                    <span>50 Browser Scenarios</span>
+                  </div>
+                  <strong>
+                    회원가입 흐름과 체험 열기 <span>↗</span>
+                  </strong>
                 </div>
-                <strong>
-                  프로젝트 설계와 체험 열기 <span>↗</span>
-                </strong>
-              </div>
-            </a>
-            <a className="featured-project chat-featured" href="#project/chat">
-              <div className="chat-project-art" aria-hidden="true">
-                <b>CLIENT A</b>
-                <i>↔</i>
-                <b>WebSocket</b>
-                <i>↔</i>
-                <b>CLIENT B</b>
-              </div>
-              <div className="featured-copy">
-                <span className="eyebrow">02 / REALTIME MESSAGE FLOW</span>
-                <h3>Spring Boot Chat Lab</h3>
-                <p>
-                  연결된 두 참가자 사이로 오가는 실시간 메시지.
-                  <br />
-                  서버 저장과 같은 방 방송, ACK 응답을 따라가며
-                  <br />
-                  재접속과 중복 전송의 처리 방식을 살펴봅니다.
-                </p>
-                <div className="tags">
-                  <span>WebSocket</span>
-                  <span>Spring Boot</span>
-                  <span>JPA · H2</span>
-                  <span>Room Broadcast</span>
+              </a>
+              <a
+                className="featured-project payment-featured"
+                href="#project/payment"
+              >
+                <div className="payment-art" aria-hidden="true">
+                  <b>MERCHANT COMMIT</b>
+                  <i>⇄</i>
+                  <b>INDEPENDENT PSP</b>
+                  <small>IDEMPOTENCY / CANCEL / RECOVERY</small>
                 </div>
-                <strong>
-                  채팅 흐름과 체험 열기 <span>↗</span>
-                </strong>
-              </div>
-            </a>
-            <a
-              className="featured-project login-featured"
-              href="#project/login"
-            >
-              <div className="login-project-art" aria-hidden="true">
-                <b>BROWSER · A / B</b>
-                <i>↓</i>
-                <b>SPRING SECURITY</b>
-                <i>↙ ↘</i>
-                <small>REDIS SESSION / POSTGRESQL</small>
-              </div>
-              <div className="featured-copy">
-                <span className="eyebrow">03 / AUTHENTICATION LIFECYCLE</span>
-                <h3>Spring Boot Login Lab</h3>
-                <p>
-                  로그인부터 세션 만료, 로그인 유지와 기기별 폐기까지.
-                  <br />
-                  서버·Redis·DB 사이의 인증 상태 변화를 따라가며
-                  <br />
-                  동시 복원과 장애 상황을 실제 소스와 함께 살펴봅니다.
-                </p>
-                <div className="tags">
-                  <span>Spring Security</span>
-                  <span>Redis Session</span>
-                  <span>PostgreSQL</span>
-                  <span>41 Browser Scenarios</span>
+                <div className="featured-copy">
+                  <span className="eyebrow">05 / PAYMENT CONSISTENCY</span>
+                  <h3>Spring Boot Payment Lab</h3>
+                  <p>
+                    중복 승인 방지부터 전액·부분 취소와 결과 불명 복구까지.
+                    <br />
+                    상점과 독립 PG의 서로 다른 커밋을 비교하고
+                    <br />
+                    실제 원장·작업·보상의 처리 흐름을 소스로 확인합니다.
+                  </p>
+                  <div className="tags">
+                    <span>Independent PSP</span>
+                    <span>PostgreSQL · Redis</span>
+                    <span>Ledger · Outbox</span>
+                    <span>64 Browser Scenarios</span>
+                  </div>
+                  <strong>
+                    결제 흐름과 체험 열기 <span>↗</span>
+                  </strong>
                 </div>
-                <strong>
-                  로그인 흐름과 체험 열기 <span>↗</span>
-                </strong>
-              </div>
-            </a>
-            <a
-              className="featured-project signup-featured"
-              href="#project/signup"
-            >
-              <div className="signup-project-art" aria-hidden="true">
-                <b>EMAIL OWNERSHIP</b>
-                <i>↓</i>
-                <b>ATOMIC SIGNUP</b>
-                <i>↔</i>
-                <small>POSTGRESQL / REDIS / SMTP / OIDC</small>
-              </div>
-              <div className="featured-copy">
-                <span className="eyebrow">04 / IDENTITY &amp; ONBOARDING</span>
-                <h3>Spring Boot Signup Lab</h3>
-                <p>
-                  이메일 인증부터 중복 가입 방지와 외부 신원 연결까지.
-                  <br />
-                  메일 접수와 확인, 계정 확정의 경계를 따라가며
-                  <br />
-                  장애와 동시 요청의 처리 흐름을 실제 소스로 살펴봅니다.
-                </p>
-                <div className="tags">
-                  <span>Spring Security</span>
-                  <span>SMTP · Outbox</span>
-                  <span>OIDC · PKCE</span>
-                  <span>50 Browser Scenarios</span>
-                </div>
-                <strong>
-                  회원가입 흐름과 체험 열기 <span>↗</span>
-                </strong>
-              </div>
-            </a>
-            <a
-              className="featured-project payment-featured"
-              href="#project/payment"
-            >
-              <div className="payment-art" aria-hidden="true">
-                <b>MERCHANT COMMIT</b>
-                <i>⇄</i>
-                <b>INDEPENDENT PSP</b>
-                <small>IDEMPOTENCY / CANCEL / RECOVERY</small>
-              </div>
-              <div className="featured-copy">
-                <span className="eyebrow">05 / PAYMENT CONSISTENCY</span>
-                <h3>Spring Boot Payment Lab</h3>
-                <p>
-                  중복 승인 방지부터 전액·부분 취소와 결과 불명 복구까지.
-                  <br />
-                  상점과 독립 PG의 서로 다른 커밋을 비교하고
-                  <br />
-                  실제 원장·작업·보상의 처리 흐름을 소스로 확인합니다.
-                </p>
-                <div className="tags">
-                  <span>Independent PSP</span>
-                  <span>PostgreSQL · Redis</span>
-                  <span>Ledger · Outbox</span>
-                  <span>64 Browser Scenarios</span>
-                </div>
-                <strong>
-                  결제 흐름과 체험 열기 <span>↗</span>
-                </strong>
-              </div>
-            </a>
+              </a>
+            </div>
             <div className="home-source">
               <span>
                 GitHub 소스 게시 완료 · commit {model.revision?.slice(0, 7)}

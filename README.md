@@ -133,3 +133,5 @@ DB 중단이나 전송 처리 중에도 입력창과 보내기를 계속 사용�
 [Spring Boot Payment Lab](https://github.com/seonyoungyoo16/springboot-payment-lab)을 다섯 번째 프로젝트로 추가했습니다. [공개 결제 체험](https://seonyoungyoo16.github.io/portfolio/#project/payment)에서 중복 승인 방지·거래 정합성·전액/부분 취소·불명 복구와 실제 소스 37개를 살펴볼 수 있습니다. 공개 화면은 브라우저 시뮬레이션이며 독립 상점/PG의 실제 백엔드 64개 브라우저·12개 SQL/API 결과는 고정 커밋으로 따로 연결합니다.
 
 `npm run test:payment`, `npm run verify:payment-source`, `npm run test:payment-browser`. [연결 및 검증 범위](docs/payment-project.md).
+
+결제 체험의 Three.js 장면은 현재 처리 프레임의 요청·중복 게이트·독립 원장·취소 예약을 표시합니다. 노드·원장 선택은 해당 단계와 고정 커밋 실제 소스를 함께 엽니다. 프로젝트 목록 5개는 공통 너비·열 비율과 데스크톱 24px/작은 화면 20px 간격을 사용합니다. [장면과 검증 범위](docs/payment-three.md).

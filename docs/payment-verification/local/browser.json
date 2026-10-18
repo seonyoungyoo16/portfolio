@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "completedAt": "2026-10-18T08:46:36.743Z",
+  "completedAt": "2026-10-18T09:38:13.744Z",
   "base": "http://127.0.0.1:5190/",
   "scope": "static portfolio simulation; independent actual backend 64 browser and 12 SQL/API linked separately",
   "sourceRevision": "4b44cb606c2a77af45e5f16dbc4c34c33a29afbb",
