@@ -27,4 +27,7 @@
 - 실제 독립 백엔드 재검증: API·저장소 20건, 브라우저 41건 통과.
 - 로컬 브라우저 18개 묶음 통과: 핵심 기능, 여러 화면 폭, 모바일 패널, 기존 게시판·채팅. pageerror 0.
 - TypeScript와 Pages 빌드, 기존 게시판·채팅 모델과 소스 검증 통과.
-- 배포와 공개 브라우저 결과는 배포 후 기록한다.
+- Pages 배포 완료: 소스 4058f77 → gh-pages 926da48, Actions run 39099309202 success.
+- 공개 주소 https://seonyoungyoo16.github.io/portfolio/#project/login 에서 브라우저 18개 묶음 재검증 통과. pageerror 0, 모바일 390px와 768/1440/1800px 검증 통과.
+- 공개 index.html·JS·CSS·release.json 4개 파일이 로컬 산출물의 SHA-256과 일치. 공개 화면에서 소스를 클릭해 실제 GitHub 파일이 열리는 것까지 확인.
+- 근거: docs/login-verification/published/browser.json, deployment.json, desktop.png, mobile-*.png.

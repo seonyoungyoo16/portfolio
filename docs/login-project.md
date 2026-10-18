@@ -30,4 +30,17 @@ GitHub Pages 체험은 같은 처리 규칙을 설명하는 브라우저 시뮬�
 - 기존 게시판·채팅의 상태 모델과 채팅 소스 검증도 수행한다.
 - 독립 백엔드 API·저장소 20건과 브라우저 41건은 Pages 시뮬레이션 검사와 별도 근거이다.
 
-브라우저 결과와 캡처는 [login-verification](login-verification)에 기록한다. `local`은 개발 서버, `published`는 공개 Pages URL의 결과다. 공개 배포 후 기록은 배포 결과와 함께 갱신한다.
+브라우저 결과와 캡처는 [login-verification](login-verification)에 기록한다. `local`은 개발 서버, `published`는 공개 Pages URL의 결과다.
+
+## 공개 배포 확인
+
+2026-10-18 KST. [로그인 체험](https://seonyoungyoo16.github.io/portfolio/#project/login) 배포를 완료했다.
+
+- 배포 소스 `4058f773f37ca0f2ae965e7e39ee8b6c199ebeed`, Pages 산출물 `926da485b75e86f9d8ee813929e98fa32e50cd58`.
+- [GitHub Pages 실행](https://github.com/seonyoungyoo16/portfolio/actions/runs/39099309202) 성공.
+- 공개 브라우저 18개 검증 묶음 모두 통과. 실행 오류 0, 화면 폭 390·768·1440·1800px와 기존 게시판·채팅 경로 확인. [브라우저 결과](login-verification/published/browser.json)
+- index.html·JS·CSS·release.json의 공개 응답 200과 로컬 산출물 SHA-256 일치. 공개 화면에서 실제 GitHub 소스 파일을 새 탭으로 열어 확인. [배포 결과](login-verification/published/deployment.json)
+- 소스·문서 링크 15개 응답과 소스 해시 12개 확인. [원본 확인](login-verification/remote-source.json)
+- 독립 실제 백엔드 재검증은 API·저장소 20건과 브라우저 41건 통과. [실제 실행 결과](https://github.com/seonyoungyoo16/springboot-login-lab/blob/a2bf485592c2d59d34c5e109a8b9bc839713f138/docs/verification/RESULTS.md)
+
+공개 브라우저 증거는 Pages 시뮬레이션의 배포·동작 결과다. 실제 Spring Boot·Redis·PostgreSQL의 공개 호스팅이나 운영 부하 검증을 뜻하지 않는다.

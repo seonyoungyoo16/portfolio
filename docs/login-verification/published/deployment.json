@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "completedAt": "2026-10-18T05:05:42.634Z",
+  "url": "https://seonyoungyoo16.github.io/portfolio/#project/login",
+  "release": {
+    "source": "4058f773f37ca0f2ae965e7e39ee8b6c199ebeed",
+    "loginSource": "a2bf485592c2d59d34c5e109a8b9bc839713f138",
+    "builtAt": "2026-10-18T05:04:30.029Z",
+    "assets": [
+      "index-9TIlp0rY.js",
+      "index-DYay_dsP.css"
+    ]
+  },
+  "assets": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "sha256": "1ab48035fc5c9f314494c6e7e04a7d908492dc94e82dbefb165658968ff81501"
+    },
+    {
+      "file": "release.json",
+      "status": 200,
+      "sha256": "4415edee3a7edeb891a34038b1c52e08c25a203bb305d7623b4709973308aefa"
+    },
+    {
+      "file": "assets/index-9TIlp0rY.js",
+      "status": 200,
+      "sha256": "707fc7d6baeebc4833a1f7041938f98ea052d67ae55acdaac1bf0a5aec81c8aa"
+    },
+    {
+      "file": "assets/index-DYay_dsP.css",
+      "status": 200,
+      "sha256": "ad7ab0c7fa86818b62bdca253abb339c538ee12e39479a14186da5d7aa1fd455"
+    }
+  ],
+  "sourcePopupUrl": "https://github.com/seonyoungyoo16/springboot-login-lab/blob/a2bf485592c2d59d34c5e109a8b9bc839713f138/backend/src/main/java/dev/portfolio/loginlab/AuthService.java#L78",
+  "action": {
+    "conclusion": "success",
+    "headSha": "926da485b75e86f9d8ee813929e98fa32e50cd58",
+    "status": "completed",
+    "url": "https://github.com/seonyoungyoo16/portfolio/actions/runs/39099309202"
+  }
+}
