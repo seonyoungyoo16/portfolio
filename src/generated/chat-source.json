@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/seonyoungyoo16/springboot-chat-lab",
-  "revision": "8bd1bb0ac5e7e907103bf8cabeaaf995484b4bb6",
+  "revision": "4e8ea0b1084b25bcf90b93d035ab1108a5700793",
   "bodyMax": 2000,
   "historyMax": 100,
   "rooms": [
@@ -660,11 +660,11 @@
         "node": "broker",
         "highlight": "kafka.send(TOPIC",
         "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
-        "line": 41,
+        "line": 48,
         "lines": [
           "                var result=kafka.send(TOPIC, room.equals(\"lobby\")?0:1, room, String.valueOf(id)).get(5,TimeUnit.SECONDS);",
           "                jdbc.update(\"UPDATE chat_outbox SET published=TRUE, kafka_partition=?, kafka_offset=? WHERE message_id=?\",result.getRecordMetadata().partition(),result.getRecordMetadata().offset(),id);",
-          "            } catch(Exception unavailable){if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}"
+          "                publishError=\"\";"
         ]
       },
       {
@@ -672,11 +672,11 @@
         "node": "broker",
         "highlight": "UPDATE chat_outbox SET published",
         "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
-        "line": 42,
+        "line": 49,
         "lines": [
           "                jdbc.update(\"UPDATE chat_outbox SET published=TRUE, kafka_partition=?, kafka_offset=? WHERE message_id=?\",result.getRecordMetadata().partition(),result.getRecordMetadata().offset(),id);",
-          "            } catch(Exception unavailable){if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}",
-          "        }"
+          "                publishError=\"\";",
+          "            } catch(Exception unavailable){publishError=unavailable.getClass().getSimpleName();if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}"
         ]
       }
     ],
@@ -746,11 +746,11 @@
         "node": "broker",
         "highlight": "kafka.send(TOPIC",
         "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
-        "line": 41,
+        "line": 48,
         "lines": [
           "                var result=kafka.send(TOPIC, room.equals(\"lobby\")?0:1, room, String.valueOf(id)).get(5,TimeUnit.SECONDS);",
           "                jdbc.update(\"UPDATE chat_outbox SET published=TRUE, kafka_partition=?, kafka_offset=? WHERE message_id=?\",result.getRecordMetadata().partition(),result.getRecordMetadata().offset(),id);",
-          "            } catch(Exception unavailable){if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}"
+          "                publishError=\"\";"
         ]
       },
       {
@@ -758,11 +758,11 @@
         "node": "broker",
         "highlight": "UPDATE chat_outbox SET published",
         "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
-        "line": 42,
+        "line": 49,
         "lines": [
           "                jdbc.update(\"UPDATE chat_outbox SET published=TRUE, kafka_partition=?, kafka_offset=? WHERE message_id=?\",result.getRecordMetadata().partition(),result.getRecordMetadata().offset(),id);",
-          "            } catch(Exception unavailable){if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}",
-          "        }"
+          "                publishError=\"\";",
+          "            } catch(Exception unavailable){publishError=unavailable.getClass().getSimpleName();if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}"
         ]
       }
     ],
@@ -772,7 +772,7 @@
         "node": "consumer",
         "highlight": "public void consume(ConsumerRecord",
         "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
-        "line": 48,
+        "line": 56,
         "lines": [
           "    public void consume(ConsumerRecord<String,String> record){",
           "        long id=Long.parseLong(record.value());",
@@ -784,7 +784,7 @@
         "node": "consumer",
         "highlight": "SELECT COUNT(*) FROM chat_deliveries",
         "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
-        "line": 50,
+        "line": 58,
         "lines": [
           "        if(jdbc.queryForObject(\"SELECT COUNT(*) FROM chat_deliveries WHERE message_id=?\",Long.class,id)>0)return;",
           "        var message=service.message(id);",
@@ -808,7 +808,7 @@
         "node": "consumer",
         "highlight": "INSERT INTO chat_deliveries",
         "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
-        "line": 53,
+        "line": 61,
         "lines": [
           "        jdbc.update(\"INSERT INTO chat_deliveries(message_id, kafka_partition, kafka_offset) VALUES (?,?,?)\",id,record.partition(),record.offset());",
           "        // Container commits its Kafka offset after this listener and its DB transaction succeed.",
@@ -820,7 +820,7 @@
         "node": "offset",
         "highlight": "Container commits its Kafka offset",
         "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
-        "line": 54,
+        "line": 62,
         "lines": [
           "        // Container commits its Kafka offset after this listener and its DB transaction succeed.",
           "    }",
@@ -834,11 +834,11 @@
         "node": "broker",
         "highlight": "kafka.send(TOPIC",
         "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
-        "line": 41,
+        "line": 48,
         "lines": [
           "                var result=kafka.send(TOPIC, room.equals(\"lobby\")?0:1, room, String.valueOf(id)).get(5,TimeUnit.SECONDS);",
           "                jdbc.update(\"UPDATE chat_outbox SET published=TRUE, kafka_partition=?, kafka_offset=? WHERE message_id=?\",result.getRecordMetadata().partition(),result.getRecordMetadata().offset(),id);",
-          "            } catch(Exception unavailable){if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}"
+          "                publishError=\"\";"
         ]
       },
       {
@@ -846,11 +846,183 @@
         "node": "broker",
         "highlight": "UPDATE chat_outbox SET published",
         "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
-        "line": 42,
+        "line": 49,
         "lines": [
           "                jdbc.update(\"UPDATE chat_outbox SET published=TRUE, kafka_partition=?, kafka_offset=? WHERE message_id=?\",result.getRecordMetadata().partition(),result.getRecordMetadata().offset(),id);",
-          "            } catch(Exception unavailable){if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}",
-          "        }"
+          "                publishError=\"\";",
+          "            } catch(Exception unavailable){publishError=unavailable.getClass().getSimpleName();if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}"
+        ]
+      }
+    ],
+    "kafkaUnavailable": [
+      {
+        "label": "JSON 프레임 전송",
+        "node": "sender",
+        "highlight": "socket.send(JSON.stringify({type:'send'",
+        "file": "src/main/resources/static/chat.js",
+        "line": 44,
+        "lines": [
+          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
+          "function receiveAck(event){",
+          "  messages.set(event.message.id,event.message);"
+        ]
+      },
+      {
+        "label": "본문과 식별자 검증",
+        "node": "server",
+        "highlight": "body = text(body, 2000",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 56,
+        "lines": [
+          "        validateRoom(roomId); identifier(clientId); identifier(requestId); text(sender, 20, \"이름\"); body = text(body, 2000, \"메시지\");",
+          "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
+          "        if (previous.isPresent()) {"
+        ]
+      },
+      {
+        "label": "중복 requestId 조회",
+        "node": "database",
+        "highlight": "messages.findByClientIdAndRequestId",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 57,
+        "lines": [
+          "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
+          "        if (previous.isPresent()) {",
+          "            if (!previous.get().roomId.equals(roomId)) throw new IllegalArgumentException(\"다른 방에서 사용한 요청 ID입니다.\");"
+        ]
+      },
+      {
+        "label": "대화 + Outbox INSERT · 함께 commit",
+        "node": "database",
+        "highlight": "INSERT INTO chat_outbox",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 64,
+        "lines": [
+          "        if(mode.equals(\"kafka\"))jdbc.update(\"INSERT INTO chat_outbox(message_id) VALUES (?)\",message.id);",
+          "        return new Saved(view(message), false);",
+          "    }"
+        ]
+      },
+      {
+        "label": "발신자에게 ACK 응답",
+        "node": "sender",
+        "highlight": "\"type\", \"ack\"",
+        "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
+        "line": 51,
+        "lines": [
+          "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
+          "    }",
+          "    @org.springframework.context.event.EventListener"
+        ]
+      },
+      {
+        "label": "Kafka 연결 불가 · 발행 보류",
+        "node": "broker-unavailable",
+        "highlight": "if(!brokerRunning){",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 38,
+        "lines": [
+          "        if(!brokerRunning){",
+          "            publishError=\"Kafka 연결 중단 체험\";",
+          "            return; // Keep unpublished Outbox rows for the next recovery attempt."
+        ]
+      },
+      {
+        "label": "Outbox 미발행 보관 · 복구 후 재시도",
+        "node": "outbox",
+        "highlight": "Keep unpublished Outbox rows",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 40,
+        "lines": [
+          "            return; // Keep unpublished Outbox rows for the next recovery attempt.",
+          "        }",
+          "        var rows=jdbc.queryForList(\"SELECT o.message_id, m.room_id FROM chat_outbox o JOIN chat_messages m ON m.id=o.message_id WHERE o.published=FALSE ORDER BY o.message_id LIMIT 100\");"
+        ]
+      }
+    ],
+    "kafkaUnavailableInterrupted": [
+      {
+        "label": "JSON 프레임 전송",
+        "node": "sender",
+        "highlight": "socket.send(JSON.stringify({type:'send'",
+        "file": "src/main/resources/static/chat.js",
+        "line": 44,
+        "lines": [
+          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
+          "function receiveAck(event){",
+          "  messages.set(event.message.id,event.message);"
+        ]
+      },
+      {
+        "label": "본문과 식별자 검증",
+        "node": "server",
+        "highlight": "body = text(body, 2000",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 56,
+        "lines": [
+          "        validateRoom(roomId); identifier(clientId); identifier(requestId); text(sender, 20, \"이름\"); body = text(body, 2000, \"메시지\");",
+          "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
+          "        if (previous.isPresent()) {"
+        ]
+      },
+      {
+        "label": "중복 requestId 조회",
+        "node": "database",
+        "highlight": "messages.findByClientIdAndRequestId",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 57,
+        "lines": [
+          "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
+          "        if (previous.isPresent()) {",
+          "            if (!previous.get().roomId.equals(roomId)) throw new IllegalArgumentException(\"다른 방에서 사용한 요청 ID입니다.\");"
+        ]
+      },
+      {
+        "label": "대화 + Outbox INSERT · 함께 commit",
+        "node": "database",
+        "highlight": "INSERT INTO chat_outbox",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 64,
+        "lines": [
+          "        if(mode.equals(\"kafka\"))jdbc.update(\"INSERT INTO chat_outbox(message_id) VALUES (?)\",message.id);",
+          "        return new Saved(view(message), false);",
+          "    }"
+        ]
+      },
+      {
+        "label": "ACK 수신 전 연결 끊김 · 요청 보관",
+        "node": "sender",
+        "highlight": "function interruptBeforeAck",
+        "file": "src/main/resources/static/chat.js",
+        "line": 50,
+        "lines": [
+          "function interruptBeforeAck(message){",
+          "  // Deterministic demo: receive the committed broadcast, then ignore queued ACKs from this socket.",
+          "  cutRequest=null;disconnect();"
+        ]
+      },
+      {
+        "label": "Kafka 연결 불가 · 발행 보류",
+        "node": "broker-unavailable",
+        "highlight": "if(!brokerRunning){",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 38,
+        "lines": [
+          "        if(!brokerRunning){",
+          "            publishError=\"Kafka 연결 중단 체험\";",
+          "            return; // Keep unpublished Outbox rows for the next recovery attempt."
+        ]
+      },
+      {
+        "label": "Outbox 미발행 보관 · 복구 후 재시도",
+        "node": "outbox",
+        "highlight": "Keep unpublished Outbox rows",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 40,
+        "lines": [
+          "            return; // Keep unpublished Outbox rows for the next recovery attempt.",
+          "        }",
+          "        var rows=jdbc.queryForList(\"SELECT o.message_id, m.room_id FROM chat_outbox o JOIN chat_messages m ON m.id=o.message_id WHERE o.published=FALSE ORDER BY o.message_id LIMIT 100\");"
         ]
       }
     ]
@@ -858,7 +1030,7 @@
   "sources": [
     {
       "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
-      "sha256": "dd4db35a14e7d32a7584f0e9e5ef315a81d7dd9d3383928a50e497405f5f8a65"
+      "sha256": "eb628616cd0ab0c0c5e9d39accb21f7a2037c0b834f6d678da55eeeb8e6cfc55"
     },
     {
       "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
@@ -886,7 +1058,7 @@
     },
     {
       "file": "src/main/resources/static/chat.js",
-      "sha256": "1a4a505ad66331e750155b72b424244bace2af6bfc9869c64c557148370b5c96"
+      "sha256": "0e0dbce1ab5bc68ad7fa08c3ea5469b7f870cb9f9dbb79b3141305c71b7df61e"
     }
   ]
 }

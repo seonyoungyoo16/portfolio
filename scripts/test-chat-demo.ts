@@ -121,3 +121,28 @@ assert.equal(otherPartition.kafkaEvents?.at(-1)?.offset,0)
 assert.equal(deliverChat([viewer],secondRoom.message)[0].messages.length,4)
 assert.equal(JSON.parse(JSON.stringify(otherPartition)).kafkaEvents.at(-1).published,true)
 console.log('Kafka demo: route selection, atomic outbox, accumulation, ordered drain, room isolation, dedup and route-scoped reads passed.')
+
+// Broker outage is independent of worker availability: unpublished rows stay in Outbox.
+let outageDb=emptyChat()
+const outageA=storeChat(outageDb,a,'브로커 중단 중 보관 1','broker-down-1','kafka');outageDb=outageA.database
+const outageB=storeChat(outageDb,a,'브로커 중단 중 보관 2','broker-down-2','kafka');outageDb=outageB.database
+for(const id of [outageA.message.id,outageB.message.id])outageDb=publishChatEvent(outageDb,id,false)
+assert.deepEqual(deliveryStats(outageDb),{outbox:2,queued:0,processed:0})
+assert.ok(outageDb.kafkaEvents!.every(event=>event.offset===null&&!event.published))
+assert.equal(nextDelivery(outageDb,false),undefined)
+assert.equal(storeChat(outageDb,a,outageA.message.body,'broker-down-1','kafka').database.kafkaEvents?.length,2)
+// A reload retains the DB rows; broker recovery publishes original IDs and appends offsets once.
+outageDb=JSON.parse(JSON.stringify(outageDb))
+for(const id of [outageA.message.id,outageB.message.id])outageDb=publishChatEvent(outageDb,id,true)
+assert.deepEqual(deliveryStats(outageDb),{outbox:0,queued:2,processed:0})
+assert.equal(nextDelivery(outageDb,false),undefined)
+assert.equal(nextDelivery(outageDb,true)?.messageId,outageA.message.id)
+assert.deepEqual(publishChatEvent(outageDb,outageA.message.id,true),outageDb)
+let recoveredClients=[a,b,outside]
+for(const id of [outageA.message.id,outageB.message.id]){recoveredClients=deliverChat(recoveredClients,outageDb.messages.find(m=>m.id===id)!);outageDb=consumeChatEvent(outageDb,id)}
+assert.equal(recoveredClients[1].messages.length,2)
+assert.equal(recoveredClients[2].messages.length,0)
+assert.deepEqual(deliveryStats(outageDb),{outbox:0,queued:0,processed:2})
+assert.equal(outageDb.messages.length,2)
+assert.deepEqual(outageDb.kafkaEvents!.map(e=>e.offset),[0,1])
+console.log('Broker outage: Outbox retention, null offsets, reload recovery, original IDs, independent consume gate and single delivery passed.')

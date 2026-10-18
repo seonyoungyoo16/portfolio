@@ -54,3 +54,11 @@ GitHub Pages는 Java 서버를 실행하지 않는다. 별도 서버 호스팅 �
 Kafka 모드에서도 ACK 전 연결 끊김/재전송은 원래 mode와 requestId를 유지합니다. 처리 경로별 읽음 위치를 따로 저장해 늦게 도착한 Kafka 메시지의 읽음을 잘못 추정하지 않습니다.
 
 Pages에서는 두 경로 모두 브라우저 시뮬레이션입니다. 실제 Spring Boot 저장소에는 Spring Kafka Producer/Consumer, JDBC Outbox, Consumer pause/resume API와 임베디드 실제 Kafka 통합 테스트가 있습니다. 수신/전달 서버는 동일 JVM의 논리 역할이며 다중 서버 라우팅이나 상시 Kafka 호스팅은 포함하지 않습니다.
+
+## Kafka 중단과 Outbox 재발행
+
+Kafka와 Consumer 제어를 분리합니다. Kafka 중단은 발행/소비 불가 상태를 재현하며 메시지 DB 저장과 ACK를 계속 처리합니다. 메시지와 Outbox INSERT를 같은 단계에 적용하고, 발행을 보류하므로 offset도 생성하지 않습니다. 3D에서 Kafka는 회색, 미발행 문서는 DB의 Outbox 옆에 표시합니다. 요청 카드가 Kafka에 도착하기 전 멈추고 Outbox 대기로 돌아오는 단계와 실제 서버의 장애 체험 소스를 연결합니다.
+
+Kafka 복구 시 미발행 이벤트를 원래 ID로 발행하고 파티션/offset을 표시한 뒤 Consumer 전달을 재생합니다. Kafka만 복구하고 Consumer는 중단해 두면 이벤트가 Kafka로 옮겨져 계속 대기합니다. 발행 완료 전/후의 데이터와 두 역할의 상태는 초기화하지 않습니다. 브라우저 새로고침에도 DB 이벤트 및 세션의 장애 설정을 유지합니다.
+
+Pages는 브라우저 시뮬레이션입니다. 독립 Java 앱의 Kafka 중단 제어도 외부 프로세스 종료가 아닌 연결 장애 주입입니다. 실제 전송 예외 시 Outbox 보존/재시도 경로는 별도 테스트로 확인합니다.
