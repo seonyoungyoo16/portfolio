@@ -1,16 +1,16 @@
 {
-  "source": "befa4dade5d40da8bf29cbbb41a6aadddcf354a3",
+  "source": "63d8d5b796c7d38cdace3a5ab53e72428701183b",
   "signupSource": "b5294ab9bdcf27d424ae7326f186bc02fed82f9b",
   "loginSource": "a2bf485592c2d59d34c5e109a8b9bc839713f138",
-  "chatSource": "2c8f8f26f113fe663a7c2de9e31ef4514d669be7",
-  "builtAt": "2026-10-18T07:57:30.850Z",
+  "chatSource": "428219d86fe7d16a2caa15e579df6f31f16f8fbb",
+  "builtAt": "2026-10-18T08:12:33.820Z",
   "assets": [
-    "index-DXDqKQoz.js",
-    "index-Cp8wa3je.css"
+    "index-CWtOv6Ar.js",
+    "index-Btox_2y8.css"
   ],
   "hashes": {
-    "index.html": "ccebadc6e45790d0e26f0335c6840765e7301046291588d854270442d71dba80",
-    "assets/index-DXDqKQoz.js": "06652dafd427b4ae3399b4cd154594b28ac661fe51f4ab4b5bd6a38422c8edff",
-    "assets/index-Cp8wa3je.css": "3a78dcd10a8e431b4aac1a119c32c85121e15c00e80be9a0b4e7e473b6e5565b"
+    "index.html": "f537585611bf09fa2b7d37e7794d9cb8e0c7d7523563949da7dd6cd366ccea1b",
+    "assets/index-CWtOv6Ar.js": "9d3470194b08ffe9185f20b30dbb14ecefe35eac21a2742e27f6abd729b9dd29",
+    "assets/index-Btox_2y8.css": "fc6ed024d4adc55f5dab00f0bcdfde85f7f8ef39d1d9bbfe0de463c4ba6d067d"
   }
 }
