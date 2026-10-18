@@ -73,10 +73,10 @@ async function check(name, fn) {
 }
 try {
   await check(
-    "four project cards, signup route, explicit boundary and fixed actual evidence",
+    "five project cards, signup route, explicit boundary and fixed actual evidence",
     async () => {
       await page.goto(base);
-      await expect(page.locator("a.featured-project")).toHaveCount(4);
+      await expect(page.locator("a.featured-project")).toHaveCount(5);
       await page.locator('a.featured-project[href="#project/signup"]').click();
       await expect(page.locator(".signup-project h1")).toContainText(
         "하나의 계정",

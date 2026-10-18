@@ -13,7 +13,10 @@
     "test:login-browser": "node scripts/test-login-browser.mjs",
     "test:signup": "node --experimental-strip-types scripts/test-signup-demo.ts",
     "verify:signup-source": "node scripts/verify-signup-source.mjs",
-    "test:signup-browser": "node scripts/test-signup-browser.mjs"
+    "test:signup-browser": "node scripts/test-signup-browser.mjs",
+    "test:payment": "node --experimental-strip-types scripts/test-payment-demo.ts",
+    "verify:payment-source": "node scripts/verify-payment-source.mjs",
+    "test:payment-browser": "node scripts/test-payment-browser.mjs"
   },
   "dependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.3.0",

@@ -3,6 +3,8 @@ import BoardProject from "./components/BoardProject";
 import ChatProject from "./components/ChatProject";
 import LoginProject from "./components/LoginProject";
 import SignupProject from "./components/SignupProject";
+import PaymentProject from "./components/PaymentProject";
+import paymentModel from "./generated/payment-source.json";
 import signupModel from "./generated/signup-source.json";
 import loginModel from "./generated/login-source.json";
 import chatModel from "./generated/chat-source.json";
@@ -35,13 +37,15 @@ export default function App() {
           <a href="#experience">개발관</a>
           <a
             href={
-              route === "#project/signup"
-                ? signupModel.repo
-                : route === "#project/login"
-                  ? loginModel.repo
-                  : route === "#project/chat"
-                    ? chatModel.repo
-                    : model.repo
+              route === "#project/payment"
+                ? paymentModel.repo
+                : route === "#project/signup"
+                  ? signupModel.repo
+                  : route === "#project/login"
+                    ? loginModel.repo
+                    : route === "#project/chat"
+                      ? chatModel.repo
+                      : model.repo
             }
             target="_blank"
             rel="noopener noreferrer"
@@ -58,6 +62,8 @@ export default function App() {
         <LoginProject />
       ) : route === "#project/signup" ? (
         <SignupProject />
+      ) : route === "#project/payment" ? (
+        <PaymentProject />
       ) : (
         <main className="portfolio-home">
           <section className="home-intro">
@@ -215,6 +221,37 @@ export default function App() {
                 </div>
                 <strong>
                   회원가입 흐름과 체험 열기 <span>↗</span>
+                </strong>
+              </div>
+            </a>
+            <a
+              className="featured-project payment-featured"
+              href="#project/payment"
+            >
+              <div className="payment-art" aria-hidden="true">
+                <b>MERCHANT COMMIT</b>
+                <i>⇄</i>
+                <b>INDEPENDENT PSP</b>
+                <small>IDEMPOTENCY / CANCEL / RECOVERY</small>
+              </div>
+              <div className="featured-copy">
+                <span className="eyebrow">05 / PAYMENT CONSISTENCY</span>
+                <h3>Spring Boot Payment Lab</h3>
+                <p>
+                  중복 승인 방지부터 전액·부분 취소와 결과 불명 복구까지.
+                  <br />
+                  상점과 독립 PG의 서로 다른 커밋을 비교하고
+                  <br />
+                  실제 원장·작업·보상의 처리 흐름을 소스로 확인합니다.
+                </p>
+                <div className="tags">
+                  <span>Independent PSP</span>
+                  <span>PostgreSQL · Redis</span>
+                  <span>Ledger · Outbox</span>
+                  <span>64 Browser Scenarios</span>
+                </div>
+                <strong>
+                  결제 흐름과 체험 열기 <span>↗</span>
                 </strong>
               </div>
             </a>

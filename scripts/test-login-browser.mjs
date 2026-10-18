@@ -50,7 +50,7 @@ async function check(name, test) {
 try {
   await check("home card and project navigation", async () => {
     await page.goto(base);
-    await expect(page.locator("a.featured-project")).toHaveCount(4);
+    await expect(page.locator("a.featured-project")).toHaveCount(5);
     await page.locator('a[href="#project/login"].featured-project').click();
     await expect(page.locator(".login-project h1")).toContainText(
       "인증은 계속",

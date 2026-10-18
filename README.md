@@ -127,3 +127,9 @@ DB 중단이나 전송 처리 중에도 입력창과 보내기를 계속 사용�
 취소 목록에서 `다시 보내기`를 누르면 새 UUID의 요청을 대기열 맨 뒤에 추가합니다. 본문·원래 방·전송 방식은 유지하고 기존 대기 요청의 ID·순서는 바꾸지 않습니다. 취소된 이전 ID와 다시 보낸 새 ID를 함께 표시하며, PC에서 새 ID 발급 → 맨 뒤 추가 → 대기열 저장의 실제 클라이언트 소스 단계를 재생합니다. 같은 취소 항목의 연속 클릭은 한 건만 추가합니다. 새 요청을 다시 취소한 경우 해당 새 취소 항목에서 다시 보낼 수 있습니다.
 
 현재 방식과 Kafka 방식 모두 기존 ID는 미저장, 남은 요청 ID는 유지, 새 ID는 마지막 저장/전달, 새로고침 후 ID 유지, 새 요청의 중복 재시도 및 기존 전송 중 요청 보호를 검증합니다.
+
+## 결제 실험실
+
+[Spring Boot Payment Lab](https://github.com/seonyoungyoo16/springboot-payment-lab)을 다섯 번째 프로젝트로 추가했습니다. [공개 결제 체험](https://seonyoungyoo16.github.io/portfolio/#project/payment)에서 중복 승인 방지·거래 정합성·전액/부분 취소·불명 복구와 실제 소스 37개를 살펴볼 수 있습니다. 공개 화면은 브라우저 시뮬레이션이며 독립 상점/PG의 실제 백엔드 64개 브라우저·12개 SQL/API 결과는 고정 커밋으로 따로 연결합니다.
+
+`npm run test:payment`, `npm run verify:payment-source`, `npm run test:payment-browser`. [연결 및 검증 범위](docs/payment-project.md).
