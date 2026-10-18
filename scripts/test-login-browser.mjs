@@ -32,7 +32,7 @@ const reset = async () => {
 };
 async function complete() {
   const last = page.getByRole("button", { name: "마지막으로 ⇥", exact: true });
-  if (await last.isEnabled()) await last.click();
+  await last.evaluate(button=>{if(!button.disabled)button.click()});
   await expect(result).not.toContainText("처리 단계 재생 중");
   sourceLinks.add(await page.locator(".login-source>a").getAttribute("href"));
 }
@@ -50,7 +50,7 @@ async function check(name, test) {
 try {
   await check("home card and project navigation", async () => {
     await page.goto(base);
-    await expect(page.locator("a.featured-project")).toHaveCount(3);
+    await expect(page.locator("a.featured-project")).toHaveCount(4);
     await page.locator('a[href="#project/login"].featured-project').click();
     await expect(page.locator(".login-project h1")).toContainText(
       "인증은 계속",

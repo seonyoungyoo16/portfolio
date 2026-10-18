@@ -10,7 +10,10 @@
     "preview": "vite preview --host 127.0.0.1 --port 5188",
     "test:login": "node --experimental-strip-types scripts/test-login-demo.ts",
     "verify:login-source": "node scripts/verify-login-source.mjs",
-    "test:login-browser": "node scripts/test-login-browser.mjs"
+    "test:login-browser": "node scripts/test-login-browser.mjs",
+    "test:signup": "node --experimental-strip-types scripts/test-signup-demo.ts",
+    "verify:signup-source": "node scripts/verify-signup-source.mjs",
+    "test:signup-browser": "node scripts/test-signup-browser.mjs"
   },
   "dependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.3.0",

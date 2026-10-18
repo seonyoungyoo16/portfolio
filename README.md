@@ -1,5 +1,17 @@
 # Source-based Developer Portfolio
 
+회원가입 실험실은 [`#project/signup`](https://seonyoungyoo16.github.io/portfolio/#project/signup)에서 엽니다. 독립 [Spring Boot Signup Lab](https://github.com/seonyoungyoo16/springboot-signup-lab)의 실제 백엔드 검증 12개와 브라우저 시나리오 50개를 연결합니다. 공개 체험은 브라우저 시뮬레이션이며 실제 이메일·IdP 요청은 원본 프로젝트에서 실행합니다.
+
+회원가입 체험은 이메일 요청·outbox·SMTP 접수·명시 확인·가입 원자 확정, 두 독립 문맥의 중복 가입, 응답 유실 복구, Redis/DB/SMTP 장애, 실제 코드에 근거한 SSO 가입과 기존 계정 신원 연결을 설명합니다. 단계별 스냅샷과 27개 소스 발췌를 고정 커밋의 파일·행·SHA-256과 대조합니다.
+
+```sh
+npm run test:signup
+npm run verify:signup-source
+npm run test:signup-browser
+```
+
+브라우저 검사는 실행 중인 개발/미리보기 서버를 사용합니다. 다른 주소는 `PORTFOLIO_URL`로 지정합니다. 소스를 갱신할 때는 독립 프로젝트를 먼저 커밋한 다음 `node scripts/export-signup-source.mjs <signup-checkout>`으로 추출합니다. [회원가입 검증 범위](docs/signup-project.md)
+
 메인은 프로젝트 목록이고, Spring Boot Board Lab을 클릭하면 해당 프로젝트의 실제 GitHub 소스에 맞는 DB 관계와 동작 체험이 열립니다. 기존 Agentic Factory 사이트는 별도 사이트로 유지합니다.
 
 ## 실행
