@@ -52,11 +52,12 @@ export default function ChatScene(props:Props){
         else if(p.kind==='read'){if(p.step===0){routes.push([actor,actor]);label='대화 읽기'}else if(p.step===1){routes.push([actor,hub]);label='READ #'+p.readUpTo}else if(p.step===2){routes.push([hub,db]);label='읽음 저장'}else{const other=p.clients[1-p.actor];routes.push([hub,other.connected&&same?positions[1-p.actor]:hub]);label=p.step===3?'읽음 확인':'읽음 ✓'}}
         else if(p.kind==='join'){if(p.step===0){routes.push([actor,hub]);label='CONNECT'}else if(p.step===1){routes.push([hub,actor]);label='OPEN'}else if(p.step===2){routes.push([actor,hub]);label='JOIN'}else if(p.node==='database-return'){routes.push([db,hub]);label=p.recoveryCount?'미수신 '+p.recoveryCount+'건':'최근 대화'}else if(p.node==='database'){routes.push([hub,db]);label='SELECT'}else if(p.step===p.total-1){p.clients.forEach((c,i)=>{if(c.connected&&c.roomId===p.clients[p.actor].roomId)routes.push([hub,positions[i]])});label='PRESENCE'}else if(p.node==='recipient'){routes.push([hub,actor]);label=p.recoveryCount?'미수신 '+p.recoveryCount+'건':'최근 대화'}}
         else if(p.kind==='disconnect'){if(p.step===0){routes.push([actor,hub]);label='CLOSE'}else if(p.step===1){routes.push([hub,hub]);label='닫힘 감지'}else{const other=p.clients[1-p.actor];if(other.connected&&same)routes.push([hub,positions[1-p.actor]]);label='PRESENCE'}}
-        else if(p.step===0){routes.push([actor,hub]);label=p.body.slice(0,10)}
-        else if(p.step===p.total-1){routes.push([hub,actor]);label='ACK ✓'}
-        else if(p.kind==='send'&&p.step===5){p.clients.forEach((c,i)=>{if(c.connected&&c.roomId===p.clients[p.actor].roomId)routes.push([hub,positions[i]])});label=p.body.slice(0,10)}
-        else if(p.node==='database'){routes.push([hub,db]);label=p.kind==='send'&&p.step===4?'INSERT':'SELECT'}
-        else{routes.push([hub,hub]);label=p.kind==='duplicate'?'중복 확인':'VALIDATE'}
+        else if(p.kind==='interrupted'&&p.step===p.total-1){routes.push([hub,hub.clone().lerp(actor,.48)]);label='ACK × 연결 끊김'}
+        else if(p.step===0){routes.push([actor,hub]);label=p.kind==='retry'?'같은 ID 재전송':p.body.slice(0,10)}
+        else if(p.step===p.total-1||(p.kind==='retry'&&p.step===p.total-2)){routes.push([hub,actor]);label=p.kind==='retry'?'기존 ID ACK ✓':'ACK ✓'}
+        else if((p.kind==='send'||p.kind==='interrupted')&&p.step===5){p.clients.forEach((c,i)=>{if(c.connected&&c.roomId===p.clients[p.actor].roomId)routes.push([hub,positions[i]])});label=p.body.slice(0,10)}
+        else if(p.node==='database'){routes.push([hub,db]);label=(p.kind==='send'||p.kind==='interrupted')&&p.step===4?'INSERT':'SELECT'}
+        else{routes.push([hub,hub]);label=(p.kind==='duplicate'||p.kind==='retry')?'중복 확인':'VALIDATE'}
       }
       if(label!==text){text=label;ctx.clearRect(0,0,512,160);ctx.fillStyle='#14212f';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='500 47px sans-serif';ctx.fillText(label,256,80);texture.needsUpdate=true}
       packets.forEach((packet,i)=>{packet.visible=!!routes[i];if(routes[i]){const [a,b]=routes[i];packet.position.lerpVectors(a,b,progress);packet.position.y+=Math.sin(progress*Math.PI)*.6+.35;packet.quaternion.copy(camera.quaternion)}})
@@ -70,6 +71,6 @@ export default function ChatScene(props:Props){
     <span className="scene-label scene-a"><b>참가자 A</b><small>{props.clients[0].connected?'● 온라인':'○ 오프라인'} · {props.clients[0].roomId}</small><small className="scene-view-state">{props.clients[0].viewOpen?'대화창 열림':'대화창 닫힘'}</small></span>
     <span className="scene-label scene-server"><b>WebSocket 서버</b><small>/ws/chat</small></span>
     <span className="scene-label scene-b"><b>참가자 B</b><small>{props.clients[1].connected?'● 온라인':'○ 오프라인'} · {props.clients[1].roomId}</small><small className="scene-view-state">{props.clients[1].viewOpen?'대화창 열림':'대화창 닫힘'}</small></span>
-    <span className="scene-label scene-db">서버 대화 기록 · {props.stored}건<small>{props.kind==='typing'?'입력 신호 · DB 저장 없음':props.kind==='read'&&props.step>=2?'읽음 위치 #'+props.readUpTo:props.clients.map((c,i)=>!c.connected&&props.waiting[i]>0?`${i?'B':'A'} 미수신 ${props.waiting[i]}건`:null).filter(Boolean).join(' · ')||'오프라인이어도 서버에 보관'}</small></span>
+    {props.kind==='interrupted'&&props.step===props.total-1&&<span className="scene-connection-lost">ACK 미수신 · PC에 요청 보관</span>}<span className="scene-label scene-db">서버 대화 기록 · {props.stored}건<small>{props.kind==='retry'?'중복 요청 · 추가 저장 / 방송 없음':props.kind==='typing'?'입력 신호 · DB 저장 없음':props.kind==='read'&&props.step>=2?'읽음 위치 #'+props.readUpTo:props.clients.map((c,i)=>!c.connected&&props.waiting[i]>0?`${i?'B':'A'} 미수신 ${props.waiting[i]}건`:null).filter(Boolean).join(' · ')||'오프라인이어도 서버에 보관'}</small></span>
   </div>
 }

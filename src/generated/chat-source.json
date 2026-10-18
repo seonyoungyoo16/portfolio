@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/seonyoungyoo16/springboot-chat-lab",
-  "revision": "a46785ea141577a9c43cff6342144bdcc83bb2a1",
+  "revision": "d46f117945b725192dd705d3caaa8b79c83f4381",
   "bodyMax": 2000,
   "historyMax": 100,
   "rooms": [
@@ -20,7 +20,7 @@
         "node": "sender",
         "highlight": "const ws=new WebSocket",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 57,
         "lines": [
           "  const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws/chat');socket=ws;",
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
@@ -32,7 +32,7 @@
         "node": "server",
         "highlight": "ws.onopen=",
         "file": "src/main/resources/static/chat.js",
-        "line": 46,
+        "line": 58,
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
@@ -44,7 +44,7 @@
         "node": "sender",
         "highlight": "ws.send(JSON.stringify({type:'join'",
         "file": "src/main/resources/static/chat.js",
-        "line": 46,
+        "line": 58,
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
@@ -118,11 +118,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 42,
+        "line": 44,
         "lines": [
           "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
-          "function connect(){",
-          "  clearTimeout(retry);const version=++generation;joined=false;readRequested=0;status('연결 중…');"
+          "function receiveAck(event){",
+          "  messages.set(event.message.id,event.message);"
         ]
       },
       {
@@ -204,11 +204,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 42,
+        "line": 44,
         "lines": [
           "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
-          "function connect(){",
-          "  clearTimeout(retry);const version=++generation;joined=false;readRequested=0;status('연결 중…');"
+          "function receiveAck(event){",
+          "  messages.set(event.message.id,event.message);"
         ]
       },
       {
@@ -278,7 +278,7 @@
         "node": "sender",
         "highlight": "socket?.close();socket=null",
         "file": "src/main/resources/static/chat.js",
-        "line": 59,
+        "line": 71,
         "lines": [
           "function disconnect(){sendTyping(false);peerTyping.clear();renderTyping();wanted=false;joined=false;generation++;clearTimeout(retry);socket?.close();socket=null;status('연결 종료');$('presence').textContent='—'}",
           "$('connect').onclick=()=>{name=$('name').value.trim();if(!name||name.length>20){$('notice').textContent='이름은 1~20자입니다.';return}wanted=true;connect()};$('disconnect').onclick=disconnect;",
@@ -316,7 +316,7 @@
         "node": "sender",
         "highlight": "if(document.hidden||!viewOpen||!joined",
         "file": "src/main/resources/static/chat.js",
-        "line": 18,
+        "line": 20,
         "lines": [
           "  if(document.hidden||!viewOpen||!joined||socket?.readyState!==WebSocket.OPEN)return;",
           "  const area=$('messages');if(area.scrollHeight-area.scrollTop-area.clientHeight>24)return;",
@@ -328,7 +328,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'read'",
         "file": "src/main/resources/static/chat.js",
-        "line": 23,
+        "line": 25,
         "lines": [
           "  readRequested=latest;socket.send(JSON.stringify({type:'read',upToId:latest}));",
           "}",
@@ -364,9 +364,9 @@
         "node": "recipient",
         "highlight": "receipt.textContent=",
         "file": "src/main/resources/static/chat.js",
-        "line": 16,
+        "line": 18,
         "lines": [
-          "function bubble(m,waiting){const div=document.createElement('article');div.className='bubble'+(m.clientId===clientId?' mine':'')+(waiting?' pending':'');const small=document.createElement('small');small.textContent=m.sender+' · '+(waiting?'서버 확인 대기':'#'+m.id+' · '+new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));const p=document.createElement('p');p.textContent=m.body;div.append(small,p);if(!waiting&&m.clientId===clientId){const receipt=document.createElement('span');receipt.className='read-state';receipt.textContent=[...reads.values()].some(r=>r.clientId!==clientId&&r.roomId===room&&r.lastReadId>=m.id)?'읽음':'안 읽음';div.append(receipt)}return div}",
+          "function bubble(m,waiting){const div=document.createElement('article');div.className='bubble'+(m.clientId===clientId?' mine':'')+(waiting?' pending':'');const small=document.createElement('small');small.textContent=m.sender+' · '+(waiting?(m.id?'#'+m.id+' · ACK 확인 대기':'서버 확인 대기'):'#'+m.id+' · '+new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));const p=document.createElement('p');p.textContent=m.body;div.append(small,p);if(!waiting&&m.clientId===clientId){const receipt=document.createElement('span');receipt.className='read-state';receipt.textContent=[...reads.values()].some(r=>r.clientId!==clientId&&r.roomId===room&&r.lastReadId>=m.id)?'읽음':'안 읽음';div.append(receipt)}return div}",
           "function markVisibleRead(){",
           "  if(document.hidden||!viewOpen||!joined||socket?.readyState!==WebSocket.OPEN)return;"
         ]
@@ -378,7 +378,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'typing',active}))",
         "file": "src/main/resources/static/chat.js",
-        "line": 30,
+        "line": 32,
         "lines": [
           "  typingSent=active;lastTypingAt=now;socket.send(JSON.stringify({type:'typing',active}));",
           "}",
@@ -414,11 +414,183 @@
         "node": "recipient",
         "highlight": "$('typing-status').textContent=",
         "file": "src/main/resources/static/chat.js",
-        "line": 34,
+        "line": 36,
         "lines": [
           "  $('typing-status').textContent=[...peerTyping.values()].map(entry=>entry.name+' 입력 중…').join(' · ');",
           "}",
           "function receiveTyping(event){"
+        ]
+      }
+    ],
+    "interrupted": [
+      {
+        "label": "JSON 프레임 전송",
+        "node": "sender",
+        "highlight": "socket.send(JSON.stringify({type:'send'",
+        "file": "src/main/resources/static/chat.js",
+        "line": 44,
+        "lines": [
+          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
+          "function receiveAck(event){",
+          "  messages.set(event.message.id,event.message);"
+        ]
+      },
+      {
+        "label": "서버에서 프레임 해석",
+        "node": "server",
+        "highlight": "json.readTree(frame.getPayload())",
+        "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
+        "line": 20,
+        "lines": [
+          "            JsonNode input = json.readTree(frame.getPayload());",
+          "            if (input == null || !input.isObject()) throw new IllegalArgumentException(\"JSON 객체가 필요합니다.\");",
+          "            switch (input.path(\"type\").asText()) {"
+        ]
+      },
+      {
+        "label": "본문과 식별자 검증",
+        "node": "server",
+        "highlight": "body = text(body, 2000",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 49,
+        "lines": [
+          "        validateRoom(roomId); identifier(clientId); identifier(requestId); text(sender, 20, \"이름\"); body = text(body, 2000, \"메시지\");",
+          "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
+          "        if (previous.isPresent()) {"
+        ]
+      },
+      {
+        "label": "중복 requestId 조회",
+        "node": "database",
+        "highlight": "messages.findByClientIdAndRequestId",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 50,
+        "lines": [
+          "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
+          "        if (previous.isPresent()) {",
+          "            if (!previous.get().roomId.equals(roomId)) throw new IllegalArgumentException(\"다른 방에서 사용한 요청 ID입니다.\");"
+        ]
+      },
+      {
+        "label": "메시지 INSERT · 트랜잭션 commit",
+        "node": "database",
+        "highlight": "messages.saveAndFlush",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 55,
+        "lines": [
+          "        var message = messages.saveAndFlush(new ChatMessage(roomId, clientId, requestId, sender, body));",
+          "        return new Saved(view(message), false);",
+          "    }"
+        ]
+      },
+      {
+        "label": "같은 방에 저장된 메시지 방송",
+        "node": "recipient",
+        "highlight": "if (!saved.duplicate()) broadcast",
+        "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
+        "line": 47,
+        "lines": [
+          "        if (!saved.duplicate()) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
+          "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
+          "    }"
+        ]
+      },
+      {
+        "label": "ACK 수신 전 연결 끊김 · 요청 보관",
+        "node": "sender",
+        "highlight": "function interruptBeforeAck",
+        "file": "src/main/resources/static/chat.js",
+        "line": 50,
+        "lines": [
+          "function interruptBeforeAck(message){",
+          "  // Deterministic demo: receive the committed broadcast, then ignore queued ACKs from this socket.",
+          "  cutRequest=null;disconnect();"
+        ]
+      }
+    ],
+    "retry": [
+      {
+        "label": "JSON 프레임 전송",
+        "node": "sender",
+        "highlight": "socket.send(JSON.stringify({type:'send'",
+        "file": "src/main/resources/static/chat.js",
+        "line": 44,
+        "lines": [
+          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
+          "function receiveAck(event){",
+          "  messages.set(event.message.id,event.message);"
+        ]
+      },
+      {
+        "label": "서버에서 프레임 해석",
+        "node": "server",
+        "highlight": "json.readTree(frame.getPayload())",
+        "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
+        "line": 20,
+        "lines": [
+          "            JsonNode input = json.readTree(frame.getPayload());",
+          "            if (input == null || !input.isObject()) throw new IllegalArgumentException(\"JSON 객체가 필요합니다.\");",
+          "            switch (input.path(\"type\").asText()) {"
+        ]
+      },
+      {
+        "label": "중복 requestId 조회",
+        "node": "database",
+        "highlight": "messages.findByClientIdAndRequestId",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 50,
+        "lines": [
+          "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
+          "        if (previous.isPresent()) {",
+          "            if (!previous.get().roomId.equals(roomId)) throw new IllegalArgumentException(\"다른 방에서 사용한 요청 ID입니다.\");"
+        ]
+      },
+      {
+        "label": "기존 메시지 반환 · INSERT 생략",
+        "node": "database",
+        "highlight": "return new Saved(view(previous.get()), true)",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 53,
+        "lines": [
+          "            return new Saved(view(previous.get()), true);",
+          "        }",
+          "        var message = messages.saveAndFlush(new ChatMessage(roomId, clientId, requestId, sender, body));"
+        ]
+      },
+      {
+        "label": "중복이면 방송 생략",
+        "node": "server",
+        "highlight": "if (!saved.duplicate()) broadcast",
+        "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
+        "line": 47,
+        "lines": [
+          "        if (!saved.duplicate()) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
+          "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
+          "    }"
+        ]
+      },
+      {
+        "label": "발신자에게 ACK 응답",
+        "node": "sender",
+        "highlight": "\"type\", \"ack\"",
+        "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
+        "line": 48,
+        "lines": [
+          "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
+          "    }",
+          "    private void read(WebSocketSession socket, JsonNode input) {"
+        ]
+      },
+      {
+        "label": "같은 요청의 ACK 수신 · 대기 목록 제거",
+        "node": "sender",
+        "highlight": "pending=pending.filter",
+        "file": "src/main/resources/static/chat.js",
+        "line": 47,
+        "lines": [
+          "  pending=pending.filter(p=>p.requestId!==event.requestId||p.roomId!==event.message.roomId);",
+          "  store();render();$('notice').textContent=event.duplicate?'재전송 ACK · 기존 메시지 #'+event.message.id+' · 추가 저장/방송 없음 · '+event.requestId:'서버 저장 확인 · #'+event.message.id;",
+          "}"
         ]
       }
     ]
@@ -450,7 +622,7 @@
     },
     {
       "file": "src/main/resources/static/chat.js",
-      "sha256": "db20ababbcccbf8d5e0b228efc940556197e7d7f950fc843096e3e6d413f98c8"
+      "sha256": "45e73b49b9a48a07886d898efec2b7cf57cb8ec4c6e7f241a8b6019d6781f005"
     }
   ]
 }

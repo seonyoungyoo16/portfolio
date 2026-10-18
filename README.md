@@ -57,3 +57,7 @@ Java API 통합 테스트 5개 통과. 브라우저 시뮬레이션은 CRUD/권�
 
 실제 서버: https://github.com/seonyoungyoo16/springboot-chat-lab
 구현 및 검증: [docs/chat-project.md](docs/chat-project.md)
+
+### 전송 중 연결 끊김 / 자동 재전송
+
+참가자를 같은 방에 연결하고 `다음 전송: 저장 후 ACK 수신 전 연결 끊기`를 체크해 보냅니다. 서버 저장·방송 후 발신자가 ACK를 받기 전에 오프라인이 됩니다. `다시 접속`하면 대화 기록을 복구한 뒤 같은 requestId와 본문으로 대기 요청을 자동 재전송합니다. 서버 중복 조회 → 기존 메시지 반환 → INSERT/방송 생략 → ACK → 대기 목록 제거 순서가 3D와 소스 단계에 표시됩니다. 대기 요청은 sessionStorage에 보관하며 방송/기록 수신만으로 제거하지 않습니다. 실제 Java 앱에도 같은 장애 체험과 ACK 기준 대기 처리를 적용했습니다.

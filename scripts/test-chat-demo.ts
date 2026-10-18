@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {emptyChat,storeChat,deliverChat,chatHistory,waitingChat,readChat,hasReadChat,nextReadChat,type ChatClient} from '../src/chat-demo.ts'
 import {relayChatTyping,cleanChatTyping,visibleChatTyping} from '../src/chat-typing.ts'
+import {enqueueChat,acknowledgeChat,pendingFor,type PendingChat} from '../src/chat-outbox.ts'
 const client=(id:string,roomId='lobby',connected=true):ChatClient=>({id,name:id,roomId,connected,viewOpen:true,messages:[]})
 const a=client('a'),b=client('b'),outside=client('c','design'),offline=client('d','lobby',false)
 let db=emptyChat();const first=storeChat(db,a,'안녕하세요','request-1');db=first.database
@@ -59,3 +60,31 @@ assert.equal(cleanChatTyping(typing,[a,{...b,roomId:'design'}],1100).length,0)
 assert.equal(cleanChatTyping(typing,[a,b],5000).length,0)
 assert.equal(db.messages.length,107)
 console.log('Typing: same-room relay, sender exclusion, closed/offline states, refresh, stop and expiry passed.')
+
+// Commit succeeded but the sender lost its socket before receiving ACK.
+let retryDb=emptyChat(),outbox:PendingChat[]=[]
+const request={clientId:a.id,roomId:a.roomId,requestId:'lost-ack',body:'전송 중 끊김'}
+outbox=enqueueChat(outbox,request)
+outbox=enqueueChat(outbox,request)
+assert.equal(outbox.length,1)
+const saved=storeChat(retryDb,a,request.body,request.requestId);retryDb=saved.database
+const broadcast=deliverChat([a,b],saved.message)
+assert.equal(pendingFor(outbox,a.id,'lobby').length,1)
+assert.equal(pendingFor(outbox,b.id,'lobby').length,0)
+assert.equal(pendingFor(outbox,a.id,'design').length,0)
+// Reload and history delivery still do not acknowledge a request.
+outbox=JSON.parse(JSON.stringify(outbox))
+const rejoined={...a,messages:chatHistory(retryDb,a.roomId)}
+const retryJob=storeChat(retryDb,rejoined,outbox[0].body,outbox[0].requestId)
+assert.equal(retryJob.duplicate,true)
+assert.equal(retryJob.database.messages.length,1)
+assert.equal(retryJob.database.nextId,2)
+assert.equal(retryJob.message.id,saved.message.id)
+assert.equal(broadcast[1].messages.length,1)
+assert.equal(deliverChat(broadcast,retryJob.message)[1].messages.length,1)
+assert.equal(acknowledgeChat(outbox,{...retryJob.message,clientId:b.id}).length,1)
+assert.equal(acknowledgeChat(outbox,{...retryJob.message,roomId:'design'}).length,1)
+assert.equal(acknowledgeChat(outbox,{...retryJob.message,requestId:'other'}).length,1)
+outbox=acknowledgeChat(outbox,retryJob.message)
+assert.equal(outbox.length,0)
+console.log('Lost ACK: pending survives broadcast/history/reload, retry keeps original ID and one row, matching ACK clears pending.')
