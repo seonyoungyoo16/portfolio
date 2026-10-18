@@ -28,3 +28,5 @@ npm run test:payment-three-browser
 새 순수 검사 9개와 WebGL/반응형 검사 17그룹은 `scripts/test-payment-scene.ts`, `scripts/test-payment-three-browser.mjs`로 재실행한다. 기존 결제 모델 18개/공개 브라우저 18그룹과 로그인·회원가입 회귀도 별도로 실행한다. 320/390/768/1440/1800px에서 이름표 경계와 카드 너비·열·간격, 가로 넘침을 검사한다. 실제 모바일 기기 검증은 아니며 Chromium 뷰포트 검증이다. 결과와 스크린샷은 `docs/payment-three-verification/{local,published}`에 기록한다.
 
 공개 배포 후 `release.json`의 포트폴리오 커밋, 네 프로젝트의 동결 소스 커밋, HTML/JS/CSS SHA-256을 대조하고 같은 브라우저 시나리오를 공개 URL에서 다시 실행한다.
+
+배포 완료: 포트폴리오 소스 `d081c233b1845ebcc392e0e9df2d9277485b102e`, Pages `6cf1949dc5002a5b229f52b4e3bd0f3d7158ec98`. [Pages 실행](https://github.com/seonyoungyoo16/portfolio/actions/runs/39116170272)은 성공했고, 공개 URL의 새 검사 17그룹 및 기존 결제·로그인·회원가입 각 18그룹이 통과했다. HTML/JS/CSS 3개 자원의 해시와 네 프로젝트의 소스 커밋 일치를 확인했다. 배포 증거는 `payment-three-verification/published/deployment.json`과 같은 폴더의 브라우저 결과·이미지에 있다. 이 배포 이후 검증 기록만 별도 커밋하며 실행 소스는 바꾸지 않는다.

@@ -1,0 +1,73 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-18T09:39:42.573Z",
+  "base": "https://seonyoungyoo16.github.io/portfolio/",
+  "release": {
+    "source": "d081c233b1845ebcc392e0e9df2d9277485b102e",
+    "paymentSource": "4b44cb606c2a77af45e5f16dbc4c34c33a29afbb",
+    "signupSource": "b5294ab9bdcf27d424ae7326f186bc02fed82f9b",
+    "loginSource": "a2bf485592c2d59d34c5e109a8b9bc839713f138",
+    "chatSource": "428219d86fe7d16a2caa15e579df6f31f16f8fbb",
+    "builtAt": "2026-10-18T09:38:52.668Z",
+    "assets": [
+      "index-Ckv4zDLP.js",
+      "index-DdOelNsy.css"
+    ],
+    "hashes": {
+      "index.html": "11914118f6746b09df2c194219458c3bee5d479cc4e181c767a494f662400876",
+      "assets/index-Ckv4zDLP.js": "8f3a35cc7de52b407520f164435ea7263231da649e8eedd96989a8703c41e80b",
+      "assets/index-DdOelNsy.css": "5d7e6e0888c9e012bd946b049acaff0a82f1a8ae18d5561129030a375934c960"
+    }
+  },
+  "resources": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "sha256": "11914118f6746b09df2c194219458c3bee5d479cc4e181c767a494f662400876"
+    },
+    {
+      "file": "assets/index-Ckv4zDLP.js",
+      "status": 200,
+      "sha256": "8f3a35cc7de52b407520f164435ea7263231da649e8eedd96989a8703c41e80b"
+    },
+    {
+      "file": "assets/index-DdOelNsy.css",
+      "status": 200,
+      "sha256": "5d7e6e0888c9e012bd946b049acaff0a82f1a8ae18d5561129030a375934c960"
+    }
+  ],
+  "pagesCommit": "6cf1949dc5002a5b229f52b4e3bd0f3d7158ec98",
+  "workflow": {
+    "id": 39116170272,
+    "conclusion": "success",
+    "url": "https://github.com/seonyoungyoo16/portfolio/actions/runs/39116170272"
+  },
+  "browserChecks": [
+    {
+      "file": "docs/payment-three-verification/published/browser.json",
+      "groups": 17,
+      "status": "passed",
+      "verifiedAt": "2026-10-18T09:39:50.556Z"
+    },
+    {
+      "file": "docs/payment-verification/published/browser.json",
+      "groups": 18,
+      "status": "passed",
+      "verifiedAt": "2026-10-18T09:40:12.568Z"
+    },
+    {
+      "file": "docs/login-verification/published/browser.json",
+      "groups": 18,
+      "status": "passed",
+      "verifiedAt": "2026-10-18T09:40:47.085Z"
+    },
+    {
+      "file": "docs/signup-verification/published/browser.json",
+      "groups": 18,
+      "status": "passed",
+      "verifiedAt": "2026-10-18T09:40:13.759Z"
+    }
+  ],
+  "totalBrowserGroups": 71,
+  "scope": "Public portfolio simulation. Backend evidence remains frozen at its linked revision; viewport testing is not physical device testing."
+}
