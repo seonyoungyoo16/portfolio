@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import {emptyChat,storeChat,deliverChat,chatHistory,waitingChat,readChat,hasReadChat,nextReadChat,type ChatClient} from '../src/chat-demo.ts'
 import {relayChatTyping,cleanChatTyping,visibleChatTyping} from '../src/chat-typing.ts'
-import {attemptChat,enqueueChat,acknowledgeChat,pendingFor,nextPendingChat,type PendingChat} from '../src/chat-outbox.ts'
+import {attemptChat,enqueueChat,acknowledgeChat,pendingFor,nextPendingChat,canCancelChat,cancelPendingChat,markChatAttempted,type PendingChat} from '../src/chat-outbox.ts'
 const client=(id:string,roomId='lobby',connected=true):ChatClient=>({id,name:id,roomId,connected,viewOpen:true,messages:[]})
 const a=client('a'),b=client('b'),outside=client('c','design'),offline=client('d','lobby',false)
 let db=emptyChat();const first=storeChat(db,a,'안녕하세요','request-1');db=first.database
@@ -203,3 +203,32 @@ const fairQueue:PendingChat[]=[{clientId:b.id,roomId:b.roomId,requestId:'b-first
 assert.equal(nextPendingChat(fairQueue,[a,b])!.actor,1)
 assert.equal(nextPendingChat(fairQueue,[a,{...b,connected:false}])!.actor,0)
 console.log('Multiple pending: FIFO original IDs, enqueue during send, lost ACK, second outage, both delivery routes and one delivery per message passed.')
+
+for(const mode of ['direct','kafka'] as const){
+  let database=emptyChat(),peers=[a,b,outside]
+  const requests:PendingChat[]=[1,2,3,4].map(n=>({clientId:a.id,roomId:a.roomId,requestId:'cancel-'+mode+'-'+n,body:'취소 테스트 '+n,mode,cancelable:true}))
+  let pending=requests.map(request=>attemptChat(database,a,request,false).request)
+  pending=cancelPendingChat(pending,requests[1]);pending=JSON.parse(JSON.stringify(pending))
+  assert.deepEqual(pending.map(r=>r.requestId),[requests[0],requests[2],requests[3]].map(r=>r.requestId))
+  assert.equal(cancelPendingChat(pending,requests[1]),pending)
+  assert.equal(cancelPendingChat(pending,{...requests[0],clientId:b.id}),pending)
+  assert.equal(cancelPendingChat(pending,requests[0],requests[0]),pending)
+  assert.equal(canCancelChat({...requests[0],cancelable:undefined}),false)
+  let next=nextPendingChat(pending,peers)!,saved=storeChat(database,a,next.request.body,next.request.requestId,mode)
+  pending=markChatAttempted(pending,next.request);database=saved.database
+  // A persisted but unacknowledged request must remain non-cancelable after reload.
+  pending=JSON.parse(JSON.stringify(pending));assert.equal(canCancelChat(pending[0]),false)
+  assert.equal(cancelPendingChat(pending,pending[0]),pending)
+  saved=storeChat(database,a,next.request.body,next.request.requestId,mode);assert.equal(saved.duplicate,true)
+  for(const request of [...pending]){
+    saved=storeChat(database,a,request.body,request.requestId,mode);database=saved.database
+    pending=acknowledgeChat(pending,saved.message)
+    if(mode==='direct')peers=deliverChat(peers,saved.message);else database=publishChatEvent(database,saved.message.id)
+  }
+  if(mode==='kafka')for(let event=nextDelivery(database);event;event=nextDelivery(database)){peers=deliverChat(peers,database.messages.find(m=>m.id===event.messageId)!);database=consumeChatEvent(database,event.messageId)}
+  const expected=[requests[0],requests[2],requests[3]].map(r=>r.requestId)
+  assert.deepEqual(database.messages.map(m=>m.requestId),expected);assert.deepEqual(peers[1].messages.map(m=>m.requestId),expected)
+  assert.equal(database.messages.some(m=>m.requestId===requests[1].requestId),false);assert.equal(pending.length,0)
+  let all=[...requests];for(const request of requests)all=cancelPendingChat(all,request);assert.equal(nextPendingChat(all,peers),null)
+}
+console.log('Canceled pending: no replay/write/delivery, original survivor IDs/order, all cancel, scoped identity and persisted in-flight guard passed.')

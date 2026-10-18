@@ -49,3 +49,8 @@ assert.ok(sources.get('src/main/java/dev/portfolio/chat/ChatSocket.java').includ
 
 assert.ok(sources.get('src/main/resources/static/chat-queue.js').includes('if (this.inFlight) return null'))
 assert.ok(sources.get('src/main/resources/static/chat.js').includes('store();render();flush();'))
+
+assert.equal(model.flows.cancel.length,3)
+assert.ok(model.flows.cancel.every(step=>step.node==='sender'))
+assert.ok(model.flows.cancel[1].highlight.includes('Cancellation preserves'))
+assert.ok(sources.get('src/main/resources/static/chat-queue.js').includes('request.cancelable = false'))
