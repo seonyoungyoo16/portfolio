@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import {emptyChat,storeChat,deliverChat,chatHistory,waitingChat,readChat,hasReadChat,nextReadChat,type ChatClient} from '../src/chat-demo.ts'
 import {relayChatTyping,cleanChatTyping,visibleChatTyping} from '../src/chat-typing.ts'
-import {attemptChat,enqueueChat,acknowledgeChat,pendingFor,type PendingChat} from '../src/chat-outbox.ts'
+import {attemptChat,enqueueChat,acknowledgeChat,pendingFor,nextPendingChat,type PendingChat} from '../src/chat-outbox.ts'
 const client=(id:string,roomId='lobby',connected=true):ChatClient=>({id,name:id,roomId,connected,viewOpen:true,messages:[]})
 const a=client('a'),b=client('b'),outside=client('c','design'),offline=client('d','lobby',false)
 let db=emptyChat();const first=storeChat(db,a,'안녕하세요','request-1');db=first.database
@@ -167,3 +167,39 @@ for(const mode of ['direct','kafka'] as const){
 }
 assert.throws(()=>attemptChat(emptyChat(),a,{clientId:a.id,roomId:a.roomId,requestId:'bad-request',body:'',mode:'direct'},false))
 console.log('DB outage: no write/ID/Outbox before recovery, persisted original request, both routes and one stored/delivered message passed.')
+
+// Multi-message recovery: keep insertion order and resume the unacknowledged head after a second outage.
+for(const mode of ['direct','kafka'] as const){
+  let database=emptyChat(),pending:PendingChat[]=[],peers=[a,b,outside],accepted:string[]=[]
+  const requests=Array.from({length:4},(_,i)=>({clientId:a.id,roomId:a.roomId,requestId:'fifo-'+mode+'-'+i,body:'대기 '+i,mode}))
+  for(const request of requests.slice(0,3))pending=enqueueChat(pending,attemptChat(database,a,request,false).request)
+  assert.equal(database.messages.length,0);pending=JSON.parse(JSON.stringify(pending))
+  let next=nextPendingChat(pending,peers)!
+  const committed=storeChat(database,peers[next.actor],next.request.body,next.request.requestId,next.request.mode);database=committed.database
+  // Lost ACK: head remains; append another request while it is pending.
+  pending=enqueueChat(pending,{...requests[3],queued:true})
+  assert.equal(nextPendingChat(pending,peers)!.request.requestId,requests[0].requestId)
+  while(pending.length){
+    next=nextPendingChat(pending,peers)!
+    const saved=storeChat(database,peers[next.actor],next.request.body,next.request.requestId,next.request.mode);database=saved.database
+    accepted.push(saved.message.requestId);pending=acknowledgeChat(pending,saved.message)
+    if(mode==='direct')peers=deliverChat(peers,saved.message)
+    else database=publishChatEvent(database,saved.message.id)
+    if(accepted.length===1){ // Another DB outage must not skip/recreate the second request.
+      const head=nextPendingChat(pending,peers)!.request
+      assert.equal(attemptChat(database,a,head,false).saved,null)
+      assert.equal(nextPendingChat(pending,peers)!.request.requestId,requests[1].requestId)
+    }
+  }
+  if(mode==='kafka')for(let event=nextDelivery(database);event;event=nextDelivery(database)){
+    peers=deliverChat(peers,database.messages.find(m=>m.id===event.messageId)!);database=consumeChatEvent(database,event.messageId)
+  }
+  assert.deepEqual(accepted,requests.map(r=>r.requestId));assert.equal(database.messages.length,4)
+  assert.deepEqual(peers[1].messages.map(m=>m.requestId),requests.map(r=>r.requestId));assert.equal(peers[2].messages.length,0)
+  for(const request of requests)assert.equal(storeChat(database,a,request.body,request.requestId,request.mode).duplicate,true)
+}
+// Eligible requests follow enqueue order across A/B rather than prioritizing participant A.
+const fairQueue:PendingChat[]=[{clientId:b.id,roomId:b.roomId,requestId:'b-first',body:'B 먼저'},{clientId:a.id,roomId:a.roomId,requestId:'a-second',body:'A 다음'}]
+assert.equal(nextPendingChat(fairQueue,[a,b])!.actor,1)
+assert.equal(nextPendingChat(fairQueue,[a,{...b,connected:false}])!.actor,0)
+console.log('Multiple pending: FIFO original IDs, enqueue during send, lost ACK, second outage, both delivery routes and one delivery per message passed.')

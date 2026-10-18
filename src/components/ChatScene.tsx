@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 import type {ChatClient} from '../chat-demo'
 
-type Props={databaseRunning:boolean;pendingCount:number;brokerRunning:boolean;outboxCount:number;roomId:string;mode:'direct'|'kafka';workerRunning:boolean;queueCount:number;clients:ChatClient[];actor:number;kind:string;step:number;node:string;body:string;run:number;playing:boolean;running:boolean;total:number;waiting:number[];stored:number;recoveryCount:number;readUpTo:number;typingActive:boolean}
+type Props={pendingCounts:number[];databaseRunning:boolean;pendingCount:number;brokerRunning:boolean;outboxCount:number;roomId:string;mode:'direct'|'kafka';workerRunning:boolean;queueCount:number;clients:ChatClient[];actor:number;kind:string;step:number;node:string;body:string;run:number;playing:boolean;running:boolean;total:number;waiting:number[];stored:number;recoveryCount:number;readUpTo:number;typingActive:boolean}
 export default function ChatScene(props:Props){
   const host=useRef<HTMLDivElement>(null),latest=useRef(props),[failed,setFailed]=useState(false)
   latest.current=props
@@ -40,6 +40,7 @@ export default function ChatScene(props:Props){
     function route(a:THREE.Vector3,b:THREE.Vector3){const curve=new THREE.LineCurve3(a,b);mesh(new THREE.TubeGeometry(curve,16,.014,6,false),muted,kafkaGroup)}
     route(db,broker);route(broker,worker);positions.forEach(v=>route(worker,v))
     const storedCards=Array.from({length:6},(_,i)=>box(scene,.62,.28,.04,-.78+i*.055,-.05+i*.09,1.85,accent))
+    const clientCards=positions.map(v=>Array.from({length:6},(_,i)=>box(scene,.44,.25,.04,v.x-.55+i*.025,-.22+i*.06,.7,blue)))
     const rings=positions.map(v=>{const ring=mesh(new THREE.TorusGeometry(1.15,.018,8,70),green);ring.rotation.x=Math.PI/2;ring.position.copy(v).add(new THREE.Vector3(.15,-.5,0));return ring})
     const lines=positions.map(v=>{const curve=new THREE.QuadraticBezierCurve3(v.clone().add(new THREE.Vector3(0,.25,0)),new THREE.Vector3(v.x/2,.3,-.8),server);return mesh(new THREE.TubeGeometry(curve,40,.018,6,false),green)})
     const dbCurve=new THREE.LineCurve3(server,db);mesh(new THREE.TubeGeometry(dbCurve,12,.014,6,false),muted)
@@ -57,6 +58,7 @@ export default function ChatScene(props:Props){
       const progress=reduced?.7:Math.min(elapsed/(p.kind==='typing'?350:1000),1),same=p.clients[0].roomId===p.clients[1].roomId
       pcs.forEach((pc,i)=>{pc.scale.setScalar(p.clients[i].connected?1:.92);pc.userData.display.material=p.clients[i].viewOpen?screen:muted;rings[i].visible=p.clients[i].connected;rings[i].material=same?green:muted;lines[i].material=(p.clients[i].connected||(p.run>0&&p.kind==='join'&&i===p.actor&&p.step>=1))?green:muted})
       const pending=Math.max(...p.waiting.filter((_,i)=>!p.clients[i].connected),0);storedCards.forEach((card,i)=>{card.visible=i<Math.min(pending,6)})
+      clientCards.forEach((cards,actor)=>cards.forEach((card,i)=>{card.visible=i<Math.min(p.pendingCounts[actor],6)}))
       databaseDisks.forEach((disk,i)=>{disk.material=p.databaseRunning?(i===2?green:shell):muted})
       kafkaGroup.visible=p.mode==='kafka';brokerDisks.forEach(disk=>{disk.material=p.brokerRunning?accent:muted});outboxCards.forEach((card,i)=>{card.visible=i<Math.min(p.outboxCount,6)});workerLed.material=p.workerRunning&&p.brokerRunning&&p.databaseRunning?green:muted;kafkaCards.forEach((card,i)=>{card.visible=i<Math.min(p.queueCount,6)})
       const routes:[THREE.Vector3,THREE.Vector3][]=[];let label=''
@@ -100,10 +102,10 @@ export default function ChatScene(props:Props){
   },[])
   return <div ref={host} className={"chat-three-scene "+(props.mode==='kafka'?'kafka-scene':'')} role="img" aria-label={`고정 위치: 왼쪽 참가자 A, 오른쪽 참가자 B. ${props.clients[props.actor].name}의 ${props.kind} 단계 ${props.step+1}`}>
     {failed&&<p className="chat-three-fallback">3D 화면을 불러올 수 없습니다. 아래 단계에서 같은 흐름을 확인하세요.</p>}
-    <span className="scene-label scene-a"><b>참가자 A</b><small>{props.clients[0].connected?'● 온라인':'○ 오프라인'} · {props.clients[0].roomId}</small><small className="scene-view-state">{props.clients[0].viewOpen?'대화창 열림':'대화창 닫힘'}</small></span>
+    <span className="scene-label scene-a"><b>참가자 A</b><small>{props.clients[0].connected?'● 온라인':'○ 오프라인'} · {props.clients[0].roomId}</small><small className="scene-view-state">{props.clients[0].viewOpen?'대화창 열림':'대화창 닫힘'}</small>{props.pendingCounts[0]>0&&<small className="scene-pending-count">PC 전송 대기 {props.pendingCounts[0]}건</small>}</span>
     <span className="scene-label scene-server"><b>{props.mode==='kafka'?'메시지 수신 서버':'WebSocket 서버'}</b><small>/ws/chat</small></span>
     {props.mode==='kafka'&&<><span className="scene-label scene-kafka"><b>Kafka {props.brokerRunning?'':'· 중단'}</b><small>{props.brokerRunning?'전달 대기 '+props.queueCount+'건':'발행·소비 불가'}</small></span><span className="scene-label scene-consumer"><b>전달 서버</b><small>{props.workerRunning?(props.brokerRunning?'● 실행 중':'Kafka 연결 대기'):'○ 중단됨'}</small></span></>}
-    <span className="scene-label scene-b"><b>참가자 B</b><small>{props.clients[1].connected?'● 온라인':'○ 오프라인'} · {props.clients[1].roomId}</small><small className="scene-view-state">{props.clients[1].viewOpen?'대화창 열림':'대화창 닫힘'}</small></span>
+    <span className="scene-label scene-b"><b>참가자 B</b><small>{props.clients[1].connected?'● 온라인':'○ 오프라인'} · {props.clients[1].roomId}</small><small className="scene-view-state">{props.clients[1].viewOpen?'대화창 열림':'대화창 닫힘'}</small>{props.pendingCounts[1]>0&&<small className="scene-pending-count">PC 전송 대기 {props.pendingCounts[1]}건</small>}</span>
     {!props.databaseRunning&&<span className="scene-database-outage">DB 저장 불가 · PC 전송 대기 {props.pendingCount}건</span>}{props.databaseRunning&&!props.brokerRunning&&props.mode==='kafka'&&<span className="scene-broker-outage">Kafka 연결 불가 · Outbox에 보관</span>}{props.kind==='interrupted'&&props.step===props.total-1&&<span className="scene-connection-lost">ACK 미수신 · PC에 요청 보관</span>}<span className="scene-label scene-db">{props.databaseRunning?'서버 대화 기록':'DB 중단 · 마지막 저장'} · {props.stored}건<small>{!props.databaseRunning?'저장/조회 불가 · ACK 없음':props.mode==='kafka'&&props.outboxCount>0?'Outbox 미발행 '+props.outboxCount+'건':props.kind==='retry'?'중복 요청 · 추가 저장 / 방송 없음':props.kind==='typing'?'입력 신호 · DB 저장 없음':props.kind==='read'&&props.step>=2?'읽음 위치 #'+props.readUpTo:props.clients.map((c,i)=>!c.connected&&props.waiting[i]>0?`${i?'B':'A'} 미수신 ${props.waiting[i]}건`:null).filter(Boolean).join(' · ')||'오프라인이어도 서버에 보관'}</small></span>
   </div>
 }

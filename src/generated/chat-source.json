@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/seonyoungyoo16/springboot-chat-lab",
-  "revision": "0ac5a98363b4051f47f7192f9f61787f855144bc",
+  "revision": "7bf172f6cbcaf3235f3c34aa2e9bda6595d347a3",
   "bodyMax": 2000,
   "historyMax": 100,
   "rooms": [
@@ -20,7 +20,7 @@
         "node": "sender",
         "highlight": "const ws=new WebSocket",
         "file": "src/main/resources/static/chat.js",
-        "line": 58,
+        "line": 74,
         "lines": [
           "  const ws=new WebSocket((location.protocol==='https:'?'wss:':'ws:')+'//'+location.host+'/ws/chat');socket=ws;",
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
@@ -32,7 +32,7 @@
         "node": "server",
         "highlight": "ws.onopen=",
         "file": "src/main/resources/static/chat.js",
-        "line": 59,
+        "line": 75,
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
@@ -44,7 +44,7 @@
         "node": "sender",
         "highlight": "ws.send(JSON.stringify({type:'join'",
         "file": "src/main/resources/static/chat.js",
-        "line": 59,
+        "line": 75,
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
@@ -118,11 +118,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 58,
         "lines": [
-          "function flush(){if(databaseBlocked||!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
-          "function receiveAck(event){",
-          "  messages.set(event.message.id,event.message);"
+          "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
+          "}",
+          "function receiveAck(event){"
         ]
       },
       {
@@ -204,11 +204,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 58,
         "lines": [
-          "function flush(){if(databaseBlocked||!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
-          "function receiveAck(event){",
-          "  messages.set(event.message.id,event.message);"
+          "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
+          "}",
+          "function receiveAck(event){"
         ]
       },
       {
@@ -278,9 +278,9 @@
         "node": "sender",
         "highlight": "socket?.close();socket=null",
         "file": "src/main/resources/static/chat.js",
-        "line": 79,
+        "line": 95,
         "lines": [
-          "function disconnect(){sendTyping(false);peerTyping.clear();renderTyping();wanted=false;joined=false;generation++;clearTimeout(retry);socket?.close();socket=null;status('연결 종료');$('presence').textContent='—'}",
+          "function disconnect(){sendTyping(false);sendQueue.reset();peerTyping.clear();renderTyping();wanted=false;joined=false;generation++;clearTimeout(retry);socket?.close();socket=null;status('연결 종료');$('presence').textContent='—'}",
           "$('connect').onclick=()=>{name=$('name').value.trim();if(!name||name.length>20){$('notice').textContent='이름은 1~20자입니다.';return}wanted=true;connect()};$('disconnect').onclick=disconnect;",
           "$('room').onchange=()=>{const again=wanted;disconnect();room=$('room').value;messages=new Map();reads=new Map();readRequested=new Map();$('room-name').textContent=$('room').selectedOptions[0].textContent;$('notice').textContent='';render();if(again){wanted=true;connect()}};"
         ]
@@ -316,7 +316,7 @@
         "node": "sender",
         "highlight": "if(databaseBlocked||document.hidden||!viewOpen||!joined",
         "file": "src/main/resources/static/chat.js",
-        "line": 21,
+        "line": 31,
         "lines": [
           "  if(databaseBlocked||document.hidden||!viewOpen||!joined||socket?.readyState!==WebSocket.OPEN)return;",
           "  const area=$('messages');if(area.scrollHeight-area.scrollTop-area.clientHeight>24)return;",
@@ -328,7 +328,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'read'",
         "file": "src/main/resources/static/chat.js",
-        "line": 26,
+        "line": 36,
         "lines": [
           "  readRequested.set(mode,latest);socket.send(JSON.stringify({type:'read',upToId:latest}));}",
           "}",
@@ -364,7 +364,7 @@
         "node": "recipient",
         "highlight": "receipt.textContent=",
         "file": "src/main/resources/static/chat.js",
-        "line": 19,
+        "line": 29,
         "lines": [
           "function bubble(m,waiting){const div=document.createElement('article');div.className='bubble'+(m.clientId===clientId?' mine':'')+(waiting?' pending':'');const small=document.createElement('small');small.textContent=m.sender+' · '+(waiting?(m.id?'#'+m.id+' · ACK 확인 대기':'서버 확인 대기'):'#'+m.id+' · '+new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));const p=document.createElement('p');p.textContent=m.body;div.append(small,p);if(!waiting&&m.clientId===clientId){const receipt=document.createElement('span');receipt.className='read-state';receipt.textContent=[...reads.values()].some(r=>r.clientId!==clientId&&r.roomId===room&&(r.deliveryMode||'direct')===(m.deliveryMode||'direct')&&r.lastReadId>=m.id)?'읽음':'안 읽음';div.append(receipt)}return div}",
           "function markVisibleRead(){",
@@ -378,7 +378,7 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'typing',active}))",
         "file": "src/main/resources/static/chat.js",
-        "line": 33,
+        "line": 43,
         "lines": [
           "  typingSent=active;lastTypingAt=now;socket.send(JSON.stringify({type:'typing',active}));",
           "}",
@@ -414,7 +414,7 @@
         "node": "recipient",
         "highlight": "$('typing-status').textContent=",
         "file": "src/main/resources/static/chat.js",
-        "line": 37,
+        "line": 47,
         "lines": [
           "  $('typing-status').textContent=[...peerTyping.values()].map(entry=>entry.name+' 입력 중…').join(' · ');",
           "}",
@@ -428,11 +428,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 58,
         "lines": [
-          "function flush(){if(databaseBlocked||!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
-          "function receiveAck(event){",
-          "  messages.set(event.message.id,event.message);"
+          "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
+          "}",
+          "function receiveAck(event){"
         ]
       },
       {
@@ -500,7 +500,7 @@
         "node": "sender",
         "highlight": "function interruptBeforeAck",
         "file": "src/main/resources/static/chat.js",
-        "line": 51,
+        "line": 67,
         "lines": [
           "function interruptBeforeAck(message){",
           "  // Deterministic demo: receive the committed broadcast, then ignore queued ACKs from this socket.",
@@ -514,11 +514,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 58,
         "lines": [
-          "function flush(){if(databaseBlocked||!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
-          "function receiveAck(event){",
-          "  messages.set(event.message.id,event.message);"
+          "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
+          "}",
+          "function receiveAck(event){"
         ]
       },
       {
@@ -584,12 +584,12 @@
       {
         "label": "같은 요청의 ACK 수신 · 대기 목록 제거",
         "node": "sender",
-        "highlight": "pending=pending.filter",
+        "highlight": "pending=remaining; // Matching ACK",
         "file": "src/main/resources/static/chat.js",
-        "line": 48,
+        "line": 64,
         "lines": [
-          "  pending=pending.filter(p=>p.requestId!==event.requestId||p.roomId!==event.message.roomId);",
-          "  store();render();$('notice').textContent=event.duplicate?'재전송 ACK · 기존 메시지 #'+event.message.id+' · 추가 저장/방송 없음 · '+event.requestId:'서버 저장 확인 · #'+event.message.id;",
+          "  pending=remaining; // Matching ACK removes only this request; preserve the tail in original order.",
+          "  store();render();flush();$('notice').textContent=event.duplicate?'재전송 ACK · 기존 메시지 #'+event.message.id+' · 추가 저장/방송 없음 · '+event.requestId:'서버 저장 확인 · #'+event.message.id;",
           "}"
         ]
       }
@@ -600,11 +600,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 58,
         "lines": [
-          "function flush(){if(databaseBlocked||!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
-          "function receiveAck(event){",
-          "  messages.set(event.message.id,event.message);"
+          "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
+          "}",
+          "function receiveAck(event){"
         ]
       },
       {
@@ -686,11 +686,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 58,
         "lines": [
-          "function flush(){if(databaseBlocked||!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
-          "function receiveAck(event){",
-          "  messages.set(event.message.id,event.message);"
+          "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
+          "}",
+          "function receiveAck(event){"
         ]
       },
       {
@@ -734,7 +734,7 @@
         "node": "sender",
         "highlight": "function interruptBeforeAck",
         "file": "src/main/resources/static/chat.js",
-        "line": 51,
+        "line": 67,
         "lines": [
           "function interruptBeforeAck(message){",
           "  // Deterministic demo: receive the committed broadcast, then ignore queued ACKs from this socket.",
@@ -860,11 +860,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 58,
         "lines": [
-          "function flush(){if(databaseBlocked||!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
-          "function receiveAck(event){",
-          "  messages.set(event.message.id,event.message);"
+          "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
+          "}",
+          "function receiveAck(event){"
         ]
       },
       {
@@ -946,11 +946,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 58,
         "lines": [
-          "function flush(){if(databaseBlocked||!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
-          "function receiveAck(event){",
-          "  messages.set(event.message.id,event.message);"
+          "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
+          "}",
+          "function receiveAck(event){"
         ]
       },
       {
@@ -994,7 +994,7 @@
         "node": "sender",
         "highlight": "function interruptBeforeAck",
         "file": "src/main/resources/static/chat.js",
-        "line": 51,
+        "line": 67,
         "lines": [
           "function interruptBeforeAck(message){",
           "  // Deterministic demo: receive the committed broadcast, then ignore queued ACKs from this socket.",
@@ -1032,11 +1032,11 @@
         "node": "sender",
         "highlight": "socket.send(JSON.stringify({type:'send'",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 58,
         "lines": [
-          "function flush(){if(databaseBlocked||!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
-          "function receiveAck(event){",
-          "  messages.set(event.message.id,event.message);"
+          "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
+          "}",
+          "function receiveAck(event){"
         ]
       },
       {
@@ -1068,7 +1068,7 @@
         "node": "sender",
         "highlight": "Keep the joined socket open",
         "file": "src/main/resources/static/chat.js",
-        "line": 71,
+        "line": 87,
         "lines": [
           "        // Keep the joined socket open; retry this exact request only after DB recovery.",
           "        if(event.operation==='join'){ws.close();}",
@@ -1082,11 +1082,11 @@
         "node": "sender",
         "highlight": "requestId:p.requestId,body:p.body",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 58,
         "lines": [
-          "function flush(){if(databaseBlocked||!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
-          "function receiveAck(event){",
-          "  messages.set(event.message.id,event.message);"
+          "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
+          "}",
+          "function receiveAck(event){"
         ]
       },
       {
@@ -1168,11 +1168,11 @@
         "node": "sender",
         "highlight": "requestId:p.requestId,body:p.body",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 58,
         "lines": [
-          "function flush(){if(databaseBlocked||!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
-          "function receiveAck(event){",
-          "  messages.set(event.message.id,event.message);"
+          "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
+          "}",
+          "function receiveAck(event){"
         ]
       },
       {
@@ -1254,11 +1254,11 @@
         "node": "sender",
         "highlight": "requestId:p.requestId,body:p.body",
         "file": "src/main/resources/static/chat.js",
-        "line": 45,
+        "line": 58,
         "lines": [
-          "function flush(){if(databaseBlocked||!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
-          "function receiveAck(event){",
-          "  messages.set(event.message.id,event.message);"
+          "  try{socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}));render(false)}catch{sendQueue.reset();socket?.close();}",
+          "}",
+          "function receiveAck(event){"
         ]
       },
       {
@@ -1337,6 +1337,10 @@
   },
   "sources": [
     {
+      "file": "src/main/resources/static/chat-queue.js",
+      "sha256": "3d406c9675463c5c0d5f126a8c7d7c75680c83177fcd6712948130589d3f0047"
+    },
+    {
       "file": "src/main/java/dev/portfolio/chat/DatabaseAvailability.java",
       "sha256": "ca691b4ac002e8f26526240dc5dbd356e73a649743bc6acac9626add4b4eaa09"
     },
@@ -1370,7 +1374,7 @@
     },
     {
       "file": "src/main/resources/static/chat.js",
-      "sha256": "94eb5a66aab2b3df5a3ac14784eb7b563caf33fef7716b7ca7e3ba2288419fa4"
+      "sha256": "40132eb7dd1137fb8bf37f24ee5c1274a682eb029de69507e023c1d6d7150916"
     }
   ]
 }
