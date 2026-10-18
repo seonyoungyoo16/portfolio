@@ -1,6 +1,6 @@
-import type {ChatMessage} from './chat-demo'
+import type {ChatMessage,DeliveryMode} from './chat-demo'
 
-export type PendingChat={clientId:string;roomId:string;requestId:string;body:string}
+export type PendingChat={clientId:string;roomId:string;requestId:string;body:string;mode?:DeliveryMode}
 // Broadcast/history are not acknowledgements. Keep the original request until its ACK arrives.
 export function enqueueChat(outbox:PendingChat[],request:PendingChat){
   return outbox.some(p=>p.clientId===request.clientId&&p.requestId===request.requestId)?outbox:[...outbox,request]

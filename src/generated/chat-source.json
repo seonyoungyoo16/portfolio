@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/seonyoungyoo16/springboot-chat-lab",
-  "revision": "d46f117945b725192dd705d3caaa8b79c83f4381",
+  "revision": "8bd1bb0ac5e7e907103bf8cabeaaf995484b4bb6",
   "bodyMax": 2000,
   "historyMax": 100,
   "rooms": [
@@ -36,7 +36,7 @@
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
-          "    if(event.type==='joined'){reads=new Map((event.reads||[]).map(r=>[r.clientId,r]));joined=true;attempt=0;for(const m of event.messages)messages.set(m.id,m);status('● 연결됨 · '+room);$('notice').textContent='연결되었습니다. 최근 대화를 불러왔습니다.';render();flush()}"
+          "    if(event.type==='joined'){reads=new Map((event.reads||[]).map(r=>[r.clientId+':'+(r.deliveryMode||'direct'),r]));joined=true;attempt=0;for(const m of event.messages)messages.set(m.id,m);status('● 연결됨 · '+room);$('notice').textContent='연결되었습니다. 최근 대화를 불러왔습니다.';render();flush()}"
         ]
       },
       {
@@ -48,7 +48,7 @@
         "lines": [
           "  ws.onopen=()=>{if(version!==generation)return;ws.send(JSON.stringify({type:'join',roomId:room,clientId,name}))};",
           "  ws.onmessage=e=>{if(version!==generation)return;const event=JSON.parse(e.data);",
-          "    if(event.type==='joined'){reads=new Map((event.reads||[]).map(r=>[r.clientId,r]));joined=true;attempt=0;for(const m of event.messages)messages.set(m.id,m);status('● 연결됨 · '+room);$('notice').textContent='연결되었습니다. 최근 대화를 불러왔습니다.';render();flush()}"
+          "    if(event.type==='joined'){reads=new Map((event.reads||[]).map(r=>[r.clientId+':'+(r.deliveryMode||'direct'),r]));joined=true;attempt=0;for(const m of event.messages)messages.set(m.id,m);status('● 연결됨 · '+room);$('notice').textContent='연결되었습니다. 최근 대화를 불러왔습니다.';render();flush()}"
         ]
       },
       {
@@ -56,7 +56,7 @@
         "node": "server",
         "highlight": "service.validateRoom(roomId)",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 36,
+        "line": 37,
         "lines": [
           "        String name = service.text(input.path(\"name\").asText(), 20, \"이름\"); service.validateRoom(roomId);",
           "        var history = service.history(roomId);",
@@ -68,7 +68,7 @@
         "node": "database",
         "highlight": "messages.findTop100ByRoomIdOrderByIdDesc",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 45,
+        "line": 47,
         "lines": [
           "        return messages.findTop100ByRoomIdOrderByIdDesc(roomId).stream().sorted(Comparator.comparing(m -> m.id)).map(this::view).toList();",
           "    }",
@@ -80,7 +80,7 @@
         "node": "database-return",
         "highlight": "messages.findTop100ByRoomIdOrderByIdDesc",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 45,
+        "line": 47,
         "lines": [
           "        return messages.findTop100ByRoomIdOrderByIdDesc(roomId).stream().sorted(Comparator.comparing(m -> m.id)).map(this::view).toList();",
           "    }",
@@ -92,7 +92,7 @@
         "node": "recipient",
         "highlight": "\"type\", \"joined\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 39,
+        "line": 40,
         "lines": [
           "        emit(socket, Map.of(\"type\", \"joined\", \"roomId\", roomId, \"clientId\", clientId, \"messages\", history, \"reads\", service.reads(roomId)));",
           "        presence(roomId);",
@@ -104,7 +104,7 @@
         "node": "recipient",
         "highlight": "\"type\", \"presence\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 84,
+        "line": 89,
         "lines": [
           "        broadcast(roomId, Map.of(\"type\", \"presence\", \"roomId\", roomId, \"names\", names));",
           "    }",
@@ -120,7 +120,7 @@
         "file": "src/main/resources/static/chat.js",
         "line": 44,
         "lines": [
-          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
+          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
           "function receiveAck(event){",
           "  messages.set(event.message.id,event.message);"
         ]
@@ -130,7 +130,7 @@
         "node": "server",
         "highlight": "json.readTree(frame.getPayload())",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 20,
+        "line": 21,
         "lines": [
           "            JsonNode input = json.readTree(frame.getPayload());",
           "            if (input == null || !input.isObject()) throw new IllegalArgumentException(\"JSON 객체가 필요합니다.\");",
@@ -142,7 +142,7 @@
         "node": "server",
         "highlight": "body = text(body, 2000",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 49,
+        "line": 56,
         "lines": [
           "        validateRoom(roomId); identifier(clientId); identifier(requestId); text(sender, 20, \"이름\"); body = text(body, 2000, \"메시지\");",
           "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
@@ -154,7 +154,7 @@
         "node": "database",
         "highlight": "messages.findByClientIdAndRequestId",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 50,
+        "line": 57,
         "lines": [
           "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
           "        if (previous.isPresent()) {",
@@ -166,21 +166,21 @@
         "node": "database",
         "highlight": "messages.saveAndFlush",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 55,
+        "line": 63,
         "lines": [
-          "        var message = messages.saveAndFlush(new ChatMessage(roomId, clientId, requestId, sender, body));",
-          "        return new Saved(view(message), false);",
-          "    }"
+          "        var message = messages.saveAndFlush(entity);",
+          "        if(mode.equals(\"kafka\"))jdbc.update(\"INSERT INTO chat_outbox(message_id) VALUES (?)\",message.id);",
+          "        return new Saved(view(message), false);"
         ]
       },
       {
         "label": "같은 방에 저장된 메시지 방송",
         "node": "recipient",
-        "highlight": "if (!saved.duplicate()) broadcast",
+        "highlight": "if (!saved.duplicate()&&saved.message().deliveryMode().equals(\"direct\")) broadcast",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 47,
+        "line": 50,
         "lines": [
-          "        if (!saved.duplicate()) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
+          "        if (!saved.duplicate()&&saved.message().deliveryMode().equals(\"direct\")) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
           "    }"
         ]
@@ -190,11 +190,11 @@
         "node": "sender",
         "highlight": "\"type\", \"ack\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 48,
+        "line": 51,
         "lines": [
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
           "    }",
-          "    private void read(WebSocketSession socket, JsonNode input) {"
+          "    @org.springframework.context.event.EventListener"
         ]
       }
     ],
@@ -206,7 +206,7 @@
         "file": "src/main/resources/static/chat.js",
         "line": 44,
         "lines": [
-          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
+          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
           "function receiveAck(event){",
           "  messages.set(event.message.id,event.message);"
         ]
@@ -216,7 +216,7 @@
         "node": "server",
         "highlight": "json.readTree(frame.getPayload())",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 20,
+        "line": 21,
         "lines": [
           "            JsonNode input = json.readTree(frame.getPayload());",
           "            if (input == null || !input.isObject()) throw new IllegalArgumentException(\"JSON 객체가 필요합니다.\");",
@@ -228,7 +228,7 @@
         "node": "database",
         "highlight": "messages.findByClientIdAndRequestId",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 50,
+        "line": 57,
         "lines": [
           "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
           "        if (previous.isPresent()) {",
@@ -240,21 +240,21 @@
         "node": "database",
         "highlight": "return new Saved(view(previous.get()), true)",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 53,
+        "line": 60,
         "lines": [
           "            return new Saved(view(previous.get()), true);",
           "        }",
-          "        var message = messages.saveAndFlush(new ChatMessage(roomId, clientId, requestId, sender, body));"
+          "        var entity=new ChatMessage(roomId, clientId, requestId, sender, body);entity.deliveryMode=mode;"
         ]
       },
       {
         "label": "중복이면 방송 생략",
         "node": "server",
-        "highlight": "if (!saved.duplicate()) broadcast",
+        "highlight": "if (!saved.duplicate()&&saved.message().deliveryMode().equals(\"direct\")) broadcast",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 47,
+        "line": 50,
         "lines": [
-          "        if (!saved.duplicate()) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
+          "        if (!saved.duplicate()&&saved.message().deliveryMode().equals(\"direct\")) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
           "    }"
         ]
@@ -264,11 +264,11 @@
         "node": "sender",
         "highlight": "\"type\", \"ack\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 48,
+        "line": 51,
         "lines": [
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
           "    }",
-          "    private void read(WebSocketSession socket, JsonNode input) {"
+          "    @org.springframework.context.event.EventListener"
         ]
       }
     ],
@@ -282,7 +282,7 @@
         "lines": [
           "function disconnect(){sendTyping(false);peerTyping.clear();renderTyping();wanted=false;joined=false;generation++;clearTimeout(retry);socket?.close();socket=null;status('연결 종료');$('presence').textContent='—'}",
           "$('connect').onclick=()=>{name=$('name').value.trim();if(!name||name.length>20){$('notice').textContent='이름은 1~20자입니다.';return}wanted=true;connect()};$('disconnect').onclick=disconnect;",
-          "$('room').onchange=()=>{const again=wanted;disconnect();room=$('room').value;messages=new Map();reads=new Map();readRequested=0;$('room-name').textContent=$('room').selectedOptions[0].textContent;$('notice').textContent='';render();if(again){wanted=true;connect()}};"
+          "$('room').onchange=()=>{const again=wanted;disconnect();room=$('room').value;messages=new Map();reads=new Map();readRequested=new Map();$('room-name').textContent=$('room').selectedOptions[0].textContent;$('notice').textContent='';render();if(again){wanted=true;connect()}};"
         ]
       },
       {
@@ -290,7 +290,7 @@
         "node": "server",
         "highlight": "afterConnectionClosed(WebSocketSession",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 86,
+        "line": 91,
         "lines": [
           "    @Override public synchronized void afterConnectionClosed(WebSocketSession socket, CloseStatus status) {",
           "        var member = members.remove(socket.getId()); if (member != null) { relayTyping(member, false); presence(member.roomId()); }",
@@ -302,7 +302,7 @@
         "node": "recipient",
         "highlight": "members.remove(socket.getId())",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 87,
+        "line": 92,
         "lines": [
           "        var member = members.remove(socket.getId()); if (member != null) { relayTyping(member, false); presence(member.roomId()); }",
           "    }",
@@ -330,7 +330,7 @@
         "file": "src/main/resources/static/chat.js",
         "line": 25,
         "lines": [
-          "  readRequested=latest;socket.send(JSON.stringify({type:'read',upToId:latest}));",
+          "  readRequested.set(mode,latest);socket.send(JSON.stringify({type:'read',upToId:latest}));}",
           "}",
           "function sendTyping(active){"
         ]
@@ -338,13 +338,13 @@
       {
         "label": "읽음 위치 저장 · 이전보다 앞으로만",
         "node": "database",
-        "highlight": "UPDATE chat_reads SET last_read_id",
+        "highlight": "UPDATE chat_mode_reads SET last_read_id",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
         "line": 23,
         "lines": [
-          "        int updated = jdbc.update(\"UPDATE chat_reads SET last_read_id = GREATEST(last_read_id, ?) WHERE room_id = ? AND client_id = ?\", upToId, roomId, clientId);",
-          "        if (updated == 0) jdbc.update(\"INSERT INTO chat_reads(room_id, client_id, last_read_id) VALUES (?, ?, ?)\", roomId, clientId, upToId);",
-          "        long saved = jdbc.queryForObject(\"SELECT last_read_id FROM chat_reads WHERE room_id = ? AND client_id = ?\", Long.class, roomId, clientId);"
+          "        int updated = jdbc.update(\"UPDATE chat_mode_reads SET last_read_id = GREATEST(last_read_id, ?) WHERE room_id = ? AND client_id = ? AND delivery_mode = ?\", upToId, roomId, clientId,target.deliveryMode);",
+          "        if (updated == 0) jdbc.update(\"INSERT INTO chat_mode_reads(room_id, client_id, last_read_id, delivery_mode) VALUES (?, ?, ?, ?)\", roomId, clientId, upToId,target.deliveryMode);",
+          "        long saved = jdbc.queryForObject(\"SELECT last_read_id FROM chat_mode_reads WHERE room_id = ? AND client_id = ? AND delivery_mode = ?\", Long.class, roomId, clientId,target.deliveryMode);"
         ]
       },
       {
@@ -352,7 +352,7 @@
         "node": "recipient",
         "highlight": "\"type\", \"read\", \"receipt\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 55,
+        "line": 60,
         "lines": [
           "        broadcast(member.roomId(), Map.of(\"type\", \"read\", \"receipt\", receipt));",
           "    }",
@@ -366,7 +366,7 @@
         "file": "src/main/resources/static/chat.js",
         "line": 18,
         "lines": [
-          "function bubble(m,waiting){const div=document.createElement('article');div.className='bubble'+(m.clientId===clientId?' mine':'')+(waiting?' pending':'');const small=document.createElement('small');small.textContent=m.sender+' · '+(waiting?(m.id?'#'+m.id+' · ACK 확인 대기':'서버 확인 대기'):'#'+m.id+' · '+new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));const p=document.createElement('p');p.textContent=m.body;div.append(small,p);if(!waiting&&m.clientId===clientId){const receipt=document.createElement('span');receipt.className='read-state';receipt.textContent=[...reads.values()].some(r=>r.clientId!==clientId&&r.roomId===room&&r.lastReadId>=m.id)?'읽음':'안 읽음';div.append(receipt)}return div}",
+          "function bubble(m,waiting){const div=document.createElement('article');div.className='bubble'+(m.clientId===clientId?' mine':'')+(waiting?' pending':'');const small=document.createElement('small');small.textContent=m.sender+' · '+(waiting?(m.id?'#'+m.id+' · ACK 확인 대기':'서버 확인 대기'):'#'+m.id+' · '+new Date(m.createdAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}));const p=document.createElement('p');p.textContent=m.body;div.append(small,p);if(!waiting&&m.clientId===clientId){const receipt=document.createElement('span');receipt.className='read-state';receipt.textContent=[...reads.values()].some(r=>r.clientId!==clientId&&r.roomId===room&&(r.deliveryMode||'direct')===(m.deliveryMode||'direct')&&r.lastReadId>=m.id)?'읽음':'안 읽음';div.append(receipt)}return div}",
           "function markVisibleRead(){",
           "  if(document.hidden||!viewOpen||!joined||socket?.readyState!==WebSocket.OPEN)return;"
         ]
@@ -390,7 +390,7 @@
         "node": "server",
         "highlight": "if (!input.path(\"active\").isBoolean())",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 60,
+        "line": 65,
         "lines": [
           "        if (!input.path(\"active\").isBoolean()) throw new IllegalArgumentException(\"입력 상태는 boolean이어야 합니다.\");",
           "        relayTyping(member, input.path(\"active\").asBoolean());",
@@ -402,7 +402,7 @@
         "node": "server",
         "highlight": "if (!peer.roomId().equals(source.roomId()) ||",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 67,
+        "line": 72,
         "lines": [
           "            if (!peer.roomId().equals(source.roomId()) || peer.clientId().equals(source.clientId())) continue;",
           "            try { emit(peer.socket(), event); } catch (IOException | IllegalStateException error) { try { peer.socket().close(CloseStatus.SERVER_ERROR); } catch (IOException ignored) {} }",
@@ -430,7 +430,7 @@
         "file": "src/main/resources/static/chat.js",
         "line": 44,
         "lines": [
-          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
+          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
           "function receiveAck(event){",
           "  messages.set(event.message.id,event.message);"
         ]
@@ -440,7 +440,7 @@
         "node": "server",
         "highlight": "json.readTree(frame.getPayload())",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 20,
+        "line": 21,
         "lines": [
           "            JsonNode input = json.readTree(frame.getPayload());",
           "            if (input == null || !input.isObject()) throw new IllegalArgumentException(\"JSON 객체가 필요합니다.\");",
@@ -452,7 +452,7 @@
         "node": "server",
         "highlight": "body = text(body, 2000",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 49,
+        "line": 56,
         "lines": [
           "        validateRoom(roomId); identifier(clientId); identifier(requestId); text(sender, 20, \"이름\"); body = text(body, 2000, \"메시지\");",
           "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
@@ -464,7 +464,7 @@
         "node": "database",
         "highlight": "messages.findByClientIdAndRequestId",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 50,
+        "line": 57,
         "lines": [
           "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
           "        if (previous.isPresent()) {",
@@ -476,21 +476,21 @@
         "node": "database",
         "highlight": "messages.saveAndFlush",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 55,
+        "line": 63,
         "lines": [
-          "        var message = messages.saveAndFlush(new ChatMessage(roomId, clientId, requestId, sender, body));",
-          "        return new Saved(view(message), false);",
-          "    }"
+          "        var message = messages.saveAndFlush(entity);",
+          "        if(mode.equals(\"kafka\"))jdbc.update(\"INSERT INTO chat_outbox(message_id) VALUES (?)\",message.id);",
+          "        return new Saved(view(message), false);"
         ]
       },
       {
         "label": "같은 방에 저장된 메시지 방송",
         "node": "recipient",
-        "highlight": "if (!saved.duplicate()) broadcast",
+        "highlight": "if (!saved.duplicate()&&saved.message().deliveryMode().equals(\"direct\")) broadcast",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 47,
+        "line": 50,
         "lines": [
-          "        if (!saved.duplicate()) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
+          "        if (!saved.duplicate()&&saved.message().deliveryMode().equals(\"direct\")) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
           "    }"
         ]
@@ -516,7 +516,7 @@
         "file": "src/main/resources/static/chat.js",
         "line": 44,
         "lines": [
-          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body}))}",
+          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
           "function receiveAck(event){",
           "  messages.set(event.message.id,event.message);"
         ]
@@ -526,7 +526,7 @@
         "node": "server",
         "highlight": "json.readTree(frame.getPayload())",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 20,
+        "line": 21,
         "lines": [
           "            JsonNode input = json.readTree(frame.getPayload());",
           "            if (input == null || !input.isObject()) throw new IllegalArgumentException(\"JSON 객체가 필요합니다.\");",
@@ -538,7 +538,7 @@
         "node": "database",
         "highlight": "messages.findByClientIdAndRequestId",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 50,
+        "line": 57,
         "lines": [
           "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
           "        if (previous.isPresent()) {",
@@ -550,21 +550,21 @@
         "node": "database",
         "highlight": "return new Saved(view(previous.get()), true)",
         "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-        "line": 53,
+        "line": 60,
         "lines": [
           "            return new Saved(view(previous.get()), true);",
           "        }",
-          "        var message = messages.saveAndFlush(new ChatMessage(roomId, clientId, requestId, sender, body));"
+          "        var entity=new ChatMessage(roomId, clientId, requestId, sender, body);entity.deliveryMode=mode;"
         ]
       },
       {
         "label": "중복이면 방송 생략",
         "node": "server",
-        "highlight": "if (!saved.duplicate()) broadcast",
+        "highlight": "if (!saved.duplicate()&&saved.message().deliveryMode().equals(\"direct\")) broadcast",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 47,
+        "line": 50,
         "lines": [
-          "        if (!saved.duplicate()) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
+          "        if (!saved.duplicate()&&saved.message().deliveryMode().equals(\"direct\")) broadcast(member.roomId(), Map.of(\"type\", \"message\", \"message\", saved.message()));",
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
           "    }"
         ]
@@ -574,11 +574,11 @@
         "node": "sender",
         "highlight": "\"type\", \"ack\"",
         "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-        "line": 48,
+        "line": 51,
         "lines": [
           "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
           "    }",
-          "    private void read(WebSocketSession socket, JsonNode input) {"
+          "    @org.springframework.context.event.EventListener"
         ]
       },
       {
@@ -593,16 +593,280 @@
           "}"
         ]
       }
+    ],
+    "kafkaSend": [
+      {
+        "label": "JSON 프레임 전송",
+        "node": "sender",
+        "highlight": "socket.send(JSON.stringify({type:'send'",
+        "file": "src/main/resources/static/chat.js",
+        "line": 44,
+        "lines": [
+          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
+          "function receiveAck(event){",
+          "  messages.set(event.message.id,event.message);"
+        ]
+      },
+      {
+        "label": "본문과 식별자 검증",
+        "node": "server",
+        "highlight": "body = text(body, 2000",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 56,
+        "lines": [
+          "        validateRoom(roomId); identifier(clientId); identifier(requestId); text(sender, 20, \"이름\"); body = text(body, 2000, \"메시지\");",
+          "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
+          "        if (previous.isPresent()) {"
+        ]
+      },
+      {
+        "label": "중복 requestId 조회",
+        "node": "database",
+        "highlight": "messages.findByClientIdAndRequestId",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 57,
+        "lines": [
+          "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
+          "        if (previous.isPresent()) {",
+          "            if (!previous.get().roomId.equals(roomId)) throw new IllegalArgumentException(\"다른 방에서 사용한 요청 ID입니다.\");"
+        ]
+      },
+      {
+        "label": "대화 + Outbox INSERT · 함께 commit",
+        "node": "database",
+        "highlight": "INSERT INTO chat_outbox",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 64,
+        "lines": [
+          "        if(mode.equals(\"kafka\"))jdbc.update(\"INSERT INTO chat_outbox(message_id) VALUES (?)\",message.id);",
+          "        return new Saved(view(message), false);",
+          "    }"
+        ]
+      },
+      {
+        "label": "발신자에게 ACK 응답",
+        "node": "sender",
+        "highlight": "\"type\", \"ack\"",
+        "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
+        "line": 51,
+        "lines": [
+          "        emit(socket, Map.of(\"type\", \"ack\", \"requestId\", requestId, \"message\", saved.message(), \"duplicate\", saved.duplicate()));",
+          "    }",
+          "    @org.springframework.context.event.EventListener"
+        ]
+      },
+      {
+        "label": "Outbox → Kafka · 같은 방 파티션 발행",
+        "node": "broker",
+        "highlight": "kafka.send(TOPIC",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 41,
+        "lines": [
+          "                var result=kafka.send(TOPIC, room.equals(\"lobby\")?0:1, room, String.valueOf(id)).get(5,TimeUnit.SECONDS);",
+          "                jdbc.update(\"UPDATE chat_outbox SET published=TRUE, kafka_partition=?, kafka_offset=? WHERE message_id=?\",result.getRecordMetadata().partition(),result.getRecordMetadata().offset(),id);",
+          "            } catch(Exception unavailable){if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}"
+        ]
+      },
+      {
+        "label": "Kafka 기록 완료 · 전달 서버 처리 대기",
+        "node": "broker",
+        "highlight": "UPDATE chat_outbox SET published",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 42,
+        "lines": [
+          "                jdbc.update(\"UPDATE chat_outbox SET published=TRUE, kafka_partition=?, kafka_offset=? WHERE message_id=?\",result.getRecordMetadata().partition(),result.getRecordMetadata().offset(),id);",
+          "            } catch(Exception unavailable){if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}",
+          "        }"
+        ]
+      }
+    ],
+    "kafkaInterrupted": [
+      {
+        "label": "JSON 프레임 전송",
+        "node": "sender",
+        "highlight": "socket.send(JSON.stringify({type:'send'",
+        "file": "src/main/resources/static/chat.js",
+        "line": 44,
+        "lines": [
+          "function flush(){if(!joined||socket?.readyState!==WebSocket.OPEN)return;for(const p of pending.filter(p=>p.roomId===room))socket.send(JSON.stringify({type:'send',requestId:p.requestId,body:p.body,mode:p.mode||'direct'}))}",
+          "function receiveAck(event){",
+          "  messages.set(event.message.id,event.message);"
+        ]
+      },
+      {
+        "label": "본문과 식별자 검증",
+        "node": "server",
+        "highlight": "body = text(body, 2000",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 56,
+        "lines": [
+          "        validateRoom(roomId); identifier(clientId); identifier(requestId); text(sender, 20, \"이름\"); body = text(body, 2000, \"메시지\");",
+          "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
+          "        if (previous.isPresent()) {"
+        ]
+      },
+      {
+        "label": "중복 requestId 조회",
+        "node": "database",
+        "highlight": "messages.findByClientIdAndRequestId",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 57,
+        "lines": [
+          "        var previous = messages.findByClientIdAndRequestId(clientId, requestId);",
+          "        if (previous.isPresent()) {",
+          "            if (!previous.get().roomId.equals(roomId)) throw new IllegalArgumentException(\"다른 방에서 사용한 요청 ID입니다.\");"
+        ]
+      },
+      {
+        "label": "대화 + Outbox INSERT · 함께 commit",
+        "node": "database",
+        "highlight": "INSERT INTO chat_outbox",
+        "file": "src/main/java/dev/portfolio/chat/ChatService.java",
+        "line": 64,
+        "lines": [
+          "        if(mode.equals(\"kafka\"))jdbc.update(\"INSERT INTO chat_outbox(message_id) VALUES (?)\",message.id);",
+          "        return new Saved(view(message), false);",
+          "    }"
+        ]
+      },
+      {
+        "label": "ACK 수신 전 연결 끊김 · 요청 보관",
+        "node": "sender",
+        "highlight": "function interruptBeforeAck",
+        "file": "src/main/resources/static/chat.js",
+        "line": 50,
+        "lines": [
+          "function interruptBeforeAck(message){",
+          "  // Deterministic demo: receive the committed broadcast, then ignore queued ACKs from this socket.",
+          "  cutRequest=null;disconnect();"
+        ]
+      },
+      {
+        "label": "Outbox → Kafka · 같은 방 파티션 발행",
+        "node": "broker",
+        "highlight": "kafka.send(TOPIC",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 41,
+        "lines": [
+          "                var result=kafka.send(TOPIC, room.equals(\"lobby\")?0:1, room, String.valueOf(id)).get(5,TimeUnit.SECONDS);",
+          "                jdbc.update(\"UPDATE chat_outbox SET published=TRUE, kafka_partition=?, kafka_offset=? WHERE message_id=?\",result.getRecordMetadata().partition(),result.getRecordMetadata().offset(),id);",
+          "            } catch(Exception unavailable){if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}"
+        ]
+      },
+      {
+        "label": "Kafka 기록 완료 · 전달 서버 처리 대기",
+        "node": "broker",
+        "highlight": "UPDATE chat_outbox SET published",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 42,
+        "lines": [
+          "                jdbc.update(\"UPDATE chat_outbox SET published=TRUE, kafka_partition=?, kafka_offset=? WHERE message_id=?\",result.getRecordMetadata().partition(),result.getRecordMetadata().offset(),id);",
+          "            } catch(Exception unavailable){if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}",
+          "        }"
+        ]
+      }
+    ],
+    "kafkaDeliver": [
+      {
+        "label": "Kafka Consumer · 보관된 이벤트 수신",
+        "node": "consumer",
+        "highlight": "public void consume(ConsumerRecord",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 48,
+        "lines": [
+          "    public void consume(ConsumerRecord<String,String> record){",
+          "        long id=Long.parseLong(record.value());",
+          "        if(jdbc.queryForObject(\"SELECT COUNT(*) FROM chat_deliveries WHERE message_id=?\",Long.class,id)>0)return;"
+        ]
+      },
+      {
+        "label": "처리한 이벤트 ID인지 확인",
+        "node": "consumer",
+        "highlight": "SELECT COUNT(*) FROM chat_deliveries",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 50,
+        "lines": [
+          "        if(jdbc.queryForObject(\"SELECT COUNT(*) FROM chat_deliveries WHERE message_id=?\",Long.class,id)>0)return;",
+          "        var message=service.message(id);",
+          "        events.publishEvent(new Ready(message));"
+        ]
+      },
+      {
+        "label": "같은 방 참가자에게 WebSocket 전달",
+        "node": "recipient",
+        "highlight": "public synchronized void deliver(KafkaDelivery.Ready",
+        "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
+        "line": 54,
+        "lines": [
+          "    public synchronized void deliver(KafkaDelivery.Ready event){broadcast(event.message().roomId(),Map.of(\"type\",\"message\",\"message\",event.message()));}",
+          "    private void read(WebSocketSession socket, JsonNode input) {",
+          "        var member = members.get(socket.getId());"
+        ]
+      },
+      {
+        "label": "처리한 이벤트 기록 · DB commit",
+        "node": "consumer",
+        "highlight": "INSERT INTO chat_deliveries",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 53,
+        "lines": [
+          "        jdbc.update(\"INSERT INTO chat_deliveries(message_id, kafka_partition, kafka_offset) VALUES (?,?,?)\",id,record.partition(),record.offset());",
+          "        // Container commits its Kafka offset after this listener and its DB transaction succeed.",
+          "    }"
+        ]
+      },
+      {
+        "label": "Consumer 처리 완료 · offset commit",
+        "node": "offset",
+        "highlight": "Container commits its Kafka offset",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 54,
+        "lines": [
+          "        // Container commits its Kafka offset after this listener and its DB transaction succeed.",
+          "    }",
+          "    public void setRunning(boolean running){"
+        ]
+      }
+    ],
+    "kafkaPublish": [
+      {
+        "label": "Outbox → Kafka · 같은 방 파티션 발행",
+        "node": "broker",
+        "highlight": "kafka.send(TOPIC",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 41,
+        "lines": [
+          "                var result=kafka.send(TOPIC, room.equals(\"lobby\")?0:1, room, String.valueOf(id)).get(5,TimeUnit.SECONDS);",
+          "                jdbc.update(\"UPDATE chat_outbox SET published=TRUE, kafka_partition=?, kafka_offset=? WHERE message_id=?\",result.getRecordMetadata().partition(),result.getRecordMetadata().offset(),id);",
+          "            } catch(Exception unavailable){if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}"
+        ]
+      },
+      {
+        "label": "Kafka 기록 완료 · 전달 서버 처리 대기",
+        "node": "broker",
+        "highlight": "UPDATE chat_outbox SET published",
+        "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+        "line": 42,
+        "lines": [
+          "                jdbc.update(\"UPDATE chat_outbox SET published=TRUE, kafka_partition=?, kafka_offset=? WHERE message_id=?\",result.getRecordMetadata().partition(),result.getRecordMetadata().offset(),id);",
+          "            } catch(Exception unavailable){if(unavailable instanceof InterruptedException)Thread.currentThread().interrupt();return;}",
+          "        }"
+        ]
+      }
     ]
   },
   "sources": [
     {
+      "file": "src/main/java/dev/portfolio/chat/KafkaDelivery.java",
+      "sha256": "dd4db35a14e7d32a7584f0e9e5ef315a81d7dd9d3383928a50e497405f5f8a65"
+    },
+    {
       "file": "src/main/java/dev/portfolio/chat/ChatSocket.java",
-      "sha256": "b5f15bf3a25bffb1c18bfc229078e5367841acdd792b800ce522b5f9e970ddaf"
+      "sha256": "d9a027a11e51ba82db4048186a83e504bf12534d197f24953b0feeab50313bdf"
     },
     {
       "file": "src/main/java/dev/portfolio/chat/ChatService.java",
-      "sha256": "29eb5e8bd0e7891dcd3080b7cc198cfd16dc28cc8173c43b68f81e8bd6b55857"
+      "sha256": "06583b6ce04d63e713b9eb98241e5644cf2f1d3022cb9609eeeffff53afef96c"
     },
     {
       "file": "src/main/java/dev/portfolio/chat/MessageRepository.java",
@@ -614,15 +878,15 @@
     },
     {
       "file": "src/main/java/dev/portfolio/chat/ChatMessage.java",
-      "sha256": "3c1a722f9ee0c619f7e0cd932124da32676284f9f7d6f5a2e32632f586f3fda7"
+      "sha256": "f404c78a2c156a9ed8327661817a28cd9ad49e9a5179088590a71dc6c371be0e"
     },
     {
       "file": "src/main/resources/schema.sql",
-      "sha256": "42e666ec7ce608247f7e58d2ee343789a69126d88669f93915bebeac723cbfa4"
+      "sha256": "e73ff1c769a0f75f237808af3fe4a925f2c72a7770ce3fc90fafa4736e9a13fa"
     },
     {
       "file": "src/main/resources/static/chat.js",
-      "sha256": "45e73b49b9a48a07886d898efec2b7cf57cb8ec4c6e7f241a8b6019d6781f005"
+      "sha256": "1a4a505ad66331e750155b72b424244bace2af6bfc9869c64c557148370b5c96"
     }
   ]
 }

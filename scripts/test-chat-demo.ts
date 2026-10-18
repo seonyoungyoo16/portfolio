@@ -88,3 +88,36 @@ assert.equal(acknowledgeChat(outbox,{...retryJob.message,requestId:'other'}).len
 outbox=acknowledgeChat(outbox,retryJob.message)
 assert.equal(outbox.length,0)
 console.log('Lost ACK: pending survives broadcast/history/reload, retry keeps original ID and one row, matching ACK clears pending.')
+
+// Route selection, durable outbox, paused consumer and independent read cursors.
+const {publishChatEvent,consumeChatEvent,nextDelivery,deliveryStats}=await import('../src/chat-delivery.ts')
+let brokerDb=emptyChat();const queuedIds:number[]=[]
+for(let i=0;i<3;i++){const job=storeChat(brokerDb,a,'Kafka 대기 '+i,'kafka-'+i,'kafka');brokerDb=job.database;queuedIds.push(job.message.id)}
+assert.deepEqual(deliveryStats(brokerDb),{outbox:3,queued:0,processed:0})
+assert.throws(()=>consumeChatEvent(brokerDb,queuedIds[0]))
+for(const id of queuedIds)brokerDb=publishChatEvent(brokerDb,id)
+assert.deepEqual(deliveryStats(brokerDb),{outbox:0,queued:3,processed:0})
+assert.deepEqual(brokerDb.kafkaEvents?.map(e=>e.offset),[0,1,2])
+assert.deepEqual(publishChatEvent(brokerDb,queuedIds[0]),brokerDb)
+assert.equal(storeChat(brokerDb,a,'Kafka 대기 0','kafka-0','kafka').database.kafkaEvents?.length,3)
+const immediate=storeChat(brokerDb,a,'Consumer 중단 중 직접 전달','direct-later','direct');brokerDb=immediate.database
+let viewer=deliverChat([b],immediate.message)[0]
+assert.equal(viewer.messages.length,1)
+brokerDb=readChat(brokerDb,viewer,immediate.message.id)
+assert.equal(hasReadChat(brokerDb.reads||[],brokerDb.messages[0],b.id),false)
+for(const id of queuedIds){assert.equal(nextDelivery(brokerDb)?.messageId,id);viewer=deliverChat([viewer],brokerDb.messages.find(m=>m.id===id)!)[0];brokerDb=consumeChatEvent(brokerDb,id)}
+assert.equal(viewer.messages.length,4)
+assert.equal(nextReadChat(brokerDb,viewer),queuedIds[2])
+brokerDb=readChat(brokerDb,viewer,queuedIds[2])
+assert.equal(hasReadChat(brokerDb.reads||[],brokerDb.messages[0],b.id),true)
+assert.equal(hasReadChat(brokerDb.reads||[],immediate.message,b.id),true)
+assert.equal(nextReadChat(brokerDb,viewer),0)
+assert.equal(deliverChat([viewer],brokerDb.messages[0])[0].messages.length,4)
+assert.deepEqual(deliveryStats(brokerDb),{outbox:0,queued:0,processed:3})
+assert.equal(nextDelivery(brokerDb),undefined)
+const secondRoom=storeChat(brokerDb,outside,'다른 방','other-room','kafka');const otherPartition=publishChatEvent(secondRoom.database,secondRoom.message.id)
+assert.equal(otherPartition.kafkaEvents?.at(-1)?.partition,1)
+assert.equal(otherPartition.kafkaEvents?.at(-1)?.offset,0)
+assert.equal(deliverChat([viewer],secondRoom.message)[0].messages.length,4)
+assert.equal(JSON.parse(JSON.stringify(otherPartition)).kafkaEvents.at(-1).published,true)
+console.log('Kafka demo: route selection, atomic outbox, accumulation, ordered drain, room isolation, dedup and route-scoped reads passed.')
