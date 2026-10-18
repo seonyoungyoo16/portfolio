@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js'
 import type {ChatClient} from '../chat-demo'
 
-type Props={brokerRunning:boolean;outboxCount:number;roomId:string;mode:'direct'|'kafka';workerRunning:boolean;queueCount:number;clients:ChatClient[];actor:number;kind:string;step:number;node:string;body:string;run:number;playing:boolean;running:boolean;total:number;waiting:number[];stored:number;recoveryCount:number;readUpTo:number;typingActive:boolean}
+type Props={databaseRunning:boolean;pendingCount:number;brokerRunning:boolean;outboxCount:number;roomId:string;mode:'direct'|'kafka';workerRunning:boolean;queueCount:number;clients:ChatClient[];actor:number;kind:string;step:number;node:string;body:string;run:number;playing:boolean;running:boolean;total:number;waiting:number[];stored:number;recoveryCount:number;readUpTo:number;typingActive:boolean}
 export default function ChatScene(props:Props){
   const host=useRef<HTMLDivElement>(null),latest=useRef(props),[failed,setFailed]=useState(false)
   latest.current=props
@@ -26,7 +26,8 @@ export default function ChatScene(props:Props){
     const pcs=positions.map((v,i)=>{const group=new THREE.Group();group.position.copy(v);scene.add(group);box(group,1.45,.95,.14,0,.35,0,shell);group.userData.display=box(group,1.25,.72,.04,0,.35,.1,screen);box(group,.13,.38,.14,0,-.27,0,shell);box(group,.7,.07,.4,0,-.48,.05,shell);box(group,.45,.06,.03,0,.35,.14,i?accent:blue);box(group,.35,.7,.1,.95,-.05,.15,shell);box(group,.27,.52,.03,.95,-.05,.22,screen);return group})
     const rack=new THREE.Group();rack.position.copy(server);scene.add(rack);box(rack,.95,1.5,.7,0,.2,0,shell)
     for(let i=0;i<3;i++){box(rack,.8,.3,.07,0,.65-i*.45,.4,screen);box(rack,.1,.06,.03,.25,.65-i*.45,.45,green)}
-    for(let i=0;i<3;i++){const disk=mesh(new THREE.CylinderGeometry(.5,.5,.2,40),i===2?green:shell);disk.position.copy(db).add(new THREE.Vector3(0,i*.22,0))}
+    const databaseDisks:THREE.Mesh[]=[]
+    for(let i=0;i<3;i++){const disk=mesh(new THREE.CylinderGeometry(.5,.5,.2,40),i===2?green:shell);disk.position.copy(db).add(new THREE.Vector3(0,i*.22,0));databaseDisks.push(disk)}
     const broker=new THREE.Vector3(-1.25,.3,-1.85),worker=new THREE.Vector3(1.25,.3,-1.85)
     const kafkaGroup=new THREE.Group();scene.add(kafkaGroup)
     const brokerDisks:THREE.Mesh[]=[]
@@ -56,13 +57,15 @@ export default function ChatScene(props:Props){
       const progress=reduced?.7:Math.min(elapsed/(p.kind==='typing'?350:1000),1),same=p.clients[0].roomId===p.clients[1].roomId
       pcs.forEach((pc,i)=>{pc.scale.setScalar(p.clients[i].connected?1:.92);pc.userData.display.material=p.clients[i].viewOpen?screen:muted;rings[i].visible=p.clients[i].connected;rings[i].material=same?green:muted;lines[i].material=(p.clients[i].connected||(p.run>0&&p.kind==='join'&&i===p.actor&&p.step>=1))?green:muted})
       const pending=Math.max(...p.waiting.filter((_,i)=>!p.clients[i].connected),0);storedCards.forEach((card,i)=>{card.visible=i<Math.min(pending,6)})
-      kafkaGroup.visible=p.mode==='kafka';brokerDisks.forEach(disk=>{disk.material=p.brokerRunning?accent:muted});outboxCards.forEach((card,i)=>{card.visible=i<Math.min(p.outboxCount,6)});workerLed.material=p.workerRunning&&p.brokerRunning?green:muted;kafkaCards.forEach((card,i)=>{card.visible=i<Math.min(p.queueCount,6)})
+      databaseDisks.forEach((disk,i)=>{disk.material=p.databaseRunning?(i===2?green:shell):muted})
+      kafkaGroup.visible=p.mode==='kafka';brokerDisks.forEach(disk=>{disk.material=p.brokerRunning?accent:muted});outboxCards.forEach((card,i)=>{card.visible=i<Math.min(p.outboxCount,6)});workerLed.material=p.workerRunning&&p.brokerRunning&&p.databaseRunning?green:muted;kafkaCards.forEach((card,i)=>{card.visible=i<Math.min(p.queueCount,6)})
       const routes:[THREE.Vector3,THREE.Vector3][]=[];let label=''
       const actor=positions[p.actor].clone().add(new THREE.Vector3(0,.35,.2)),hub=server.clone().add(new THREE.Vector3(0,.45,.6))
       if(p.run>0){
-        if(p.kind==='kafkaPublish'){routes.push(p.step===0?[db,broker]:[broker,broker]);label=p.step===0?'이벤트 재발행':'Kafka 기록'}
-        else if(['kafkaSend','kafkaInterrupted','kafkaUnavailable','kafkaUnavailableInterrupted'].includes(p.kind)){
-          if(p.step===0){routes.push([actor,hub]);label='mode: kafka'}
+        if(p.kind==='databaseUnavailable'){if(p.step===0){routes.push([actor,hub]);label='저장 요청'}else if(p.step===1){routes.push([hub,hub.clone().lerp(db,.65)]);label='DB 접근 실패 ×'}else if(p.step===2){routes.push([hub,actor]);label='저장 실패 · ACK 없음'}else{routes.push([actor,actor]);label='PC 전송 대기'}}
+        else if(p.kind==='kafkaPublish'){routes.push(p.step===0?[db,broker]:[broker,broker]);label=p.step===0?'이벤트 재발행':'Kafka 기록'}
+        else if(['kafkaSend','kafkaInterrupted','kafkaUnavailable','kafkaUnavailableInterrupted','databaseRetryKafka','databaseRetryOutbox'].includes(p.kind)){
+          if(p.step===0){routes.push([actor,hub]);label=p.kind.startsWith('databaseRetry')?'같은 ID 재전송':'mode: kafka'}
           else if(p.step===2){routes.push([hub,db]);label='중복 조회'}
           else if(p.step===3){routes.push([hub,db]);label='DB + Outbox'}
           else if(p.step===4){routes.push([hub,p.kind.endsWith('Interrupted')?hub.clone().lerp(actor,.48):actor]);label=p.kind.endsWith('Interrupted')?'ACK × 연결 끊김':'저장 ACK ✓'}
@@ -73,8 +76,8 @@ export default function ChatScene(props:Props){
         else if(p.kind==='kafkaDeliver'){
           if(p.step===0){routes.push([broker,worker]);label='POLL 이벤트'}
           else if(p.step===1){routes.push([worker,worker]);label='처리 ID 확인'}
-          else if(p.step===2){p.clients.forEach((c,i)=>{if(c.connected&&c.roomId===p.roomId)routes.push([worker,positions[i]])});label=p.body.slice(0,10)}
-          else if(p.step===3){routes.push([worker,db]);label='처리 기록'}
+          else if(p.step===2){routes.push([worker,db]);label='처리 기록 · COMMIT'}
+          else if(p.step===3){p.clients.forEach((c,i)=>{if(c.connected&&c.roomId===p.roomId)routes.push([worker,positions[i]])});label=p.body.slice(0,10)}
           else{routes.push([worker,broker]);label='OFFSET ✓'}
         }
         else if(p.kind==='typing'){if(p.step===0){routes.push([actor,hub])}else if(p.step<3){routes.push([hub,hub])}else{const other=p.clients[1-p.actor];if(other.connected&&same)routes.push([hub,positions[1-p.actor]])}label=p.typingActive?'TYPING …':'입력 표시 해제'}
@@ -82,10 +85,10 @@ export default function ChatScene(props:Props){
         else if(p.kind==='join'){if(p.step===0){routes.push([actor,hub]);label='CONNECT'}else if(p.step===1){routes.push([hub,actor]);label='OPEN'}else if(p.step===2){routes.push([actor,hub]);label='JOIN'}else if(p.node==='database-return'){routes.push([db,hub]);label=p.recoveryCount?'미수신 '+p.recoveryCount+'건':'최근 대화'}else if(p.node==='database'){routes.push([hub,db]);label='SELECT'}else if(p.step===p.total-1){p.clients.forEach((c,i)=>{if(c.connected&&c.roomId===p.roomId)routes.push([hub,positions[i]])});label='PRESENCE'}else if(p.node==='recipient'){routes.push([hub,actor]);label=p.recoveryCount?'미수신 '+p.recoveryCount+'건':'최근 대화'}}
         else if(p.kind==='disconnect'){if(p.step===0){routes.push([actor,hub]);label='CLOSE'}else if(p.step===1){routes.push([hub,hub]);label='닫힘 감지'}else{const other=p.clients[1-p.actor];if(other.connected&&same)routes.push([hub,positions[1-p.actor]]);label='PRESENCE'}}
         else if(p.kind==='interrupted'&&p.step===p.total-1){routes.push([hub,hub.clone().lerp(actor,.48)]);label='ACK × 연결 끊김'}
-        else if(p.step===0){routes.push([actor,hub]);label=p.kind==='retry'?'같은 ID 재전송':p.body.slice(0,10)}
+        else if(p.step===0){routes.push([actor,hub]);label=(p.kind==='retry'||p.kind==='databaseRetry')?'같은 ID 재전송':p.body.slice(0,10)}
         else if(p.step===p.total-1||(p.kind==='retry'&&p.step===p.total-2)){routes.push([hub,actor]);label=p.kind==='retry'?'기존 ID ACK ✓':'ACK ✓'}
-        else if((p.kind==='send'||p.kind==='interrupted')&&p.step===5){p.clients.forEach((c,i)=>{if(c.connected&&c.roomId===p.roomId)routes.push([hub,positions[i]])});label=p.body.slice(0,10)}
-        else if(p.node==='database'){routes.push([hub,db]);label=(p.kind==='send'||p.kind==='interrupted')&&p.step===4?'INSERT':'SELECT'}
+        else if((p.kind==='send'||p.kind==='interrupted'||p.kind==='databaseRetry')&&p.step===5){p.clients.forEach((c,i)=>{if(c.connected&&c.roomId===p.roomId)routes.push([hub,positions[i]])});label=p.body.slice(0,10)}
+        else if(p.node==='database'){routes.push([hub,db]);label=(p.kind==='send'||p.kind==='interrupted'||p.kind==='databaseRetry')&&p.step===4?'INSERT':'SELECT'}
         else{routes.push([hub,hub]);label=(p.kind==='duplicate'||p.kind==='retry')?'중복 확인':'VALIDATE'}
       }
       if(label!==text){text=label;ctx.clearRect(0,0,512,160);ctx.fillStyle='#14212f';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='500 47px sans-serif';ctx.fillText(label,256,80);texture.needsUpdate=true}
@@ -101,6 +104,6 @@ export default function ChatScene(props:Props){
     <span className="scene-label scene-server"><b>{props.mode==='kafka'?'메시지 수신 서버':'WebSocket 서버'}</b><small>/ws/chat</small></span>
     {props.mode==='kafka'&&<><span className="scene-label scene-kafka"><b>Kafka {props.brokerRunning?'':'· 중단'}</b><small>{props.brokerRunning?'전달 대기 '+props.queueCount+'건':'발행·소비 불가'}</small></span><span className="scene-label scene-consumer"><b>전달 서버</b><small>{props.workerRunning?(props.brokerRunning?'● 실행 중':'Kafka 연결 대기'):'○ 중단됨'}</small></span></>}
     <span className="scene-label scene-b"><b>참가자 B</b><small>{props.clients[1].connected?'● 온라인':'○ 오프라인'} · {props.clients[1].roomId}</small><small className="scene-view-state">{props.clients[1].viewOpen?'대화창 열림':'대화창 닫힘'}</small></span>
-    {!props.brokerRunning&&props.mode==='kafka'&&<span className="scene-broker-outage">Kafka 연결 불가 · Outbox에 보관</span>}{props.kind==='interrupted'&&props.step===props.total-1&&<span className="scene-connection-lost">ACK 미수신 · PC에 요청 보관</span>}<span className="scene-label scene-db">서버 대화 기록 · {props.stored}건<small>{props.mode==='kafka'&&props.outboxCount>0?'Outbox 미발행 '+props.outboxCount+'건':props.kind==='retry'?'중복 요청 · 추가 저장 / 방송 없음':props.kind==='typing'?'입력 신호 · DB 저장 없음':props.kind==='read'&&props.step>=2?'읽음 위치 #'+props.readUpTo:props.clients.map((c,i)=>!c.connected&&props.waiting[i]>0?`${i?'B':'A'} 미수신 ${props.waiting[i]}건`:null).filter(Boolean).join(' · ')||'오프라인이어도 서버에 보관'}</small></span>
+    {!props.databaseRunning&&<span className="scene-database-outage">DB 저장 불가 · PC 전송 대기 {props.pendingCount}건</span>}{props.databaseRunning&&!props.brokerRunning&&props.mode==='kafka'&&<span className="scene-broker-outage">Kafka 연결 불가 · Outbox에 보관</span>}{props.kind==='interrupted'&&props.step===props.total-1&&<span className="scene-connection-lost">ACK 미수신 · PC에 요청 보관</span>}<span className="scene-label scene-db">{props.databaseRunning?'서버 대화 기록':'DB 중단 · 마지막 저장'} · {props.stored}건<small>{!props.databaseRunning?'저장/조회 불가 · ACK 없음':props.mode==='kafka'&&props.outboxCount>0?'Outbox 미발행 '+props.outboxCount+'건':props.kind==='retry'?'중복 요청 · 추가 저장 / 방송 없음':props.kind==='typing'?'입력 신호 · DB 저장 없음':props.kind==='read'&&props.step>=2?'읽음 위치 #'+props.readUpTo:props.clients.map((c,i)=>!c.connected&&props.waiting[i]>0?`${i?'B':'A'} 미수신 ${props.waiting[i]}건`:null).filter(Boolean).join(' · ')||'오프라인이어도 서버에 보관'}</small></span>
   </div>
 }

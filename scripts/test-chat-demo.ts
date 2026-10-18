@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import {emptyChat,storeChat,deliverChat,chatHistory,waitingChat,readChat,hasReadChat,nextReadChat,type ChatClient} from '../src/chat-demo.ts'
 import {relayChatTyping,cleanChatTyping,visibleChatTyping} from '../src/chat-typing.ts'
-import {enqueueChat,acknowledgeChat,pendingFor,type PendingChat} from '../src/chat-outbox.ts'
+import {attemptChat,enqueueChat,acknowledgeChat,pendingFor,type PendingChat} from '../src/chat-outbox.ts'
 const client=(id:string,roomId='lobby',connected=true):ChatClient=>({id,name:id,roomId,connected,viewOpen:true,messages:[]})
 const a=client('a'),b=client('b'),outside=client('c','design'),offline=client('d','lobby',false)
 let db=emptyChat();const first=storeChat(db,a,'안녕하세요','request-1');db=first.database
@@ -146,3 +146,24 @@ assert.deepEqual(deliveryStats(outageDb),{outbox:0,queued:0,processed:2})
 assert.equal(outageDb.messages.length,2)
 assert.deepEqual(outageDb.kafkaEvents!.map(e=>e.offset),[0,1])
 console.log('Broker outage: Outbox retention, null offsets, reload recovery, original IDs, independent consume gate and single delivery passed.')
+
+// DB failure must leave only a client request: no reserved server ID, message or DB Outbox.
+for(const mode of ['direct','kafka'] as const){
+  const original=emptyChat(),request:PendingChat={clientId:a.id,roomId:a.roomId,requestId:'db-recover-'+mode,body:'DB 복구 확인',mode}
+  const failed=attemptChat(original,a,request,false)
+  assert.equal(failed.saved,null);assert.equal(failed.request.failed,true)
+  assert.deepEqual(original,emptyChat())
+  let pending=enqueueChat([],failed.request)
+  const restored=JSON.parse(JSON.stringify(pending)) as PendingChat[]
+  const retry=attemptChat(original,a,restored[0],true).saved!
+  assert.equal(retry.message.requestId,request.requestId);assert.equal(retry.message.deliveryMode,mode)
+  assert.equal(retry.database.messages.length,1);assert.equal(retry.database.kafkaEvents?.length||0,mode==='kafka'?1:0)
+  const duplicate=attemptChat(retry.database,a,restored[0],true).saved!
+  assert.equal(duplicate.duplicate,true);assert.equal(duplicate.message.id,retry.message.id)
+  assert.equal(duplicate.database.messages.length,1)
+  pending=acknowledgeChat(pending,retry.message);assert.equal(pending.length,0)
+  let peers=deliverChat([a,b],retry.message);peers=deliverChat(peers,duplicate.message)
+  assert.equal(peers[1].messages.length,1)
+}
+assert.throws(()=>attemptChat(emptyChat(),a,{clientId:a.id,roomId:a.roomId,requestId:'bad-request',body:'',mode:'direct'},false))
+console.log('DB outage: no write/ID/Outbox before recovery, persisted original request, both routes and one stored/delivered message passed.')
