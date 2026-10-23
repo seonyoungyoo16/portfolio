@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-23T21:05:17.868Z",
+  "checks": [
+    "login scene separates PREPARING Redis ACTIVE and browser-cookie snapshots",
+    "observing TTL never advances time and expiry removes the available ring only",
+    "revocation and dependency outage preserve facts with explicit unavailable styling",
+    "mail receipt proof and account creation remain three distinct scene states",
+    "SSO proof is amber until explicit identity link commits",
+    "SMTP failure retains pending cards and does not manufacture email proof",
+    "node selection uses nearest past stage or first future stage without mutation",
+    "five distinct camera poses keep Station focus and Flight packet target separate"
+  ]
+}

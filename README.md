@@ -135,3 +135,5 @@ DB 중단이나 전송 처리 중에도 입력창과 보내기를 계속 사용�
 `npm run test:payment`, `npm run verify:payment-source`, `npm run test:payment-browser`. [연결 및 검증 범위](docs/payment-project.md).
 
 결제 체험의 Three.js 장면은 현재 처리 프레임의 요청·중복 게이트·독립 원장·취소 예약을 표시합니다. 노드·원장 선택은 해당 단계와 고정 커밋 실제 소스를 함께 엽니다. 프로젝트 목록 5개는 공통 너비·열 비율과 데스크톱 24px/작은 화면 20px 간격을 사용합니다. [장면과 검증 범위](docs/payment-three.md).
+
+로그인·회원가입·채팅·결제에도 게시판과 같은 `Overview / Side / Top / Station / Flight` View를 제공합니다. 로그인은 쿠키·A/B 서버·Redis TTL·발급 상태, 회원가입은 인증 메일·가입 게이트·SSO 신원으로 표현합니다. 선택한 요소의 처리 단계와 실제 소스를 함께 볼 수 있습니다. [요소 선택과 검증 범위](docs/project-three-views.md).

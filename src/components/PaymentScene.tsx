@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import type { Frame, Node, State } from "../payment-demo";
+import SceneViews from "./SceneViews";
+import { applySceneCamera, type SceneView } from "../scene-view";
+import "../project-view-layout.css";
 import {
   paymentNodes,
   paymentNodeStep,
@@ -45,7 +48,11 @@ export default function PaymentScene(props: Props) {
     latest = useRef(props),
     engine = useRef<{ update: () => void } | null>(null),
     [failed, setFailed] = useState(false),
-    [epoch, setEpoch] = useState(0);
+    [epoch, setEpoch] = useState(0),
+    [mode, setMode] = useState<SceneView>("overview"),
+    [station, setStation] = useState<Node>("Browser");
+  const viewpoint = useRef({ mode, station });
+  viewpoint.current = { mode, station };
   latest.current = props;
   const current = props.frames[props.step],
     visual = current?.visual,
@@ -57,6 +64,7 @@ export default function PaymentScene(props: Props) {
     active = visual?.to || current?.node,
     requestCount = gate?.packets || visual?.packets || 1;
   const choose = (node: Node, transaction?: string) => {
+    setStation(node);
     const p = latest.current,
       index = paymentNodeStep(p.frames, node, p.step, transaction);
     if (index >= 0) p.onSelectStep(index);
@@ -423,6 +431,7 @@ export default function PaymentScene(props: Props) {
           );
         }
         rows.instanceMatrix.needsUpdate = true;
+        rows.computeBoundingSphere();
         if (rows.instanceColor) rows.instanceColor.needsUpdate = true;
         rows.userData.transactions = shown.map((t) => t.id);
       }
@@ -440,11 +449,26 @@ export default function PaymentScene(props: Props) {
           )
           .project(camera);
         label.style.left = ((top.x + 1) * width) / 2 + "px";
-        label.style.top = ((-top.y + 1) * height) / 2 + "px";
+        label.style.top =
+          canvasTarget!.offsetTop + ((-top.y + 1) * height) / 2 + "px";
       }
     }
     function draw() {
       if (destroyed || lost || width <= 0 || height <= 0 || !visible) return;
+      const cam = viewpoint.current,
+        focus = positions[cam.station];
+      applySceneCamera(
+        camera,
+        cam.mode,
+        focus,
+        route ? route.getPointAt(progress) : focus,
+        width,
+        height,
+      );
+      target!.dataset.camera = camera.position
+        .toArray()
+        .map((n) => n.toFixed(3))
+        .join(",");
       renderer.render(scene, camera);
       target!.dataset.renderCount = String(
         Number(target!.dataset.renderCount || 0) + 1,
@@ -656,7 +680,15 @@ export default function PaymentScene(props: Props) {
   }, [epoch]);
   useEffect(
     () => engine.current?.update(),
-    [props.view, props.frames, props.step, props.playing, props.run],
+    [
+      props.view,
+      props.frames,
+      props.step,
+      props.playing,
+      props.run,
+      mode,
+      station,
+    ],
   );
   return (
     <div
@@ -672,38 +704,50 @@ export default function PaymentScene(props: Props) {
       data-overbooked={ring.overbooked}
       data-packets={visual?.packets || 1}
       data-forwarded={gate?.forwarded ?? ""}
+      data-view={mode}
+      data-station={station}
     >
+      <SceneViews
+        value={mode}
+        onChange={setMode}
+        stations={paymentNodes.map((id) => ({ id, label: names[id] }))}
+        station={station}
+        onStation={(id) => setStation(id as Node)}
+        disabled={failed}
+      />
       <div className="payment-three-stage" ref={canvasHost} />
-      {paymentNodes.map((node) => (
-        <button
-          key={node}
-          data-scene-node={node}
-          className={"payment-node " + (active === node ? "active" : "")}
-          disabled={paymentNodeStep(props.frames, node, props.step) < 0}
-          onClick={() => choose(node)}
-          aria-label={names[node] + " 처리 단계와 실제 소스 보기"}
-        >
-          <b>{names[node]}</b>
-          {node === "DB" || node === "PG DB" ? (
-            <span
-              data-testid={
-                node === "DB" ? "scene-merchant-ledger" : "scene-pg-ledger"
-              }
-            >
-              원장{" "}
-              {node === "DB"
-                ? props.view.ledger.length
-                : props.view.transactions.length}
-              건
-            </span>
-          ) : node === "Server" ? (
-            <span>
-              승인 작업{" "}
-              {props.view.ops.filter((o) => o.kind === "CONFIRM").length}개
-            </span>
-          ) : null}
-        </button>
-      ))}
+      <div className="payment-three-labels">
+        {paymentNodes.map((node) => (
+          <button
+            key={node}
+            data-scene-node={node}
+            className={"payment-node " + (active === node ? "active" : "")}
+            disabled={paymentNodeStep(props.frames, node, props.step) < 0}
+            onClick={() => choose(node)}
+            aria-label={names[node] + " 처리 단계와 실제 소스 보기"}
+          >
+            <b>{names[node]}</b>
+            {node === "DB" || node === "PG DB" ? (
+              <span
+                data-testid={
+                  node === "DB" ? "scene-merchant-ledger" : "scene-pg-ledger"
+                }
+              >
+                원장{" "}
+                {node === "DB"
+                  ? props.view.ledger.length
+                  : props.view.transactions.length}
+                건
+              </span>
+            ) : node === "Server" ? (
+              <span>
+                승인 작업{" "}
+                {props.view.ops.filter((o) => o.kind === "CONFIRM").length}개
+              </span>
+            ) : null}
+          </button>
+        ))}
+      </div>
       {failed && (
         <p className="payment-three-fallback" role="status">
           3D 화면을 표시할 수 없습니다. 아래 단계·금액·실제 소스에서 같은 상태를

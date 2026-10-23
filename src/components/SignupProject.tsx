@@ -8,9 +8,10 @@ import {
   type Action,
   type Input,
   type Result,
-  type Node,
 } from "../signup-demo";
 import "../signup.css";
+import AuthScene from "./AuthScene";
+import { signupSceneState } from "../auth-scene";
 const href = (file: string, line?: number) =>
   `${model.repo}/blob/${model.revision}/${file}${line ? "#L" + line : ""}`;
 const remaining = (end: number | null, now: number) =>
@@ -19,49 +20,11 @@ const sources = model.sources as Record<
   string,
   { file: string; line: number; lines: string[] }
 >;
-const positions: Record<Node, [number, number]> = {
-  Browser: [85, 150],
-  Server: [290, 150],
-  Redis: [500, 55],
-  DB: [500, 150],
-  SMTP: [500, 245],
-  IdP: [85, 265],
-};
-function SignupScene({ node }: { node?: Node }) {
-  return (
-    <svg
-      viewBox="0 0 600 320"
-      role="img"
-      aria-label={
-        "브라우저·서버·Redis·DB·SMTP·IdP의 처리 흐름. 현재 " + (node || "대기")
-      }
-      className="signup-scene"
-    >
-      <path d="M85 150H290L500 55M290 150H500M290 150L500 245M85 150V265H290V150" />
-      {Object.entries(positions).map(([id, [x, y]]) => (
-        <g
-          key={id}
-          transform={`translate(${x},${y})`}
-          className={node === id ? "active" : ""}
-        >
-          <rect x="-69" y="-27" width="138" height="54" rx="10" />
-          <text textAnchor="middle" y="5">
-            {id === "Server"
-              ? "SERVER A / B"
-              : id === "DB"
-                ? "POSTGRESQL"
-                : id.toUpperCase()}
-          </text>
-          {node === id && <circle r="5" cx="57" cy="-16" />}
-        </g>
-      ))}
-    </svg>
-  );
-}
 export default function SignupProject() {
   const [state, setState] = useState(emptySignup),
     [result, setResult] = useState<Result | null>(null),
     [step, setStep] = useState(0),
+    [runVersion, setRunVersion] = useState(0),
     [playing, setPlaying] = useState(false),
     [email, setEmail] = useState("new@lab.test"),
     [name, setName] = useState("신규 회원"),
@@ -98,6 +61,7 @@ export default function SignupProject() {
     });
     setState(next.state);
     setResult(next);
+    setRunVersion((v) => v + 1);
     setStep(0);
     setPlaying(true);
     if (action === "switch" || action === "oidc")
@@ -106,6 +70,7 @@ export default function SignupProject() {
   const reset = () => {
     setState(emptySignup());
     setResult(null);
+    setRunVersion((v) => v + 1);
     setStep(0);
     setPlaying(false);
     setEmail("new@lab.test");
@@ -511,7 +476,18 @@ export default function SignupProject() {
                 "접수, 확인, 가입 확정과 로그인 권한을 각각 구분합니다."}
             </p>
           </div>
-          <SignupScene node={current?.node} />
+          <AuthScene
+            data={signupSceneState(view, result?.frames || [], step)}
+            frames={result?.frames || []}
+            step={step}
+            run={runVersion}
+            playing={playing}
+            onSelectStep={(index) => {
+              setStep(index);
+              setPlaying(false);
+              setSourceOpen(true);
+            }}
+          />
           <ol className="signup-steps">
             {result?.frames.map((frame, i) => (
               <li key={i}>

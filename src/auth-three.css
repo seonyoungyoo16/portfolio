@@ -1,0 +1,96 @@
+.auth-three {
+  min-width: 0;
+  border: 1px solid #355065;
+  border-radius: 10px;
+  background: radial-gradient(ellipse at 50% 35%, #203a4b, #101e2a 75%);
+  overflow: hidden;
+  margin: 18px 0;
+}
+.auth-three-stage {
+  width: 100%;
+  height: 330px;
+}
+.auth-three-stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: pan-y;
+}
+.auth-three-nodes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  padding: 12px;
+  border-top: 1px solid #ffffff16;
+}
+.auth-three-nodes button.auth-three-node {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  padding: 10px;
+  background: #142836;
+  border: 1px solid #395669;
+  border-radius: 6px;
+  color: #cfe3f0;
+  line-height: 1.6;
+}
+.auth-three-node b {
+  font: 500 12px var(--font-ui);
+  overflow-wrap: anywhere;
+}
+.auth-three-node small {
+  font: 11px/1.7 var(--font-ui);
+  color: #9db6c7;
+  overflow-wrap: anywhere;
+}
+.auth-three-nodes button.auth-three-node[aria-pressed="true"] {
+  border-color: #ffb47a;
+  background: #352d27;
+}
+.auth-three-nodes button.auth-three-node[data-tone="red"] {
+  border-left: 3px solid #ed9e92;
+}
+.auth-three-nodes button.auth-three-node:focus-visible {
+  outline: 2px solid #a8d4f7;
+  outline-offset: 1px;
+}
+.auth-three-summary {
+  display: grid;
+  gap: 7px;
+  padding: 13px;
+  background: #11232e;
+  border-top: 1px solid #ffffff14;
+  color: #b8d5d0;
+  font: 11px/1.8 var(--font-ui);
+}
+.auth-three-summary small {
+  color: #819cac;
+  font: 10px/1.8 var(--font-ui);
+}
+.auth-three-fallback {
+  font: 12px/1.8 var(--font-ui);
+  padding: 20px;
+  color: #bcd0df;
+}
+.auth-three[data-ready="fallback"] .auth-three-stage {
+  display: none;
+}
+@media (max-width: 420px) {
+  .auth-three-stage {
+    height: 290px;
+  }
+  .auth-three-nodes {
+    padding: 9px;
+    gap: 6px;
+  }
+  .auth-three-nodes button.auth-three-node {
+    padding: 8px;
+  }
+  .auth-three-node b {
+    font-size: 11px;
+  }
+  .auth-three-node small {
+    font-size: 10px;
+  }
+}

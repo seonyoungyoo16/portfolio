@@ -32,7 +32,9 @@ const reset = async () => {
 };
 async function complete() {
   const last = page.getByRole("button", { name: "마지막으로 ⇥", exact: true });
-  await last.evaluate(button=>{if(!button.disabled)button.click()});
+  await last.evaluate((button) => {
+    if (!button.disabled) button.click();
+  });
   await expect(result).not.toContainText("처리 단계 재생 중");
   sourceLinks.add(await page.locator(".login-source>a").getAttribute("href"));
 }
@@ -103,7 +105,9 @@ try {
     async () => {
       await page.getByRole("button", { name: "서버 B", exact: true }).click();
       await act("보호 요청", "200 · SESSION_VALID");
-      await expect(page.locator(".login-scene")).toContainText("SERVER B");
+      await expect(
+        page.locator('.auth-three [data-auth-node="server"]'),
+      ).toContainText("서버 B");
       await expect(page.locator(".login-account")).toContainText("SID-2");
     },
   );

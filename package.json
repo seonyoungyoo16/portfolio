@@ -18,7 +18,9 @@
     "verify:payment-source": "node scripts/verify-payment-source.mjs",
     "test:payment-browser": "node scripts/test-payment-browser.mjs",
     "test:payment-scene": "node --experimental-strip-types scripts/test-payment-scene.ts",
-    "test:payment-three-browser": "node scripts/test-payment-three-browser.mjs"
+    "test:payment-three-browser": "node scripts/test-payment-three-browser.mjs",
+    "test:auth-scene": "node --experimental-strip-types scripts/test-auth-scene.ts",
+    "test:project-views-browser": "node scripts/test-project-views-browser.mjs"
   },
   "dependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.3.0",

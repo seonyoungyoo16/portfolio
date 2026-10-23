@@ -60,7 +60,7 @@ const tab = async (name) => {
 const noOverlap = async () =>
   scene.locator(".payment-node").evaluateAll((nodes) => {
     const rs = nodes.map((n) => n.getBoundingClientRect()),
-      p = nodes[0].parentElement.getBoundingClientRect();
+      p = nodes[0].closest(".payment-three").getBoundingClientRect();
     return (
       rs.every(
         (r) =>

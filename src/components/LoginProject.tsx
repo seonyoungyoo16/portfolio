@@ -8,11 +8,12 @@ import {
   sessionOf,
   type Action,
   type Device,
-  type Frame,
   type LoginState,
   type Result,
 } from "../login-demo";
 import model from "../generated/login-source.json";
+import AuthScene from "./AuthScene";
+import { loginSceneState } from "../auth-scene";
 import "../login.css";
 
 const duration = (seconds: number) =>
@@ -27,88 +28,6 @@ const clock = (seconds: number) =>
   `D+${Math.floor(seconds / 86400)} ${String(Math.floor(seconds / 3600) % 24).padStart(2, "0")}:${String(Math.floor(seconds / 60) % 60).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 const sourceUrl = (file: string, line?: number) =>
   `${model.repo}/blob/${model.revision}/${file}${line ? "#L" + line : ""}`;
-function FlowScene({
-  current,
-  server,
-  playing,
-}: {
-  current?: Frame;
-  server: string;
-  playing: boolean;
-}) {
-  const positions = {
-    browser: [85, 145],
-    server: [290, 145],
-    redis: [510, 65],
-    database: [510, 230],
-  } as const;
-  const paths = {
-    browser: "M290 145 L85 145",
-    server: "M85 145 L290 145",
-    redis: "M290 145 L510 65",
-    database: "M290 145 L510 230",
-  };
-  return (
-    <svg
-      viewBox="0 0 600 285"
-      className="login-scene"
-      role="img"
-      aria-label={
-        "브라우저 → 서버 A/B → Redis 공유 세션과 PostgreSQL 인증 상태. 현재: " +
-        (current?.title || "요청 대기")
-      }
-    >
-      <path d="M85 145H290L510 65M290 145L510 230" className="login-route" />
-      {current && (
-        <path d={paths[current.node]} className="login-active-route" />
-      )}
-      {Object.entries(positions).map(([node, [x, y]]) => (
-        <g
-          key={node}
-          className={"login-node " + (current?.node === node ? "active" : "")}
-          transform={`translate(${x},${y})`}
-        >
-          <rect x="-69" y="-29" width="138" height="58" rx="10" />
-          <text textAnchor="middle" y="-2">
-            {node === "browser"
-              ? "BROWSER"
-              : node === "server"
-                ? "SERVER " + server
-                : node === "redis"
-                  ? "REDIS"
-                  : "POSTGRESQL"}
-          </text>
-          <text className="login-node-sub" textAnchor="middle" y="17">
-            {node === "browser"
-              ? "기기 A / B"
-              : node === "server"
-                ? "Spring Boot"
-                : node === "redis"
-                  ? "공유 세션 · TTL"
-                  : "발급 상태 · 폐기"}
-          </text>
-        </g>
-      ))}
-      {current && playing && (
-        <circle
-          key={current.title}
-          r="6"
-          fill="#ffb16f"
-          className="login-packet"
-        >
-          <animateMotion
-            path={paths[current.node]}
-            dur="1.5s"
-            repeatCount="indefinite"
-          />
-        </circle>
-      )}
-      <text x="290" y="204" className="login-scene-note" textAnchor="middle">
-        A / B → 같은 Redis · 같은 DB
-      </text>
-    </svg>
-  );
-}
 function DataPanel({ state, device }: { state: LoginState; device: Device }) {
   const browser = state.browsers[device],
     session = sessionOf(state, device);
@@ -233,6 +152,7 @@ export default function LoginProject() {
     [loginId, setLoginId] = useState("demo@lab.test");
   const [result, setResult] = useState<Result | null>(null),
     [step, setStep] = useState(0),
+    [runVersion, setRunVersion] = useState(0),
     [playing, setPlaying] = useState(false),
     [sourceOpen, setSourceOpen] = useState(true),
     [flowServer, setFlowServer] = useState("A");
@@ -251,6 +171,7 @@ export default function LoginProject() {
     setFlowServer(server);
     setState(next.state);
     setResult(next);
+    setRunVersion((v) => v + 1);
     setStep(0);
     setPlaying(true);
   };
@@ -274,6 +195,7 @@ export default function LoginProject() {
   const reset = () => {
     setState(emptyLogin());
     setResult(null);
+    setRunVersion((v) => v + 1);
     setStep(0);
     setPlaying(false);
     setDevice(0);
@@ -594,7 +516,18 @@ export default function LoginProject() {
                 "체험 화면의 요청을 실행하면 처리 단계·데이터·실제 소스가 함께 바뀝니다."}
             </p>
           </div>
-          <FlowScene current={current} server={flowServer} playing={playing} />
+          <AuthScene
+            data={loginSceneState(view, device, flowServer, frames, step)}
+            frames={frames}
+            step={step}
+            run={runVersion}
+            playing={playing}
+            onSelectStep={(index) => {
+              setStep(index);
+              setPlaying(false);
+              setSourceOpen(true);
+            }}
+          />
           <ol className="login-steps">
             {frames.map((f, i) => (
               <li key={i}>

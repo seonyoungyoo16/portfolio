@@ -1,0 +1,85 @@
+.lab-scene-controls {
+  position: relative;
+  z-index: 1;
+  padding: 12px;
+  border-bottom: 1px solid #ffffff16;
+  background: #101d28;
+}
+.lab-scene-views {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+}
+.lab-scene-views > span {
+  grid-column: 1/-1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font: 11px var(--font-code);
+  color: #8ca4b7;
+  margin-bottom: 5px;
+}
+.lab-scene-views > span small {
+  font: 11px var(--font-ui);
+  color: #b0c5d4;
+}
+.lab-scene-views button.lab-view-button {
+  min-width: 0;
+  padding: 8px 2px;
+  background: #192b39;
+  border: 1px solid #3c5365;
+  border-radius: 5px;
+  color: #b7cbd9;
+  font: 11px var(--font-ui);
+  cursor: pointer;
+}
+.lab-scene-views button.lab-view-button[aria-pressed="true"] {
+  border-color: #f6b17e;
+  background: #382e27;
+  color: #ffe0c7;
+}
+.lab-scene-views button.lab-view-button:focus-visible,
+.lab-scene-station button:focus-visible,
+.lab-scene-station select:focus-visible {
+  outline: 2px solid #a8d4f7;
+  outline-offset: 2px;
+}
+.lab-scene-station {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+.lab-scene-controls .lab-scene-station button {
+  padding: 5px 10px;
+  flex: 0 0 auto;
+  background: #192b39;
+  border: 1px solid #3c5365;
+  color: #d4e4ef;
+  border-radius: 4px;
+}
+.lab-scene-controls .lab-scene-station select {
+  min-width: 0;
+  flex: 1;
+  font: 12px var(--font-ui);
+  padding: 7px;
+  background: #142533;
+  color: #c1d5e2;
+  border: 1px solid #3c5365;
+}
+.lab-scene-controls button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+@media (max-width: 420px) {
+  .lab-scene-controls {
+    padding: 10px 7px;
+  }
+  .lab-scene-views {
+    gap: 4px;
+  }
+  .lab-scene-views button.lab-view-button {
+    font-size: 10px;
+    padding: 8px 1px;
+  }
+}
