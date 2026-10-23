@@ -13,6 +13,7 @@ import {
   type Frame as SignupFrame,
 } from "./signup-demo.ts";
 import type { Point3 } from "./scene-view";
+import type { AuthTrace } from "./auth-trace";
 export type Tone = "blue" | "mint" | "amber" | "red" | "muted";
 export type AuthNode = {
   id: string;
@@ -32,7 +33,8 @@ export type AuthSceneState = {
   edges: [string, string][];
   node: string;
   source: string;
-  route: [string, string] | null;
+  route: string[] | null;
+  trace: AuthTrace | null;
   key: string;
   summary: string[];
 };
@@ -114,8 +116,10 @@ export function loginSceneState(
         ),
     },
   ];
-  const node = current?.node || "browser",
-    first = step === 0;
+  const node =
+    current?.trace?.path.length === 1
+      ? current.trace.path[0]
+      : current?.node || "browser";
   return {
     project: "login",
     nodes,
@@ -125,16 +129,15 @@ export function loginSceneState(
       ["server", "database"],
     ],
     node,
-    source: current?.source || "ready",
-    route: !current
-      ? null
-      : node === "browser"
-        ? first
-          ? ["browser", "server"]
-          : ["server", "browser"]
-        : node === "server"
-          ? ["browser", "server"]
-          : ["server", node],
+    source:
+      current?.trace?.sourceRole === "browser"
+        ? `browser:login.${current.trace.action}`
+        : current?.source || "ready",
+    trace: current?.trace || null,
+    route:
+      current?.trace && current.trace.path.length > 1
+        ? current.trace.path
+        : null,
     key: current ? `${step}:${current.source}:${current.title}` : "ready",
     summary: [
       `최근 발급 ${session?.state || "없음"} · Redis TTL ${ttl}초`,
@@ -234,8 +237,10 @@ export function signupSceneState(
       fraction: external ? positive(provider!.expires - s.now) / 300 : 0,
     },
   ];
-  const node = current?.node || "Browser",
-    first = step === 0 && current?.source === "RequestFilter.request";
+  const node =
+    current?.trace?.path.length === 1
+      ? current.trace.path[0]
+      : current?.node || "Browser";
   return {
     project: "signup",
     nodes,
@@ -248,18 +253,15 @@ export function signupSceneState(
       ["IdP", "Server"],
     ],
     node,
-    source: current?.source || "ready",
-    route: !current
-      ? null
-      : node === "Browser"
-        ? first
-          ? ["Browser", "Server"]
-          : ["Server", "Browser"]
-        : node === "IdP"
-          ? ["Browser", "IdP"]
-          : node === "Server"
-            ? ["Browser", "Server"]
-            : ["Server", node],
+    source:
+      current?.trace?.sourceRole === "browser"
+        ? `browser:signup.${current.trace.action}`
+        : current?.source || "ready",
+    trace: current?.trace || null,
+    route:
+      current?.trace && current.trace.path.length > 1
+        ? current.trace.path
+        : null,
     key: current ? `${step}:${current.source}:${current.title}` : "ready",
     summary: [
       `이메일 증명 ${proof ? "확인됨" : "미확인"} · 가입 ${f.state === "COMPLETED" ? "확정" : "미확정"}`,
@@ -268,12 +270,12 @@ export function signupSceneState(
   };
 }
 export function authNodeStep(
-  frames: { node: string }[],
+  frames: { node: string; trace?: AuthTrace }[],
   node: string,
   current: number,
 ) {
   const candidates = frames
-    .map((f, i) => (f.node === node ? i : -1))
+    .map((f, i) => (f.node === node || f.trace?.path.includes(node) ? i : -1))
     .filter((i) => i >= 0);
   return candidates.filter((i) => i <= current).at(-1) ?? candidates[0] ?? -1;
 }

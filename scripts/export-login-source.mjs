@@ -3,7 +3,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 const root = path.resolve(process.argv[2] || "../springboot-login-lab");
-const revision = execFileSync("git", ["rev-parse", "HEAD"], {
+const revision = process.env.LOGIN_SOURCE_REVISION || execFileSync("git", ["rev-parse", "HEAD"], {
   cwd: root,
   encoding: "utf8",
 }).trim();
@@ -41,7 +41,7 @@ for (const file of files.filter(
 }
 const java = "backend/src/main/java/dev/portfolio/loginlab/";
 const excerptLengths = {
-  "AuthService.prepare": 32,
+  "AuthService.prepare": 73,
   "AuthService.activate": 40,
   "AuthService.guard": 50,
   "AuthOperations.reauthenticate": 33,

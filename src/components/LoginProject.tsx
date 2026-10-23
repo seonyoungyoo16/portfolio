@@ -13,6 +13,9 @@ import {
 } from "../login-demo";
 import model from "../generated/login-source.json";
 import AuthScene from "./AuthScene";
+import LabWorkbench, { UserActionTrace } from "./LabWorkbench";
+import { LoginJourney } from "./UserJourneys";
+import LocalActionSource, { interactionRevision } from "./LocalActionSource";
 import { loginSceneState } from "../auth-scene";
 import "../login.css";
 
@@ -157,17 +160,40 @@ export default function LoginProject() {
     [sourceOpen, setSourceOpen] = useState(true),
     [flowServer, setFlowServer] = useState("A");
   const [tab, setTab] = useState("service");
+  const [userAction, setUserAction] = useState("");
   const frames = result?.frames || [],
     current = frames[step],
     view = current?.state || state,
-    busy = !!result && step < frames.length - 1;
+    busy = playing;
   const source = current
     ? model.sources[current.source]
     : model.sources["AuthService.password"];
   const selected = view.browsers[device];
-  const run = (action: Action) => {
+  const run = (input: Action | Action[], label?: string) => {
     if (busy) return;
-    const next = executeLogin(state, { ...action, device });
+    const actions = Array.isArray(input) ? input : [input];
+    let next = executeLogin(state, { ...actions[0], device });
+    for (const action of actions.slice(1)) {
+      if (next.status >= 400) break;
+      const following = executeLogin(next.state, { ...action, device });
+      next = { ...following, frames: [...next.frames, ...following.frames] };
+    }
+    setUserAction(
+      label ||
+        (
+          {
+            login: "로그인하기",
+            me: "내 정보 확인하기",
+            restore: "로그인 유지로 복원하기",
+            logout: "로그아웃하기",
+            advance: "실습 시간 이동",
+            redis: "Redis 연결 변경",
+            db: "DB 연결 변경",
+            close: "브라우저의 세션 쿠키 제거",
+          } as Record<string, string>
+        )[actions[0].kind] ||
+        "인증 조건 실험하기",
+    );
     setFlowServer(server);
     setState(next.state);
     setResult(next);
@@ -188,13 +214,14 @@ export default function LoginProject() {
     label: string,
     extra: Partial<Action> = {},
   ) => (
-    <button disabled={busy} onClick={() => run({ kind, ...extra })}>
+    <button disabled={busy} onClick={() => run({ kind, ...extra }, label)}>
       {label}
     </button>
   );
   const reset = () => {
     setState(emptyLogin());
     setResult(null);
+    setUserAction("");
     setRunVersion((v) => v + 1);
     setStep(0);
     setPlaying(false);
@@ -291,173 +318,198 @@ export default function LoginProject() {
           }
           id="login-service"
         >
-          <section
-            className="login-panel login-service"
-            aria-label="로그인 체험"
+          <LabWorkbench
+            busy={playing}
+            onFinish={() => {
+              setPlaying(false);
+              setStep(frames.length - 1);
+            }}
+            guide={
+              <LoginJourney
+                state={state}
+                device={device}
+                busy={playing}
+                result={result?.message}
+                lastAction={userAction}
+                onReset={reset}
+                onRun={(actions, label) => run(actions, label)}
+              />
+            }
           >
-            <div className="login-panel-head">
-              <h2>직접 요청해 보세요.</h2>
-              <button onClick={reset} className="login-text-button">
-                실험 초기화 ↺
-              </button>
-            </div>
-            <div className="login-selectors">
-              <fieldset disabled={busy}>
-                <legend>독립 브라우저 기기</legend>
-                {([0, 1] as const).map((d) => (
-                  <button
-                    key={d}
-                    aria-pressed={device === d}
-                    onClick={() => setDevice(d)}
-                  >
-                    기기 {d ? "B" : "A"}
-                  </button>
-                ))}
-              </fieldset>
-              <fieldset disabled={busy}>
-                <legend>요청 처리 서버</legend>
-                {["A", "B"].map((s) => (
-                  <button
-                    key={s}
-                    aria-pressed={server === s}
-                    onClick={() => setServer(s)}
-                  >
-                    서버 {s}
-                  </button>
-                ))}
-              </fieldset>
-            </div>
-            <div
-              className={
-                "login-account " +
-                (selected.authenticated && view.redisUp && view.dbUp
-                  ? "authenticated"
-                  : "")
-              }
+            <section
+              className="login-panel login-service"
+              aria-label="로그인 체험"
             >
-              <span>
-                {!view.redisUp || !view.dbUp
-                  ? "○ 인증 상태 확인 불가"
-                  : selected.authenticated
-                    ? "● 로그인됨"
-                    : "○ 인증 확인 필요"}
-              </span>
-              <strong>
-                {selected.authenticated
-                  ? "demo@lab.test"
-                  : "기기 " + (device ? "B" : "A")}
-              </strong>
-              <small>
-                서버 {server} · {selected.sid || "세션 없음"} · 유지{" "}
-                {selected.remember ? "있음" : "없음"}
-              </small>
-            </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                run({
-                  kind: "login",
-                  remember,
-                  password: loginId === "demo@lab.test" ? password : "invalid",
-                });
-              }}
-            >
-              <label>
-                아이디
-                <input
-                  aria-label="로그인 아이디"
-                  value={loginId}
-                  onChange={(e) => setLoginId(e.target.value)}
-                  autoComplete="off"
-                  disabled={busy}
-                />
-              </label>
-              <label>
-                비밀번호
-                <input
-                  aria-label="로그인 비밀번호"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  autoComplete="off"
-                  disabled={busy}
-                />
-              </label>
-              <label className="login-checkbox">
-                <input
-                  type="checkbox"
-                  checked={remember}
-                  disabled={busy}
-                  onChange={(e) => setRemember(e.target.checked)}
-                />
-                로그인 유지 · 고정 14일
-              </label>
-              <button type="submit" className="login-primary" disabled={busy}>
-                로그인하고 흐름 보기 →
-              </button>
-            </form>
-            <p className="login-fixture">
-              공개 실습 계정: demo@lab.test / Lab!2026Pass
-            </p>
-            <div className="login-actions">
-              {control("me", "보호 요청")}
-              {control("close", "세션 쿠키 없이 재방문")}
-              {control("restore", "로그인 복원")}
-              {control("logout", "현재 기기 로그아웃")}
-            </div>
-            <details className="login-experiments" open>
-              <summary>동시성 · 폐기 · 장애 실험</summary>
-              <div className="login-actions">
-                {control("concurrent", "동시에 두 탭 복원")}
-                {control("replay", "이전 토큰 재사용")}
-                {control("reauth", "비밀번호 재확인", { password })}
-                {control("logoutAll", "전체 기기 로그아웃")}
-                {control("deferred", "폐기 후 Redis 정리 실패")}
-                {control("cleanup", "정리 재시도")}
-                {control("stale", "폐기된 Redis 키 복구")}
-                {control("partial", "ACTIVE 직전 중단", { password, remember })}
-                {control("lost", "유지 복원 응답 유실")}
+              <div className="login-panel-head">
+                <h2>직접 요청해 보세요.</h2>
+                <button onClick={reset} className="login-text-button">
+                  실험 초기화 ↺
+                </button>
               </div>
-            </details>
-            <div className="login-network">
-              <span>저장소 연결</span>
-              <button
-                disabled={busy}
-                aria-pressed={!state.redisUp}
-                onClick={() => run({ kind: "redis" })}
+              <div className="login-selectors">
+                <fieldset disabled={busy}>
+                  <legend>독립 브라우저 기기</legend>
+                  {([0, 1] as const).map((d) => (
+                    <button
+                      key={d}
+                      aria-pressed={device === d}
+                      onClick={() => setDevice(d)}
+                    >
+                      기기 {d ? "B" : "A"}
+                    </button>
+                  ))}
+                </fieldset>
+                <fieldset disabled={busy}>
+                  <legend>요청 처리 서버</legend>
+                  {["A", "B"].map((s) => (
+                    <button
+                      key={s}
+                      aria-pressed={server === s}
+                      onClick={() => setServer(s)}
+                    >
+                      서버 {s}
+                    </button>
+                  ))}
+                </fieldset>
+              </div>
+              <div
+                className={
+                  "login-account " +
+                  (selected.authenticated && view.redisUp && view.dbUp
+                    ? "authenticated"
+                    : "")
+                }
               >
-                Redis {state.redisUp ? "정상 → 차단" : "차단 → 복구"}
-              </button>
-              <button
-                disabled={busy}
-                aria-pressed={!state.dbUp}
-                onClick={() => run({ kind: "db" })}
+                <span>
+                  {!view.redisUp || !view.dbUp
+                    ? "○ 인증 상태 확인 불가"
+                    : selected.authenticated
+                      ? "● 로그인됨"
+                      : "○ 인증 확인 필요"}
+                </span>
+                <strong>
+                  {selected.authenticated
+                    ? "demo@lab.test"
+                    : "기기 " + (device ? "B" : "A")}
+                </strong>
+                <small>
+                  서버 {server} · {selected.sid || "세션 없음"} · 유지{" "}
+                  {selected.remember ? "있음" : "없음"}
+                </small>
+              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  run({
+                    kind: "login",
+                    remember,
+                    password:
+                      loginId === "demo@lab.test" ? password : "invalid",
+                  });
+                }}
               >
-                DB {state.dbUp ? "정상 → 차단" : "차단 → 복구"}
-              </button>
-            </div>
-          </section>
-          <section className="login-panel login-clock">
-            <div className="login-panel-head">
-              <h2>만료 시간 실험</h2>
-              <span>가상 시계</span>
-            </div>
-            <strong>{clock(view.now)}</strong>
-            <div className="login-actions">
-              {[
-                [60, "+1분"],
-                [policy.idle, "+30분"],
-                [policy.absolute, "+8시간"],
-                [policy.remember, "+14일"],
-              ].map(([seconds, label]) =>
-                control("advance", String(label), { seconds: Number(seconds) }),
-              )}
-            </div>
-            <p className="login-subtle">
-              유휴 30분 · 절대 8시간 · 유지 14일. 보호 요청은 유휴 시간만
-              갱신하며, 화면 관찰은 만료를 연장하지 않습니다.
-            </p>
-          </section>
+                <label>
+                  아이디
+                  <input
+                    aria-label="로그인 아이디"
+                    value={loginId}
+                    onChange={(e) => setLoginId(e.target.value)}
+                    autoComplete="off"
+                    disabled={busy}
+                  />
+                </label>
+                <label>
+                  비밀번호
+                  <input
+                    aria-label="로그인 비밀번호"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="off"
+                    disabled={busy}
+                  />
+                </label>
+                <label className="login-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={remember}
+                    disabled={busy}
+                    onChange={(e) => setRemember(e.target.checked)}
+                  />
+                  로그인 유지 · 고정 14일
+                </label>
+                <button type="submit" className="login-primary" disabled={busy}>
+                  로그인하고 흐름 보기 →
+                </button>
+              </form>
+              <p className="login-fixture">
+                공개 실습 계정: demo@lab.test / Lab!2026Pass
+              </p>
+              <div className="login-actions">
+                {control("me", "보호 요청")}
+                {control("close", "세션 쿠키 없이 재방문")}
+                {control("restore", "로그인 복원")}
+                {control("logout", "현재 기기 로그아웃")}
+              </div>
+              <details className="login-experiments" open>
+                <summary>동시성 · 폐기 · 장애 실험</summary>
+                <div className="login-actions">
+                  {control("concurrent", "동시에 두 탭 복원")}
+                  {control("replay", "이전 토큰 재사용")}
+                  {control("reauth", "비밀번호 재확인", { password })}
+                  {control("logoutAll", "전체 기기 로그아웃")}
+                  {control("deferred", "폐기 후 Redis 정리 실패")}
+                  {control("cleanup", "정리 재시도")}
+                  {control("stale", "폐기된 Redis 키 복구")}
+                  {control("partial", "ACTIVE 직전 중단", {
+                    password,
+                    remember,
+                  })}
+                  {control("lost", "유지 복원 응답 유실")}
+                </div>
+              </details>
+              <div className="login-network">
+                <span>저장소 연결</span>
+                <button
+                  disabled={busy}
+                  aria-pressed={!state.redisUp}
+                  onClick={() => run({ kind: "redis" })}
+                >
+                  Redis {state.redisUp ? "정상 → 차단" : "차단 → 복구"}
+                </button>
+                <button
+                  disabled={busy}
+                  aria-pressed={!state.dbUp}
+                  onClick={() => run({ kind: "db" })}
+                >
+                  DB {state.dbUp ? "정상 → 차단" : "차단 → 복구"}
+                </button>
+              </div>
+            </section>
+            <section className="login-panel login-clock">
+              <div className="login-panel-head">
+                <h2>만료 시간 실험</h2>
+                <span>가상 시계</span>
+              </div>
+              <strong>{clock(view.now)}</strong>
+              <div className="login-actions">
+                {[
+                  [60, "+1분"],
+                  [policy.idle, "+30분"],
+                  [policy.absolute, "+8시간"],
+                  [policy.remember, "+14일"],
+                ].map(([seconds, label]) =>
+                  control("advance", String(label), {
+                    seconds: Number(seconds),
+                  }),
+                )}
+              </div>
+              <p className="login-subtle">
+                유휴 30분 · 절대 8시간 · 유지 14일. 보호 요청은 유휴 시간만
+                갱신하며, 화면 관찰은 만료를 연장하지 않습니다.
+              </p>
+            </section>
+          </LabWorkbench>
         </div>
         <section
           className={
@@ -506,6 +558,10 @@ export default function LoginProject() {
               마지막으로 ⇥
             </button>
           </div>
+          <UserActionTrace
+            action={userAction}
+            request={current?.trace?.request || result?.request}
+          />
           <AuthScene
             data={loginSceneState(view, device, flowServer, frames, step)}
             frames={frames}
@@ -580,9 +636,17 @@ export default function LoginProject() {
             onClick={() => setSourceOpen(!sourceOpen)}
           >
             현재 단계의 실제 소스 {sourceOpen ? "닫기 −" : "열기 +"}
-            <span>{model.revision.slice(0, 7)}</span>
+            <span>
+              {(current?.trace?.sourceRole === "browser"
+                ? interactionRevision
+                : model.revision
+              ).slice(0, 7)}
+            </span>
           </button>
-          {sourceOpen && (
+          {sourceOpen && current?.trace?.sourceRole === "browser" && (
+            <LocalActionSource project="login" action={current.trace.action} />
+          )}
+          {sourceOpen && current?.trace?.sourceRole !== "browser" && (
             <div className="login-source">
               <a
                 href={sourceUrl(source.file, source.line)}

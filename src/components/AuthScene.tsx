@@ -331,6 +331,17 @@ export default function AuthScene(props: Props) {
     const packetMaterial = material(ink.amber, 0.35),
       packet = box(scene, 0.28, 0.18, 0.38, 0, 0, 0, packetMaterial);
     packet.visible = false;
+    const failure = new THREE.Group();
+    scene.add(failure);
+    for (const angle of [-Math.PI / 4, Math.PI / 4])
+      box(failure, 0.5, 0.06, 0.06, 0, 0, 0, palette.red).rotation.z = angle;
+    failure.visible = false;
+    const curveForPath = (path: string[]) => {
+      const curve = new THREE.CurvePath<THREE.Vector3>();
+      for (let i = 1; i < path.length; i++)
+        curve.add(curveBetween(path[i - 1], path[i]));
+      return curve;
+    };
     const grid = new THREE.GridHelper(12, 12, 0x365266, 0x365266);
     grid.position.set(0, -0.22, -0.5);
     (grid.material as THREE.Material).transparent = true;
@@ -391,13 +402,42 @@ export default function AuthScene(props: Props) {
       host!.dataset.progress = progress.toFixed(3);
       host!.dataset.motion = p.playing && !motion.matches ? "playing" : "still";
       packet.visible = !!route;
+      const interrupted = p.data.trace?.kind === "failure";
+      const travel = interrupted ? Math.min(progress, 0.52) : progress;
+      failure.visible = !!route && interrupted && progress >= 0.52;
       if (route) {
-        packet.position.copy(route.getPointAt(progress));
+        packet.position.copy(route.getPointAt(travel));
+        if (failure.visible) {
+          failure.position.copy(packet.position);
+          failure.quaternion.copy(camera.quaternion);
+          packet.visible = false;
+        }
         packet.quaternion.setFromUnitVectors(
           new THREE.Vector3(0, 0, 1),
-          route.getTangentAt(Math.min(progress, 0.999)),
+          route.getTangentAt(Math.min(travel, 0.999)),
         );
       }
+      const path = p.data.route;
+      if (path)
+        for (const wire of wires) {
+          const [a, b] = wire.userData.edge as [string, string];
+          const segment = Math.min(
+              path.length - 2,
+              Math.floor(travel * (path.length - 1)),
+            ),
+            from = path[segment],
+            to = path[segment + 1];
+          const arrow = wire.userData.arrow as THREE.Mesh;
+          const selected = (a === from && b === to) || (b === from && a === to);
+          if (selected) {
+            const curve = curveBetween(from, to);
+            arrow.position.copy(curve.getPointAt(0.68));
+            arrow.quaternion.setFromUnitVectors(
+              new THREE.Vector3(0, 1, 0),
+              curve.getTangentAt(0.68),
+            );
+          }
+        }
       draw();
     }
     function animate(now: number) {
@@ -418,7 +458,7 @@ export default function AuthScene(props: Props) {
       if (changed) {
         key = next;
         progress = p.playing && !motion.matches ? 0 : 1;
-        route = p.data.route ? curveBetween(...p.data.route) : null;
+        route = p.data.route ? curveForPath(p.data.route) : null;
       }
       for (const datum of p.data.nodes) {
         const n = nodes.get(datum.id)!;
@@ -464,7 +504,13 @@ export default function AuthScene(props: Props) {
         const [a, b] = wire.userData.edge as [string, string],
           r = p.data.route;
         const selected =
-          r && ((r[0] === a && r[1] === b) || (r[1] === a && r[0] === b));
+          r &&
+          r.some(
+            (node, i) =>
+              i > 0 &&
+              ((r[i - 1] === a && node === b) ||
+                (r[i - 1] === b && node === a)),
+          );
         wire.material = selected
           ? palette.amber
           : r || !wire.userData.primary
@@ -472,7 +518,7 @@ export default function AuthScene(props: Props) {
             : palette.blue;
         const arrow = wire.userData.arrow as THREE.Mesh;
         arrow.material = wire.material;
-        const curve = selected ? curveBetween(...r!) : curveBetween(a, b);
+        const curve = curveBetween(a, b);
         arrow.position.copy(curve.getPointAt(0.68));
         arrow.quaternion.setFromUnitVectors(
           new THREE.Vector3(0, 1, 0),
@@ -574,6 +620,9 @@ export default function AuthScene(props: Props) {
       data-station={station}
       data-source={props.data.source}
       data-step={props.step}
+      data-route={props.data.trace?.path.join(">") || ""}
+      data-effect-kind={props.data.trace?.kind || "ready"}
+      data-source-role={props.data.trace?.sourceRole || "ready"}
     >
       <SceneRoles
         roles={
@@ -606,6 +655,20 @@ export default function AuthScene(props: Props) {
         step={props.step}
         total={props.frames.length}
       >
+        {props.data.trace && (
+          <p className="lab-trace-operation">
+            {props.data.trace.operation}
+            <small>
+              {props.data.trace.sourceRole === "browser"
+                ? "브라우저 내부 구현 소스 · 인증/가입 서버 호출 없음"
+                : props.data.trace.sourceRole === "configuration"
+                  ? "요청이 통과하는 실제 서버 설정"
+                  : props.data.trace.sourceRole === "observation"
+                    ? "HTTP 응답 완료를 기록하는 실제 처리 로그 코드"
+                    : "해당 처리 경계의 실제 구현 소스"}
+            </small>
+          </p>
+        )}
         {props.children}
       </SceneCaption>
       <SceneViews

@@ -11,6 +11,8 @@ type Props = {
   onNode?: (node: string) => void;
   onShowSource: () => void;
   stepLabel: string;
+  sourceFile: string;
+  sourceLine: number;
   cancelledCounts: number[];
   pendingCounts: number[];
   databaseRunning: boolean;
@@ -553,12 +555,14 @@ export default function ChatScene(props: Props) {
         } else if (p.kind === "typing") {
           if (p.step === 0) {
             routes.push([actor, hub]);
-          } else if (p.step < 3) {
+          } else if (p.step < 2) {
             routes.push([hub, hub]);
-          } else {
+          } else if (p.step === 2) {
             const other = p.clients[1 - p.actor];
             if (other.connected && same)
               routes.push([hub, positions[1 - p.actor]]);
+          } else {
+            routes.push([positions[1 - p.actor], positions[1 - p.actor]]);
           }
           label = p.typingActive ? "TYPING …" : "입력 표시 해제";
         } else if (p.kind === "read") {
@@ -571,13 +575,16 @@ export default function ChatScene(props: Props) {
           } else if (p.step === 2) {
             routes.push([hub, db]);
             label = "읽음 저장";
-          } else {
+          } else if (p.step === 3) {
             const other = p.clients[1 - p.actor];
             routes.push([
               hub,
               other.connected && same ? positions[1 - p.actor] : hub,
             ]);
             label = p.step === 3 ? "읽음 확인" : "읽음 ✓";
+          } else {
+            routes.push([positions[1 - p.actor], positions[1 - p.actor]]);
+            label = "읽음 표시 갱신 · 브라우저 내부";
           }
         } else if (p.kind === "join") {
           if (p.step === 0) {
@@ -791,6 +798,7 @@ export default function ChatScene(props: Props) {
       className="chat-three-experience"
       data-view={mode}
       data-station={selectedStation}
+      data-source={`${props.sourceFile}:${props.sourceLine}`}
     >
       <SceneRoles
         roles={["참가자 A · 앱", "메시지 서버 · DB", "참가자 B · 앱"]}
@@ -931,6 +939,17 @@ export default function ChatScene(props: Props) {
         step={props.step}
         total={props.run ? props.total : 0}
       >
+        <p className="lab-trace-operation">
+          {props.sourceFile.endsWith(".js")
+            ? "브라우저의 WebSocket·화면 처리"
+            : props.node === "database" || props.node === "database-return"
+              ? "서버 ↔ 대화 DB 처리"
+              : "서버 내부 처리와 메시지 전달"}
+          <small>
+            {props.sourceFile.split("/").at(-1)}:{props.sourceLine} · 선택
+            단계의 구현 구간
+          </small>
+        </p>
         <strong>
           {props.run
             ? props.stepLabel

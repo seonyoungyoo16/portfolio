@@ -1,0 +1,303 @@
+.lab-workbench {
+  min-width: 0;
+}
+.lab-technical .payment-toolbar,
+.lab-technical .signup-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 0 0 14px;
+}
+.lab-technical .payment-toolbar label,
+.lab-technical .signup-toolbar label {
+  min-width: 0;
+}
+.lab-technical .payment-toolbar select {
+  max-width: 100%;
+}
+.lab-trace-operation {
+  font: 11px/1.8 var(--font-ui);
+  color: #c0ded5;
+  margin: 0 0 10px;
+}
+.lab-trace-operation small {
+  display: block;
+  font-size: 10px;
+  color: #8aa6b7;
+}
+.lab-chat-inbox {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #3d586b;
+  border-radius: 6px;
+  background: #0c1b27;
+  font: 12px/1.8 var(--font-ui);
+}
+.lab-chat-inbox b {
+  color: #9fcbd0;
+  font-weight: 500;
+}
+.lab-chat-inbox p {
+  padding: 8px 10px;
+  background: #213b44;
+  border-radius: 5px;
+  overflow-wrap: anywhere;
+}
+.lab-workbench [hidden] {
+  display: none !important;
+}
+.lab-mode {
+  display: flex;
+  padding: 5px;
+  gap: 4px;
+  border: 1px solid #334657;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: #101a24;
+}
+.lab-workbench .lab-mode > button {
+  flex: 1;
+  min-width: 0;
+  font: 11px var(--font-ui);
+  padding: 10px 5px;
+  border: 0;
+  border-radius: 4px;
+  color: #8ca5b8;
+  background: transparent;
+  cursor: pointer;
+}
+.lab-workbench .lab-mode > button[aria-pressed="true"] {
+  background: #263b4b;
+  color: #e1edf4;
+}
+.lab-journey {
+  padding: 20px;
+  border: 1px solid #34495b;
+  border-radius: 10px;
+  background: #14212d;
+  color: #c4d5e2;
+}
+.lab-journey header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lab-journey header small {
+  font: 9px var(--font-code);
+  color: #819cad;
+}
+.lab-journey h2 {
+  font: 500 19px/1.6 var(--font-ui);
+  color: #e5edf4;
+  margin: 5px 0;
+}
+.lab-journey header > button {
+  font: 11px var(--font-ui);
+  padding: 6px;
+  border: 0;
+  background: transparent;
+  color: #91acbd;
+  cursor: pointer;
+}
+.lab-howto,
+.lab-journey-action > p {
+  font: 12px/1.9 var(--font-ui);
+  color: #a0b6c6;
+}
+.lab-journey-steps {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 18px 0;
+}
+.lab-journey .lab-journey-steps button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+  text-align: left;
+  padding: 9px 10px;
+  background: #101e29;
+  border: 1px solid #2e4353;
+  border-radius: 5px;
+  color: #9db4c5;
+  font: 12px var(--font-ui);
+  cursor: pointer;
+}
+.lab-journey-steps button span {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid #466074;
+  border-radius: 50%;
+  font: 10px var(--font-code);
+}
+.lab-journey .lab-journey-steps button[aria-current="step"] {
+  background: #302b27;
+  color: #ffd0a8;
+  border-color: #987153;
+}
+.lab-journey button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.lab-journey-action {
+  padding-top: 14px;
+  border-top: 1px solid #ffffff16;
+}
+.lab-journey-action > small {
+  color: #e7ad7f;
+  font: 10px var(--font-code);
+}
+.lab-journey h3 {
+  margin: 8px 0;
+  color: #e7edf2;
+  font: 500 16px var(--font-ui);
+}
+.lab-journey label {
+  display: grid;
+  gap: 7px;
+  margin: 13px 0;
+  font: 12px var(--font-ui);
+  color: #aec4d4;
+}
+.lab-journey input,
+.lab-journey textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid #3b5264;
+  border-radius: 5px;
+  color: #d7e6ef;
+  background: #0d1923;
+  font: 12px/1.6 var(--font-ui);
+}
+.lab-journey .lab-inline-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+.lab-journey input[type="checkbox"] {
+  width: 15px;
+  accent-color: #f4a45f;
+}
+.lab-journey button.lab-primary,
+.lab-journey button.lab-next {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 14px;
+  border: 1px solid #f0ac76;
+  border-radius: 5px;
+  background: #f5a260;
+  color: #291d14;
+  font: 500 12px var(--font-ui);
+  cursor: pointer;
+}
+.lab-journey button.lab-next {
+  background: #1f3c36;
+  border-color: #4d8c76;
+  color: #b6e5cc;
+}
+.lab-action-result {
+  margin: 17px 0 0;
+  padding: 12px;
+  border: 1px solid #376351;
+  border-radius: 5px;
+  color: #b7d3c5;
+  background: #122a23;
+  font: 11px/1.9 var(--font-ui);
+}
+.lab-action-result b {
+  display: block;
+  color: #86b99f;
+  font-weight: 500;
+  margin-bottom: 3px;
+}
+.lab-playing {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid #6c593b;
+  border-radius: 6px;
+  font: 11px/1.8 var(--font-ui);
+  color: #e4c69b;
+  background: #29251d;
+}
+.lab-workbench .lab-playing button {
+  width: fit-content;
+  padding: 6px 10px;
+  border: 1px solid #b99260;
+  border-radius: 4px;
+  background: #3b3023;
+  color: #ffe0b2;
+  font: 11px var(--font-ui);
+  cursor: pointer;
+}
+.lab-action-trace {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  margin: 12px 0;
+  background: #142b32;
+  border: 1px solid #345a65;
+  border-radius: 6px;
+  color: #d1e3e8;
+  font: 12px/1.8 var(--font-ui);
+}
+.lab-action-trace > span {
+  font: 10px var(--font-ui);
+  color: #8fb9c5;
+}
+.lab-action-trace > strong {
+  font-weight: 500;
+}
+.lab-action-trace code {
+  color: #8eb7dc;
+  font: 10px/1.8 var(--font-code);
+  overflow-wrap: anywhere;
+}
+.lab-journey-note {
+  padding: 10px 0;
+  font: 11px/1.9 var(--font-ui);
+  color: #91a9b9;
+}
+.lab-journey-choice {
+  display: flex;
+  gap: 6px;
+  margin: 14px 0;
+}
+.lab-journey-choice button {
+  flex: 1;
+  padding: 9px;
+  border: 1px solid #395266;
+  border-radius: 5px;
+  background: #122432;
+  color: #a8c6dc;
+  font: 11px var(--font-ui);
+  cursor: pointer;
+}
+.lab-journey-choice button[aria-pressed="true"] {
+  border-color: #c18b61;
+  color: #ffd1ab;
+  background: #372b22;
+}
+.lab-journey button:focus-visible,
+.lab-mode > button:focus-visible {
+  outline: 2px solid #a4cee9;
+  outline-offset: 2px;
+}
+@media (max-width: 420px) {
+  .lab-journey {
+    padding: 15px;
+  }
+  .lab-journey h2 {
+    font-size: 17px;
+  }
+}

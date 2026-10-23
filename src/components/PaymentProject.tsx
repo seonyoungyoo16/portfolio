@@ -9,6 +9,8 @@ import {
   type Fault,
 } from "../payment-demo";
 import PaymentScene from "./PaymentScene";
+import LabWorkbench, { UserActionTrace } from "./LabWorkbench";
+import { PaymentJourney } from "./UserJourneys";
 import "../payment.css";
 const sources = model.sources as Record<
   string,
@@ -26,10 +28,11 @@ export default function PaymentProject() {
     [tab, setTab] = useState("service"),
     [amount, setAmount] = useState("3000"),
     [drop, setDrop] = useState(false),
-    [sourceOpen, setSourceOpen] = useState(true);
+    [sourceOpen, setSourceOpen] = useState(true),
+    [userAction, setUserAction] = useState("");
   const current = result?.frames[step],
     view = current?.snapshot || state,
-    busy = !!result && step < result.frames.length - 1,
+    busy = playing,
     source = sources[current?.source || "PaymentService.createOrder"];
   useEffect(() => {
     if (!playing || !result) return;
@@ -39,7 +42,19 @@ export default function PaymentProject() {
     }, 650);
     return () => clearTimeout(timer);
   }, [playing, result, step]);
-  const run = (action: Action, input: Input = {}) => {
+  const run = (action: Action, input: Input = {}, label?: string) => {
+    setUserAction(
+      label ||
+        (
+          {
+            order: "상품 주문하기",
+            authenticate: "결제 수단 인증하기",
+            confirm: "결제하기",
+            cancel: "결제 취소하기",
+          } as Record<string, string>
+        )[action] ||
+        "결제 조건 실험하기",
+    );
     const next = executePayment(state, action, { dropBrowser: drop, ...input });
     setState(next.state);
     setResult(next);
@@ -50,6 +65,7 @@ export default function PaymentProject() {
   const reset = () => {
     setState(emptyPayment());
     setResult(null);
+    setUserAction("");
     setRunVersion((v) => v + 1);
     setStep(0);
     setPlaying(false);
@@ -123,54 +139,6 @@ export default function PaymentProject() {
           로컬 실험실 열기 ↗
         </a>
       </div>
-      <div className="payment-toolbar">
-        <button onClick={reset}>실험 초기화 ↺</button>
-        <label>
-          실습 사용자
-          <select
-            aria-label="결제 실습 사용자"
-            value={state.user}
-            disabled={busy}
-            onChange={(e) => {
-              setState({ ...state, user: e.target.value as "A" | "B" });
-              setResult(null);
-            }}
-          >
-            <option>A</option>
-            <option>B</option>
-          </select>
-        </label>
-        <label>
-          장애 주입
-          <select
-            aria-label="결제 장애 주입"
-            value={state.fault}
-            disabled={busy}
-            onChange={(e) => {
-              setState({ ...state, fault: e.target.value as Fault });
-              setResult(null);
-            }}
-          >
-            <option value="none">정상</option>
-            <option value="redis">Redis 연결 실패</option>
-            <option value="pg-connect">PG 도착 전 연결 실패</option>
-            <option value="pg-response">PG 커밋 후 응답 유실</option>
-            <option value="db-apply">PG 성공 후 상점 DB 반영 실패</option>
-          </select>
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={drop}
-            onChange={(e) => setDrop(e.target.checked)}
-          />
-          상점 응답 유실
-        </label>
-        <button disabled={busy} onClick={() => run("tick", { seconds: 30 })}>
-          실습 시계 +30초
-        </button>
-        <small>관찰·재생은 시간을 연장하지 않습니다.</small>
-      </div>
       <nav className="payment-tabs" aria-label="결제 체험 패널">
         {[
           ["service", "결제·취소"],
@@ -195,130 +163,199 @@ export default function PaymentProject() {
           }
           aria-label="결제 서비스 체험"
         >
-          <div className="payment-panel-head">
-            <h2>주문과 결제</h2>
-            <small>USER {state.user}</small>
-          </div>
-          <p className="payment-subtle">
-            서버 상품 10,000원 · 같은 구매 의도는 주문 하나
-          </p>
-          <div className="payment-actions">
-            <button disabled={busy} onClick={() => run("order")}>
-              주문 생성
-            </button>
-            <button disabled={busy} onClick={() => run("authenticate")}>
-              PG 인증
-            </button>
-          </div>
-          <div className="payment-order">
-            <b data-testid="payment-order-state">{view.order}</b>
-            <span>
-              {won(view.amount)} · 실습 기한{" "}
-              {Math.max(0, view.expires - view.now)}초
-            </span>
-            <small>
-              주문 수락 {view.accepted ? "확인됨" : "미확정"} · 인증{" "}
-              {view.authorized ? "확인됨" : "미확정"}
-            </small>
-          </div>
-          <div className="payment-actions">
-            <button
-              className="payment-primary"
-              disabled={busy}
-              onClick={() => run("confirm")}
-            >
-              결제 확정 →
-            </button>
-            <button
-              disabled={busy}
-              onClick={() => run("confirm", { key: "another-client-key" })}
-            >
-              새 키로 같은 승인
-            </button>
-            <button
-              disabled={busy}
-              onClick={() => run("confirm", { requests: 24 })}
-            >
-              같은 승인 24개 동시 요청
-            </button>
-            <button
-              disabled={busy}
-              onClick={() => run("confirm", { amount: 1 })}
-            >
-              승인 금액 변조
-            </button>
-            <button disabled={busy} onClick={() => run("close")}>
-              주문 종료 요청
-            </button>
-          </div>
-          <p className="payment-subtle">
-            PG 인증과 승인 접수를 구분합니다. 202는 처리 접수이며 PG 확정은
-            별도입니다.
-          </p>
-          <hr />
-          <h2>전액·부분 취소</h2>
-          <label>
-            부분 취소 금액
-            <input
-              aria-label="결제 부분 취소 금액"
-              type="number"
-              min="1"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-          </label>
-          <div className="payment-actions">
-            <button
-              disabled={busy}
-              onClick={() => run("cancel", { amount: Number(amount) })}
-            >
-              부분 취소 요청
-            </button>
-            <button
-              disabled={busy}
-              onClick={() =>
-                run("cancel", { amount: state.captured - state.canceled })
-              }
-            >
-              남은 금액 전액 취소
-            </button>
-            <button disabled={busy} onClick={() => run("retry-cancel")}>
-              같은 취소 재전송
-            </button>
-            <button
-              disabled={busy}
-              onClick={() => run("stale-cancel", { amount: Number(amount) })}
-            >
-              낡은 버전 취소
-            </button>
-          </div>
-          <div className="payment-balance">
-            <b data-testid="payment-balance">
-              A {won(view.captured)} · C {won(view.canceled)}
-            </b>
-            <span data-testid="payment-reserved">
-              미해결 예약 R {won(view.reserved)}
-            </span>
-            <span>실제 잔액 A−C {won(view.captured - view.canceled)}</span>
-            <small>
-              동기화 {view.sync} · version {view.version}
-            </small>
-          </div>
-          <div
-            className="payment-result"
-            data-testid="payment-result"
-            role="status"
+          <LabWorkbench
+            busy={playing}
+            onFinish={() => {
+              setPlaying(false);
+              setStep((result?.frames.length || 1) - 1);
+            }}
+            guide={
+              <PaymentJourney
+                state={state}
+                busy={playing}
+                result={result?.frames.at(-1)?.message}
+                lastAction={userAction}
+                onReset={reset}
+                onRun={(action, input, label) => run(action, input, label)}
+              />
+            }
           >
-            {busy
-              ? "처리 단계 재생 중"
-              : result
-                ? `${result.status || "연결 유실"} · ${result.code}`
-                : "요청 대기"}
-          </div>
-          <p className="payment-subtle">
-            결과 불명에서는 예약을 유지합니다. 현재 상태와 명시한 버전을 확인한
-            뒤 다음 취소를 접수합니다.
-          </p>
+            <div className="payment-toolbar">
+              <button onClick={reset}>실험 초기화 ↺</button>
+              <label>
+                실습 사용자
+                <select
+                  aria-label="결제 실습 사용자"
+                  value={state.user}
+                  disabled={busy}
+                  onChange={(e) => {
+                    setState({ ...state, user: e.target.value as "A" | "B" });
+                    setResult(null);
+                  }}
+                >
+                  <option>A</option>
+                  <option>B</option>
+                </select>
+              </label>
+              <label>
+                장애 주입
+                <select
+                  aria-label="결제 장애 주입"
+                  value={state.fault}
+                  disabled={busy}
+                  onChange={(e) => {
+                    setState({ ...state, fault: e.target.value as Fault });
+                    setResult(null);
+                  }}
+                >
+                  <option value="none">정상</option>
+                  <option value="redis">Redis 연결 실패</option>
+                  <option value="pg-connect">PG 도착 전 연결 실패</option>
+                  <option value="pg-response">PG 커밋 후 응답 유실</option>
+                  <option value="db-apply">PG 성공 후 상점 DB 반영 실패</option>
+                </select>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={drop}
+                  onChange={(e) => setDrop(e.target.checked)}
+                />
+                상점 응답 유실
+              </label>
+              <button
+                disabled={busy}
+                onClick={() => run("tick", { seconds: 30 })}
+              >
+                실습 시계 +30초
+              </button>
+              <small>관찰·재생은 시간을 연장하지 않습니다.</small>
+            </div>
+            <div className="payment-panel-head">
+              <h2>주문과 결제</h2>
+              <small>USER {state.user}</small>
+            </div>
+            <p className="payment-subtle">
+              서버 상품 10,000원 · 같은 구매 의도는 주문 하나
+            </p>
+            <div className="payment-actions">
+              <button disabled={busy} onClick={() => run("order")}>
+                주문 생성
+              </button>
+              <button disabled={busy} onClick={() => run("authenticate")}>
+                PG 인증
+              </button>
+            </div>
+            <div className="payment-order">
+              <b data-testid="payment-order-state">{view.order}</b>
+              <span>
+                {won(view.amount)} · 실습 기한{" "}
+                {Math.max(0, view.expires - view.now)}초
+              </span>
+              <small>
+                주문 수락 {view.accepted ? "확인됨" : "미확정"} · 인증{" "}
+                {view.authorized ? "확인됨" : "미확정"}
+              </small>
+            </div>
+            <div className="payment-actions">
+              <button
+                className="payment-primary"
+                disabled={busy}
+                onClick={() => run("confirm")}
+              >
+                결제 확정 →
+              </button>
+              <button
+                disabled={busy}
+                onClick={() => run("confirm", { key: "another-client-key" })}
+              >
+                새 키로 같은 승인
+              </button>
+              <button
+                disabled={busy}
+                onClick={() => run("confirm", { requests: 24 })}
+              >
+                같은 승인 24개 동시 요청
+              </button>
+              <button
+                disabled={busy}
+                onClick={() => run("confirm", { amount: 1 })}
+              >
+                승인 금액 변조
+              </button>
+              <button disabled={busy} onClick={() => run("close")}>
+                주문 종료 요청
+              </button>
+            </div>
+            <p className="payment-subtle">
+              PG 인증과 승인 접수를 구분합니다. 202는 처리 접수이며 PG 확정은
+              별도입니다.
+            </p>
+            <hr />
+            <h2>전액·부분 취소</h2>
+            <label>
+              부분 취소 금액
+              <input
+                aria-label="결제 부분 취소 금액"
+                type="number"
+                min="1"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+            </label>
+            <div className="payment-actions">
+              <button
+                disabled={busy}
+                onClick={() => run("cancel", { amount: Number(amount) })}
+              >
+                부분 취소 요청
+              </button>
+              <button
+                disabled={busy}
+                onClick={() =>
+                  run("cancel", { amount: state.captured - state.canceled })
+                }
+              >
+                남은 금액 전액 취소
+              </button>
+              <button disabled={busy} onClick={() => run("retry-cancel")}>
+                같은 취소 재전송
+              </button>
+              <button
+                disabled={busy}
+                onClick={() => run("stale-cancel", { amount: Number(amount) })}
+              >
+                낡은 버전 취소
+              </button>
+            </div>
+            <div className="payment-balance">
+              <b data-testid="payment-balance">
+                A {won(view.captured)} · C {won(view.canceled)}
+              </b>
+              <span data-testid="payment-reserved">
+                미해결 예약 R {won(view.reserved)}
+              </span>
+              <span>실제 잔액 A−C {won(view.captured - view.canceled)}</span>
+              <small>
+                동기화 {view.sync} · version {view.version}
+              </small>
+            </div>
+            <div
+              className="payment-result"
+              data-testid="payment-result"
+              role="status"
+            >
+              {busy
+                ? "처리 단계 재생 중"
+                : result
+                  ? `${result.status || "연결 유실"} · ${result.code}`
+                  : "요청 대기"}
+            </div>
+            <p className="payment-subtle">
+              결과 불명에서는 예약을 유지합니다. 현재 상태와 명시한 버전을
+              확인한 뒤 다음 취소를 접수합니다.
+            </p>
+          </LabWorkbench>
         </section>
         <section
           className={
@@ -363,6 +400,7 @@ export default function PaymentProject() {
               마지막으로 ⇥
             </button>
           </div>
+          <UserActionTrace action={userAction} />
           <PaymentScene
             view={view}
             frames={result?.frames || []}

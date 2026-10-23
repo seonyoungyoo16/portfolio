@@ -1,5 +1,6 @@
 // Pages 체험용 상태 모델. 인증·저장소 I/O는 독립 Spring Boot 프로젝트에서 검증한다.
 import model from "./generated/login-source.json" with { type: "json" };
+import { describeAuthStep, type AuthTrace } from "./auth-trace.ts";
 export type Node = "browser" | "server" | "redis" | "database";
 export type Source = keyof typeof model.sources;
 export type Device = 0 | 1;
@@ -41,6 +42,7 @@ export type LoginState = {
   cleanup: string[];
 };
 export type Frame = {
+  trace?: AuthTrace;
   node: Node;
   title: string;
   detail: string;
@@ -152,7 +154,21 @@ export function executeLogin(previous: LoginState, action: Action): Result {
                   ? "Gateway.response_lost"
                   : frames.at(-1)?.source || "TraceFilter.request";
     frame("browser", s + " · " + c, text, responseSource);
-    return { state, frames, status, code, message, request };
+    return {
+      state,
+      frames: frames.map((f, i) => ({
+        ...f,
+        trace: {
+          ...describeAuthStep("login", action.kind, f, i, frames.length),
+          action: action.kind,
+          request,
+        },
+      })),
+      status,
+      code,
+      message,
+      request,
+    };
   };
   const unavailable = (target: "redis" | "db") => {
     const title = target === "redis" ? "Redis" : "PostgreSQL";

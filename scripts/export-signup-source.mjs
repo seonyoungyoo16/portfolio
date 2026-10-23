@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import assert from "node:assert/strict";
 const root = process.argv[2] || "../springboot-signup-lab",
-  revision = execFileSync("git", ["rev-parse", "HEAD"], {
+  revision = process.env.SIGNUP_SOURCE_REVISION || execFileSync("git", ["rev-parse", "HEAD"], {
     cwd: root,
     encoding: "utf8",
   }).trim(),
@@ -35,6 +35,8 @@ for (const file of files.filter(
           "SignupService.verify": 78,
           "OidcService.link": 100,
           "OidcService.validate": 100,
+          "OidcService.start": 92,
+          "OidcService.callback": 120,
           "MailWorker.send": 70,
         }[m[1]] || 36;
       sources[m[1]] = {

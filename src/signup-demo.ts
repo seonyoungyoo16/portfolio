@@ -1,4 +1,5 @@
 // 공개 Pages의 설명용 상태 모델. 실제 I/O 검증은 독립 Spring Boot 프로젝트 결과를 사용한다.
+import { describeAuthStep, type AuthTrace } from "./auth-trace.ts";
 export type Node = "Browser" | "Server" | "Redis" | "DB" | "SMTP" | "IdP";
 export type Mail = {
   id: number;
@@ -51,6 +52,7 @@ export type SignupState = {
   selectedMail: number | null;
 };
 export type Frame = {
+  trace?: AuthTrace;
   node: Node;
   title: string;
   detail: string;
@@ -160,13 +162,25 @@ export function executeSignup(
       message,
       "TraceLog.finish",
     );
-    return { status, code, message, frames, state: s };
+    return {
+      status,
+      code,
+      message,
+      frames: frames.map((f, i) => ({
+        ...f,
+        trace: {
+          ...describeAuthStep("signup", action, f, i, frames.length),
+          action,
+        },
+      })),
+      state: s,
+    };
   };
   step(
-    "Browser",
-    "브라우저 조작",
+    action === "deliver" ? "Server" : "Browser",
+    action === "deliver" ? "메일 작업자 시작" : "브라우저 조작",
     `컨텍스트 ${s.active ? "B" : "A"} · 시뮬레이션 시간 ${s.now}초`,
-    "RequestFilter.request",
+    action === "deliver" ? "MailWorker.claim" : "RequestFilter.request",
   );
   if (action === "switch") {
     s.active = input.browser || 0;
@@ -228,12 +242,19 @@ export function executeSignup(
       "main 공급자의 email_verified만 명시 정책에 따라 신뢰합니다.",
     );
   }
-  if (!s.dbUp)
+  if (!s.dbUp) {
+    step(
+      "DB",
+      "DB 연결 확인 불가",
+      "요청한 DB 처리를 시도할 수 없어 성공으로 처리하지 않습니다.",
+      "Gateway.network",
+    );
     return done(
       503,
       "DEPENDENCY_UNAVAILABLE",
       "DB 결과를 확인할 수 없습니다. 성공으로 추정하지 않습니다.",
     );
+  }
   if (action === "deliver") {
     for (const m of s.mail.filter((m) =>
       ["PENDING", "DELIVERY_UNKNOWN"].includes(m.state),
@@ -289,12 +310,19 @@ export function executeSignup(
       "수신 횟수와 outbox 상태를 각각 확인하세요.",
     );
   }
-  if (!s.redisUp)
+  if (!s.redisUp) {
+    step(
+      "Redis",
+      "Redis 연결 확인 불가",
+      "공유 제한과 문맥을 확인할 수 없어 요청을 차단합니다.",
+      "Gateway.network",
+    );
     return done(
       503,
       "DEPENDENCY_UNAVAILABLE",
       "Redis 제한·브라우저 문맥을 확인할 수 없습니다. 계정을 만들지 않습니다.",
     );
+  }
   step(
     "Server",
     "CSRF와 소유 문맥 검사",
