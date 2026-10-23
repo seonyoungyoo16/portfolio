@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "verifiedAt": "2026-10-23T21:19:29.285Z",
+  "verifiedAt": "2026-10-23T21:27:00.500Z",
   "checks": [
     "login scene separates PREPARING Redis ACTIVE and browser-cookie snapshots",
     "observing TTL never advances time and expiry removes the available ring only",

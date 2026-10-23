@@ -32,6 +32,7 @@ check(
     const preparing = result.frames.findIndex((f) =>
       f.state.sessions.some((s) => s.state === "PREPARING" && !s.redis),
     );
+    assert.deepEqual(loginSceneState(result.frames[0].state, 0, "A", result.frames, 0).route, ["browser", "server"]);
     assert(preparing >= 0);
     const a = loginSceneState(
       result.frames[preparing].state,
@@ -64,6 +65,7 @@ check(
       result.frames.length - 1,
     );
     assert.equal(node(final, "browser").count, 2);
+    assert.deepEqual(final.route, ["server", "browser"]);
     assert.equal(node(final, "redis").fraction, 1);
     assert.deepEqual(node(final, "database").items, ["mint"]);
   },

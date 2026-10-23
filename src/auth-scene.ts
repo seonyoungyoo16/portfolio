@@ -115,7 +115,7 @@ export function loginSceneState(
     },
   ];
   const node = current?.node || "browser",
-    first = step === 0 && current?.source === "TraceFilter.request";
+    first = step === 0;
   return {
     project: "login",
     nodes,

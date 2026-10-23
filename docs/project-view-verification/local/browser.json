@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "verifiedAt": "2026-10-23T21:22:27.757Z",
+  "verifiedAt": "2026-10-23T21:27:53.493Z",
   "base": "http://127.0.0.1:5191/",
   "checks": [
     "flow-first UI: roles → scene → current step → collapsed auxiliary View, with working source access",
