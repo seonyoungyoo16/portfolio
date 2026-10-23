@@ -209,7 +209,10 @@ try {
       await go("login");
       await act("로그인하고 흐름 보기 →");
       await page.locator(".login-steps button").first().click();
-      await expect(scene().locator(".lab-scene-route > span")).toHaveText("기기 A → 서버 A / A·B 공유");
+      await expect(scene().locator(".lab-scene-route > span")).toHaveText(
+        "기기 A → 서버 A / A·B 공유",
+      );
+      await scene().screenshot({ path: path.join(out, "login-request.png") });
       await page
         .locator(".login-steps button")
         .filter({ hasText: "기기 인증과 PREPARING 커밋" })
@@ -454,10 +457,19 @@ try {
             sceneWidth: await scene().evaluate((e) => e.clientWidth),
           });
           if (width < 800 && ["login", "signup"].includes(p)) {
-            expect(await scene().locator(".auth-three-nodes").evaluate(e => getComputedStyle(e).gridTemplateColumns.split(" ").length)).toBe(2);
+            expect(
+              await scene()
+                .locator(".auth-three-nodes")
+                .evaluate(
+                  (e) =>
+                    getComputedStyle(e).gridTemplateColumns.split(" ").length,
+                ),
+            ).toBe(2);
           }
           if (width === 390 || width === 1440) {
-            await scene().locator("details.lab-scene-controls > summary").click();
+            await scene()
+              .locator("details.lab-scene-controls > summary")
+              .click();
             await scene().screenshot({
               path: path.join(out, `${p}-responsive-${width}.png`),
             });

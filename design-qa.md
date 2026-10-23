@@ -11,3 +11,5 @@
 브라우저 자동 검사의 전체 근거는 [결과 JSON](docs/project-view-verification/local/browser.json)과 같은 폴더의 상태별 이미지다. Codex 인앱 브라우저에서도 실제 로그인 화면을 열어 장면과 조작을 확인했다. 실제 휴대기기·전체 WCAG 적합성·백엔드 I/O 재실행을 주장하지 않는다. 공개 화면은 단계별 스냅샷 시뮬레이션이며 실제 백엔드 근거는 기존에 동결된 별도 실험 결과다.
 
 final result: passed
+
+공개 검증도 통과했다. [최종 요청 장면](docs/project-view-verification/published/login-request.png)에서 브라우저 → 서버 화살표와 접힌 View를 확인했고, [최종 모바일 가입](docs/project-view-verification/published/signup-responsive-390.png)은 데이터 카드 두 열을 유지한다. [공개 20그룹 결과](docs/project-view-verification/published/browser.json)와 [배포 해시](docs/project-view-verification/published/release.json)를 함께 보존한다.

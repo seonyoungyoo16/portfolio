@@ -1,0 +1,202 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-23T21:31:16.340Z",
+  "base": "https://seonyoungyoo16.github.io/portfolio/",
+  "checks": [
+    "flow-first UI: roles → scene → current step → collapsed auxiliary View, with working source access",
+    "login: all five View presets move the actual camera and rendered geometry without changing state",
+    "signup: all five View presets move the actual camera and rendered geometry without changing state",
+    "chat: all five View presets move the actual camera and rendered geometry without changing state",
+    "payment: all five View presets move the actual camera and rendered geometry without changing state",
+    "login: PREPARING has no browser cookie, Redis stores before activation, exact Java source follows",
+    "login: a real 3D database pick keeps the whole flow visible and opens its processing source",
+    "login: TTL expiry rotation revocation and outage use the selected snapshot only",
+    "login: Flight follows a moving packet and pause freezes its selected position",
+    "signup: SMTP receipt email proof and atomic account commit remain visually distinct",
+    "signup: SSO proof has no linked identity until explicit confirmation",
+    "signup: unavailable SMTP retains outbox and never creates an ownership proof",
+    "payment: changing View preserves separate PG and merchant snapshot amounts",
+    "chat: camera focus opens the existing database source and Kafka offers its own stations",
+    "four projects keep all five camera controls usable at 320 390 768 1440 1800 widths",
+    "reduced motion and keyboard navigation retain source access",
+    "context loss and restoration preserve selected login snapshot with one renderer",
+    "all projects keep processing and source UI available without WebGL",
+    "chat: camera switches during connection and sending retain one stored and delivered message",
+    "board View controls and uniform project cards remain available"
+  ],
+  "images": [
+    {
+      "project": "login",
+      "poses": [
+        "0.000,10.000,15.000",
+        "12.000,5.000,10.000",
+        "0.000,18.000,0.010",
+        "-0.700,3.050,5.700",
+        "-1.400,2.000,4.700"
+      ],
+      "canvasHashes": [
+        "ed1fbcfd9c2408582706f3d071bfe265133ec4d0b001ceabf589afb4e634a3de",
+        "b063ed3b675a029b789ace2e56328a4dd1b3881f5c1512d087e72c6ff63ff6ff",
+        "03c618df120e9d139add66449d458e28301aeaad4b3165e970c62d711e518957",
+        "435b5573b83481ad3ade1b3b42e3584c97f8dcc6498d15effd9d94cf671f4efe",
+        "cc305e68b51be9026d0c2d1a74cef5629709aac7da323f10742796cd7d74d22c"
+      ]
+    },
+    {
+      "project": "signup",
+      "poses": [
+        "0.000,10.000,15.000",
+        "12.000,5.000,10.000",
+        "0.000,18.000,0.010",
+        "-0.800,3.050,6.500",
+        "-1.500,2.000,5.500"
+      ],
+      "canvasHashes": [
+        "0abe3439a740ad1e568ed41af6095c7c22d5cbe584f197a0e41e5f2b1517cebf",
+        "adefb6360d539005fdbe1ffa54518b1c9388d282004dac01381300c49b385766",
+        "9582b283db7dc6a87e5e63318ac5eec39e350234a62488d452984255cef227ba",
+        "411bfd4c8d4a4beefbcf0cd753e6ef55a01fab0f8376f452b3a3a2ba40523d3f",
+        "98ba1c0fb227c5bda207d76a266525c5716349197789c1306209eb4b8436bdcb"
+      ]
+    },
+    {
+      "project": "chat",
+      "poses": [
+        "0.000,5.500,9.000",
+        "12.000,5.000,10.000",
+        "0.000,18.000,0.010",
+        "3.000,3.250,5.000",
+        "2.300,2.200,4.000"
+      ],
+      "canvasHashes": [
+        "5e2ab0328732fad0adb58c016d63c2bebbede5aa4a8afbbc94e40c0b76b95c04",
+        "c2a93c94d4bb546d8e1ff83dca0b5ca2482516ca34b045d5d76c350c052fd3eb",
+        "ff9f9693354fa9766086fe73d091852ea64a236b50d4b78590f08dadf07d9b98",
+        "ba31fad0977b16b48e72f0a486783712de200a893f9389dacb9c0100ae354125",
+        "0eb3e588f6cd4ff2f840d497f69d6ef24970b347341a7c733dea427657ae97e0"
+      ]
+    },
+    {
+      "project": "payment",
+      "poses": [
+        "0.000,10.000,15.000",
+        "12.000,5.000,10.000",
+        "0.000,18.000,0.010",
+        "-0.800,3.050,6.500",
+        "-1.500,2.000,5.500"
+      ],
+      "canvasHashes": [
+        "f21d65e85a491b19370b6bcc11d68591ff9361208ab7cb7520b034962d1cdfca",
+        "3ac2ae6ed1c39a112a778e35045dbab21c3ada4d13dfda7822e6c6ed4790251c",
+        "2690dd0e4226a3c178370c296165d8af2430dffde848485348136e9affc83b55",
+        "16c78b1cdf5a1946288f97bcdfa7440daad13541ddfdb6a161d70e2e408b69a8",
+        "2191cc534a3658d813c2789a025e5d69bb43bb8dfaf9302405cd1e5751e26879"
+      ]
+    }
+  ],
+  "layouts": [
+    {
+      "project": "login",
+      "width": 320,
+      "sceneWidth": 248
+    },
+    {
+      "project": "signup",
+      "width": 320,
+      "sceneWidth": 246
+    },
+    {
+      "project": "chat",
+      "width": 320,
+      "sceneWidth": 260
+    },
+    {
+      "project": "payment",
+      "width": 320,
+      "sceneWidth": 254
+    },
+    {
+      "project": "login",
+      "width": 390,
+      "sceneWidth": 311
+    },
+    {
+      "project": "signup",
+      "width": 390,
+      "sceneWidth": 309
+    },
+    {
+      "project": "chat",
+      "width": 390,
+      "sceneWidth": 330
+    },
+    {
+      "project": "payment",
+      "width": 390,
+      "sceneWidth": 319
+    },
+    {
+      "project": "login",
+      "width": 768,
+      "sceneWidth": 349
+    },
+    {
+      "project": "signup",
+      "width": 768,
+      "sceneWidth": 340
+    },
+    {
+      "project": "chat",
+      "width": 768,
+      "sceneWidth": 694
+    },
+    {
+      "project": "payment",
+      "width": 768,
+      "sceneWidth": 344
+    },
+    {
+      "project": "login",
+      "width": 1440,
+      "sceneWidth": 719
+    },
+    {
+      "project": "signup",
+      "width": 1440,
+      "sceneWidth": 494
+    },
+    {
+      "project": "chat",
+      "width": 1440,
+      "sceneWidth": 619
+    },
+    {
+      "project": "payment",
+      "width": 1440,
+      "sceneWidth": 455
+    },
+    {
+      "project": "login",
+      "width": 1800,
+      "sceneWidth": 622
+    },
+    {
+      "project": "signup",
+      "width": 1800,
+      "sceneWidth": 624
+    },
+    {
+      "project": "chat",
+      "width": 1800,
+      "sceneWidth": 653
+    },
+    {
+      "project": "payment",
+      "width": 1800,
+      "sceneWidth": 576
+    }
+  ],
+  "pageErrors": [],
+  "backendRequests": [],
+  "scope": "Public simulation View and source linkage; existing real backend evidence is separate. Chromium viewports, not physical devices."
+}

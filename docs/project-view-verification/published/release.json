@@ -1,0 +1,39 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-23T21:29:50.690Z",
+  "base": "https://seonyoungyoo16.github.io/portfolio/",
+  "release": {
+    "source": "6c864c68be295ecabfef4358f68679e2c1114f04",
+    "paymentSource": "4b44cb606c2a77af45e5f16dbc4c34c33a29afbb",
+    "signupSource": "b5294ab9bdcf27d424ae7326f186bc02fed82f9b",
+    "loginSource": "a2bf485592c2d59d34c5e109a8b9bc839713f138",
+    "chatSource": "428219d86fe7d16a2caa15e579df6f31f16f8fbb",
+    "builtAt": "2026-10-23T21:28:49.596Z",
+    "assets": [
+      "index-cD2DyIWW.js",
+      "index-BwuIbw_8.css"
+    ],
+    "hashes": {
+      "index.html": "7e901d1a7110cc34fbaf8b4a3adf24db003f446a99707080d8b2c8b921d5ae94",
+      "assets/index-cD2DyIWW.js": "5bcca7d820a92c1a88fe2c1c0626e51b469e6484b1b73023b1f85996dca0cfdb",
+      "assets/index-BwuIbw_8.css": "b8b630bde03dbbcedd1fd72d5036c836097d227ea4efa7f042b249042ecdbb87"
+    }
+  },
+  "resources": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "sha256": "7e901d1a7110cc34fbaf8b4a3adf24db003f446a99707080d8b2c8b921d5ae94"
+    },
+    {
+      "file": "assets/index-cD2DyIWW.js",
+      "status": 200,
+      "sha256": "5bcca7d820a92c1a88fe2c1c0626e51b469e6484b1b73023b1f85996dca0cfdb"
+    },
+    {
+      "file": "assets/index-BwuIbw_8.css",
+      "status": 200,
+      "sha256": "b8b630bde03dbbcedd1fd72d5036c836097d227ea4efa7f042b249042ecdbb87"
+    }
+  ]
+}

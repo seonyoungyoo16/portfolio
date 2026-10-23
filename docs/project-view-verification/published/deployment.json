@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "source": "6c864c68be295ecabfef4358f68679e2c1114f04",
+  "deployment": "df9852fd33e304372c6e6ae87dc84c65cfa035a6",
+  "action": "https://github.com/seonyoungyoo16/portfolio/actions/runs/40027099371",
+  "finalBrowserGroups": 56,
+  "earlierUnaffectedPaymentGroups": 35,
+  "scope": "Frontend snapshot simulation and frozen backend source links. Real backend I/O was not rerun."
+}

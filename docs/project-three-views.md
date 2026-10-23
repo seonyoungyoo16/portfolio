@@ -28,7 +28,7 @@ ALPEN 계획: A는 공통 View·로그인/회원가입 3D·기존 장면 확장�
 | 구현 | 네 프로젝트의 다섯 View, 선택한 단계/소스/데이터 연동 | 완료 |
 | 기능 | 모델·소스 검증과 기존 브라우저 회귀 | 완료: 새 모델 8개, 기존 모델·소스 검사, 로그인·회원가입·결제 각 18그룹 및 기존 결제 3D 17그룹 |
 | 시각 | 흐름 우선 배치, 실제 WebGL, 카메라별 픽셀 차이, 320~1800px, 동작 줄이기·fallback | 새 브라우저 20그룹: 역할/장면/단계/접힌 View 순서·소스 접근, 채팅 접속/전송 중 카메라 전환과 한 번의 저장·전달 포함 |
-| 배포 | 공개 URL 재검증과 빌드/배포 자원 해시 일치 | 진행 |
+| 배포 | 공개 URL 재검증과 빌드/배포 자원 해시 일치 | 완료: source `6c864c6`, Pages `df9852f`, HTML·JS·CSS 3개 해시 일치 |
 
 Redis 링은 선택 기기의 **최근 발급 세션**의 서버 키 TTL이다. 쿠키 발급 전에도 PREPARING → Redis 저장 → ACTIVE 구간의 TTL을 관찰한다. 키가 존재하는 것과 인증 가능한 상태를 구분하며, 인증 상태와 쿠키는 브라우저·발급 상태에서 따로 표시한다. 실습 시계 외에는 TTL을 줄이거나 늘리지 않는다. 메일 접수 횟수, 이메일 증명, 가입 계정, 연결된 외부 신원도 각각 별도 값으로 유지한다.
 
@@ -49,3 +49,11 @@ npm run test:payment-three-browser
 ```
 
 브라우저 검사는 개발 서버의 HMR을 사용하지 않는 **정적 빌드**에서 수행한다. 병렬 검사가 증거 JSON을 쓸 때 Vite 개발 서버가 페이지를 새로 고쳐 진행 중인 채팅 상태를 초기화한 것을 로그로 확인했으며, 정적 미리보기에서 접속/전송 검사를 통과했다. 증거는 `project-view-verification/{model.json,local/browser.json,published/browser.json}`과 같은 폴더의 이미지에 기록한다. 320/390/768/1440/1800px Chromium 뷰포트 검사이며 실제 휴대기기 검증 수치는 아니다. 실제 백엔드 소스/검증 기준 커밋은 그대로 유지한다.
+
+## 공개 검증 결과
+
+[공개 로그인 화면](https://seonyoungyoo16.github.io/portfolio/#project/login), [공개 회원가입](https://seonyoungyoo16.github.io/portfolio/#project/signup), [채팅](https://seonyoungyoo16.github.io/portfolio/#project/chat), [결제](https://seonyoungyoo16.github.io/portfolio/#project/payment).
+
+[최종 Pages 실행](https://github.com/seonyoungyoo16/portfolio/actions/runs/40027099371)이 성공했고 [릴리스 해시](project-view-verification/published/release.json)가 일치한다. [흐름 UI 20그룹](project-view-verification/published/browser.json), [로그인 18그룹](login-verification/published/browser.json), [회원가입 18그룹](signup-verification/published/browser.json)은 요청 방향·좁은 화면 수정 후 공개 주소에서 다시 통과했다. 결제 기능 18그룹·3D 17그룹도 흐름 UI 배포본에서 통과했으며 마지막 로그인 방향/인증 카드 CSS 수정의 영향 범위 밖이다. 페이지 오류와 예상치 않은 백엔드 호출은 0건이었다. 이번 작업에서는 실제 백엔드 I/O를 재실행하지 않았다.
+
+로컬 미리보기 `http://127.0.0.1:5191/`를 유지하기 위해 Pages는 별도 `C:/workspace/portfolio-flow-pages-build`에 빌드했다. 릴리스 검사는 `PORTFOLIO_RELEASE_FILE`로 그 빌드의 `release.json`을 지정할 수 있다. 최종 참고 화면 비교는 [design-qa.md](../design-qa.md)에 기록했다.
