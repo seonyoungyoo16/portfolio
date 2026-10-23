@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "completedAt": "2026-10-23T21:20:39.949Z",
+  "completedAt": "2026-10-23T22:38:03.570Z",
   "base": "http://127.0.0.1:5191/",
   "scope": "static portfolio experience; actual backend 50 cases linked separately",
   "sourceRevision": "b5294ab9bdcf27d424ae7326f186bc02fed82f9b",
@@ -26,6 +26,12 @@
   ],
   "sourceLinks": [
     "https://github.com/seonyoungyoo16/springboot-signup-lab/blob/b5294ab9bdcf27d424ae7326f186bc02fed82f9b/backend/src/main/java/dev/portfolio/signuplab/TraceLog.java#L52",
+    "https://github.com/seonyoungyoo16/portfolio/blob/4e1ddef92405147bc0ec25af8130c066384b953c/src/signup-demo.ts#L688",
+    "https://github.com/seonyoungyoo16/portfolio/blob/4e1ddef92405147bc0ec25af8130c066384b953c/src/signup-demo.ts#L185",
+    "https://github.com/seonyoungyoo16/portfolio/blob/4e1ddef92405147bc0ec25af8130c066384b953c/src/signup-demo.ts#L194",
+    "https://github.com/seonyoungyoo16/portfolio/blob/4e1ddef92405147bc0ec25af8130c066384b953c/src/signup-demo.ts#L227",
+    "https://github.com/seonyoungyoo16/portfolio/blob/4e1ddef92405147bc0ec25af8130c066384b953c/src/signup-demo.ts#L211",
+    "https://github.com/seonyoungyoo16/portfolio/blob/4e1ddef92405147bc0ec25af8130c066384b953c/src/signup-demo.ts#L237",
     "https://github.com/seonyoungyoo16/springboot-signup-lab/blob/b5294ab9bdcf27d424ae7326f186bc02fed82f9b/backend/src/main/java/dev/portfolio/signuplab/SignupService.java#L358"
   ],
   "unexpectedBackendRequests": [],

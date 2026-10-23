@@ -15,6 +15,7 @@ import LabWorkbench, { UserActionTrace } from "./LabWorkbench";
 import { SignupJourney } from "./UserJourneys";
 import LocalActionSource, { interactionRevision } from "./LocalActionSource";
 import { signupSceneState } from "../auth-scene";
+import { authTraceLabels } from "../auth-trace";
 const href = (file: string, line?: number) =>
   `${model.repo}/blob/${model.revision}/${file}${line ? "#L" + line : ""}`;
 const remaining = (end: number | null, now: number) =>
@@ -46,10 +47,13 @@ export default function SignupProject() {
     source = sources[current?.source || "SignupService.create"];
   useEffect(() => {
     if (!playing || !result) return;
-    const timer = setTimeout(() => {
-      if (step < result.frames.length - 1) setStep(step + 1);
-      else setPlaying(false);
-    }, 800);
+    const timer = setTimeout(
+      () => {
+        if (step < result.frames.length - 1) setStep(step + 1);
+        else setPlaying(false);
+      },
+      Math.max(900, ((current?.trace?.path.length || 1) - 1) * 400 + 200),
+    );
     return () => clearTimeout(timer);
   }, [playing, result, step]);
   const run = (input: Action | Action[], extra: Input = {}, label?: string) => {
@@ -186,6 +190,20 @@ export default function SignupProject() {
           }
         >
           <LabWorkbench
+            hasResult={!!result}
+            onFlow={() => {
+              setTab("flow");
+              requestAnimationFrame(() =>
+                document
+                  .querySelector(".signup-flow")
+                  ?.scrollIntoView({ block: "start", behavior: "smooth" }),
+              );
+            }}
+            environment={
+              !state.dbUp || !state.redisUp || !state.smtpUp || state.smtpLoss
+                ? "저장소·메일 연결 장애 조건"
+                : undefined
+            }
             busy={playing}
             onFinish={() => {
               setPlaying(false);
@@ -197,8 +215,14 @@ export default function SignupProject() {
                 busy={playing}
                 result={result?.message}
                 lastAction={userAction}
+                status={result?.status}
                 onReset={reset}
-                onRun={(actions, input, label) => run(actions, input, label)}
+                onRun={(actions, input, label) => {
+                  if (input.email !== undefined) setEmail(input.email);
+                  if (input.name !== undefined) setName(input.name);
+                  if (input.terms !== undefined) setTerms(input.terms);
+                  run(actions, input, label);
+                }}
               />
             }
           >
@@ -584,7 +608,9 @@ export default function SignupProject() {
           >
             <div className="signup-current">
               <span>
-                {current?.node || "이메일 인증 · 중복 가입 방지 · SSO"}
+                {current?.trace
+                  ? authTraceLabels[current.trace.kind]
+                  : "이메일 인증 · 중복 가입 방지 · SSO"}
               </span>
               <strong>
                 {current?.title || "이메일 소유 확인에서 시작합니다."}
@@ -607,7 +633,11 @@ export default function SignupProject() {
                 >
                   <span>{String(i + 1).padStart(2, "0")}</span>
                   {frame.title}
-                  <small>{frame.node}</small>
+                  <small>
+                    {frame.trace
+                      ? authTraceLabels[frame.trace.kind]
+                      : frame.node}
+                  </small>
                 </button>
               </li>
             ))}
@@ -649,31 +679,28 @@ export default function SignupProject() {
           {sourceOpen && current?.trace?.sourceRole === "browser" && (
             <LocalActionSource project="signup" action={current.trace.action} />
           )}
-          {sourceOpen &&
-            source &&
-            current?.trace?.sourceRole !== "browser" && (
-              <div className="signup-source">
-                <a
-                  href={href(source.file, source.line)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {source.file.split("/").at(-1)}:{source.line} · GitHub ↗
-                </a>
-                <pre>
-                  {source.lines.map((line, i) => (
-                    <div key={i}>
-                      <span>{source.line + i}</span>
-                      <code>{line || " "}</code>
-                    </div>
-                  ))}
-                </pre>
-                <small>
-                  SHA-256{" "}
-                  {model.hashes[source.file as keyof typeof model.hashes]}
-                </small>
-              </div>
-            )}
+          {sourceOpen && source && current?.trace?.sourceRole !== "browser" && (
+            <div className="signup-source">
+              <a
+                href={href(source.file, source.line)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {source.file.split("/").at(-1)}:{source.line} · GitHub ↗
+              </a>
+              <pre>
+                {source.lines.map((line, i) => (
+                  <div key={i}>
+                    <span>{source.line + i}</span>
+                    <code>{line || " "}</code>
+                  </div>
+                ))}
+              </pre>
+              <small>
+                SHA-256 {model.hashes[source.file as keyof typeof model.hashes]}
+              </small>
+            </div>
+          )}
         </section>
         <aside
           className={

@@ -242,7 +242,6 @@ export default function ChatProject() {
           if (i >= timelines.length - 1) {
             setRunning(false);
             setPlaying(false);
-            setFastForward(false);
             return i;
           }
           return i + 1;
@@ -1141,7 +1140,25 @@ export default function ChatProject() {
       </section>
       <div className="chat-workspace">
         <LabWorkbench
-          onModeChange={() => setUserOrigin("")}
+          hasResult={trace.run > 0}
+          onFlow={() =>
+            document
+              .querySelector(".chat-flow-pane")
+              ?.scrollIntoView({ block: "start", behavior: "smooth" })
+          }
+          environment={
+            !databaseRunning || !brokerRunning || !workerRunning
+              ? "서비스 중단 조건"
+              : clients[0].roomId !== clients[1].roomId
+                ? "서로 다른 대화방"
+                : mode === "kafka"
+                  ? "Kafka 전송 방식"
+                  : undefined
+          }
+          onModeChange={() => {
+            setUserOrigin("");
+            setFastForward(false);
+          }}
           busy={blocking}
           onFinish={() => {
             setFastForward(true);
@@ -1153,16 +1170,19 @@ export default function ChatProject() {
               draft={drafts[0]}
               busy={blocking}
               onConnect={(index) => {
+                setFastForward(false);
                 setUserOrigin(
                   `${clients[index].name} ${clients[index].connected ? "대화방 나가기" : "대화방에 입장하기"}`,
                 );
                 connection(index);
               }}
               onDraft={(text) => {
+                setFastForward(false);
                 setUserOrigin("참가자 A · 메시지 입력하기");
                 inputDraft(0, text);
               }}
               onSend={() => {
+                setFastForward(false);
                 setUserOrigin("참가자 A · 메시지 보내기");
                 send(0);
               }}

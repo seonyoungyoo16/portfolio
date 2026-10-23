@@ -1,6 +1,7 @@
 import { chromium, expect } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
+import { openExperiments } from "./lab-browser-helpers.mjs";
 const base = process.env.PORTFOLIO_URL || "http://127.0.0.1:5188/";
 const published = new URL(base).hostname.endsWith("github.io");
 const output = path.resolve(
@@ -23,6 +24,7 @@ const result = page.getByTestId("login-result");
 const go = async () => {
   await page.goto(base + "#project/login");
   await expect(page.locator(".login-project")).toBeVisible();
+  await openExperiments(page);
 };
 const reset = async () => {
   await page
@@ -65,6 +67,7 @@ try {
     );
   });
   await check("wrong password creates no authentication record", async () => {
+    await openExperiments(page);
     await page.getByLabel("로그인 비밀번호", { exact: true }).fill("wrong");
     await act("로그인하고 흐름 보기 →", "401 · AUTHENTICATION_FAILED");
     await expect(page.locator(".login-data")).toContainText(
@@ -306,6 +309,7 @@ try {
     await expect(page.locator(".board-demo-section")).toBeVisible();
     await expect(page.locator(".schema-visual canvas")).toBeVisible();
     await page.goto(base + "#project/chat");
+    await openExperiments(page);
     await expect(page.locator(".chat-clients")).toBeVisible();
     await page
       .locator(".client-0")

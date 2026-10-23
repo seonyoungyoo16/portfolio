@@ -15,6 +15,15 @@ export type AuthTrace = {
   sourceRole: "implementation" | "configuration" | "browser" | "observation";
 };
 type Step = { node: string; source: string; title: string };
+export const authTraceLabels: Record<AuthTrace["kind"], string> = {
+  request: "요청 전송",
+  response: "응답 수신",
+  store: "저장소 처리",
+  internal: "요소 내부 처리",
+  client: "브라우저 내부",
+  worker: "백그라운드 작업",
+  failure: "전달 실패",
+};
 const round = (node: string) => ["server", node, "server"];
 const loginSources: Record<string, [string, string[]]> = {
   "AuthOperations.reauthenticate": [

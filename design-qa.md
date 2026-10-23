@@ -13,3 +13,14 @@
 final result: passed
 
 공개 검증도 통과했다. [최종 요청 장면](docs/project-view-verification/published/login-request.png)에서 브라우저 → 서버 화살표와 접힌 View를 확인했고, [최종 모바일 가입](docs/project-view-verification/published/signup-responsive-390.png)은 데이터 카드 두 열을 유지한다. [공개 20그룹 결과](docs/project-view-verification/published/browser.json)와 [배포 해시](docs/project-view-verification/published/release.json)를 함께 보존한다.
+
+## 사용자 조작 순서 개선
+
+| 관찰 | 수정과 검증 | 결과 |
+|---|---|---|
+| 왼쪽에 기능·상태·환경 조작이 섞여 시작점이 불명확했다. | 네 프로젝트 기본 화면을 번호·현재 행동·결과·다음 버튼으로 통일했다. 기술 설정은 별도 모드이며 모드 전환은 실습 데이터를 바꾸지 않는다. | 로컬 12그룹 통과 |
+| 일부 장면이 소스의 실제 처리 요소를 통과하지 않는 것처럼 보였다. | 인증 소스 57개의 경계를 명시하고 현재 연결만 강조한다. 서버 내부 단계는 서버만, DB/Redis는 실제 왕복, 브라우저 로컬 행동은 패킷 없이 해당 요소만 강조한다. 렌더링된 연결과 패킷 위치를 검사했다. | 계약 7그룹·실제 장면 검사 통과 |
+| 로컬 행동에도 서버 Java가 나타나고 일부 추출 코드에 핵심 SQL이 없었다. | 로컬 13개 분기를 실제 고정 브라우저 코드로 연결하고 PREPARING/SSO 추출을 확장했다. 설정·로그·구현의 역할도 표시한다. | 13개 행/파일 해시 일치 |
+| 모바일에서 행동 후 흐름 패널을 찾기 어려웠다. | 결과에 `처리 흐름·소스 보기`를 연결하고 체험 패널로 돌아와 다음 행동을 이어가게 했다. | 320~1440px 기본 체험, 기존 1800px 회귀 통과 |
+
+[최종 조작과 흐름](docs/user-journey-verification/local/login-action-flow-source.png), [390px 로그인 폼](docs/user-journey-verification/local/login-guide-390.png), [전체 검증 범위](docs/user-action-journeys.md). 인앱 브라우저에서도 기본 로그인 버튼 → 완료 결과 → 모바일 흐름·소스 진입을 확인했다. View는 계속 부가기능이다.

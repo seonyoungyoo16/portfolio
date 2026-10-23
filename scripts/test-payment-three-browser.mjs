@@ -1,6 +1,7 @@
 import { chromium, expect } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
+import { openExperiments } from "./lab-browser-helpers.mjs";
 import crypto from "node:crypto";
 const base = process.env.PORTFOLIO_URL || "http://127.0.0.1:5190/";
 const out = path.join(
@@ -36,6 +37,7 @@ const finish = async () => {
   await expect(result).not.toContainText("처리 단계 재생 중");
 };
 const act = async (name) => {
+  await openExperiments(page);
   await page.getByRole("button", { name, exact: true }).click();
   await finish();
 };
@@ -421,6 +423,7 @@ try {
           viewport: { width: 390, height: 1000 },
         });
         await p.goto(base + "#project/payment");
+        await openExperiments(p);
         await p.getByRole("tab", { name: "흐름·소스", exact: true }).click();
         await expect(p.locator(".payment-three")).toHaveAttribute(
           "data-ready",

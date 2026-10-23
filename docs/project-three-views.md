@@ -57,3 +57,7 @@ npm run test:payment-three-browser
 [최종 Pages 실행](https://github.com/seonyoungyoo16/portfolio/actions/runs/40027099371)이 성공했고 [릴리스 해시](project-view-verification/published/release.json)가 일치한다. [흐름 UI 20그룹](project-view-verification/published/browser.json), [로그인 18그룹](login-verification/published/browser.json), [회원가입 18그룹](signup-verification/published/browser.json)은 요청 방향·좁은 화면 수정 후 공개 주소에서 다시 통과했다. 결제 기능 18그룹·3D 17그룹도 흐름 UI 배포본에서 통과했으며 마지막 로그인 방향/인증 카드 CSS 수정의 영향 범위 밖이다. 페이지 오류와 예상치 않은 백엔드 호출은 0건이었다. 이번 작업에서는 실제 백엔드 I/O를 재실행하지 않았다.
 
 로컬 미리보기 `http://127.0.0.1:5191/`를 유지하기 위해 Pages는 별도 `C:/workspace/portfolio-flow-pages-build`에 빌드했다. 릴리스 검사는 `PORTFOLIO_RELEASE_FILE`로 그 빌드의 `release.json`을 지정할 수 있다. 최종 참고 화면 비교는 [design-qa.md](../design-qa.md)에 기록했다.
+
+## 사용자 행동 중심 조작
+
+후속 개선에서 왼쪽을 공통 사용자 여정으로 통일하고 상세 설정을 `직접 실험하기`로 옮겼다. 인증 경로는 소스별 경계를 명시하고 로컬 행동에는 실제 브라우저 코드를 연결한다. 이전 행동의 기기·서버는 해당 요청에 고정한다. 기존 View와 요소 선택은 관찰용으로 유지한다. 현재 결과와 배포 근거는 [사용자 행동과 처리 흐름 연결](user-action-journeys.md)에 기록한다.

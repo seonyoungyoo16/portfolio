@@ -3,6 +3,8 @@ import { OrthographicCamera, Vector3 } from "three";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { openExperiments } from "./lab-browser-helpers.mjs";
+import localModel from "../src/generated/interaction-source.json" with { type: "json" };
 import loginModel from "../src/generated/login-source.json" with { type: "json" };
 import signupModel from "../src/generated/signup-source.json" with { type: "json" };
 const base = process.env.PORTFOLIO_URL || "http://127.0.0.1:5191/",
@@ -40,6 +42,7 @@ const scene = () => page.locator(selector[project]);
 async function go(p) {
   project = p;
   await page.goto(base + "#project/" + p);
+  await openExperiments(page);
   const flow = page.getByRole("tab", { name: "흐름·소스", exact: true });
   if (await flow.isVisible()) await flow.click();
   await expect(scene().locator("canvas")).toHaveCount(1);
@@ -76,8 +79,12 @@ const act = async (label) => {
 const authNode = (id) => scene().locator(`[data-auth-node="${id}"]`);
 const sourceMatch = async () => {
   const key = await scene().getAttribute("data-source"),
-    m = project === "login" ? loginModel : signupModel,
-    s = m.sources[key];
+    m = key.startsWith("browser:")
+      ? localModel
+      : project === "login"
+        ? loginModel
+        : signupModel,
+    s = m.sources[key.startsWith("browser:") ? key.slice(8) : key];
   expect(s, "frozen source " + key).toBeTruthy();
   await expect(page.locator(`.${project}-source>a`)).toHaveAttribute(
     "href",

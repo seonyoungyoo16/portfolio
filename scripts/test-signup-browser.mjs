@@ -2,6 +2,7 @@ import { chromium, expect } from "@playwright/test";
 import fs from "node:fs";
 import crypto from "node:crypto";
 import path from "node:path";
+import { openExperiments } from "./lab-browser-helpers.mjs";
 import model from "../src/generated/signup-source.json" with { type: "json" };
 const base = process.env.PORTFOLIO_URL || "http://127.0.0.1:5188/",
   published = new URL(base).hostname.endsWith("github.io"),
@@ -39,11 +40,13 @@ async function finish() {
   if (link) links.add(link);
 }
 async function act(name, code) {
+  await openExperiments(page);
   await page.getByRole("button", { name, exact: true }).click();
   await finish();
   if (code) await expect(result).toContainText(code);
 }
 async function reset() {
+  await openExperiments(page);
   await page
     .getByRole("button", { name: "실험 초기화 ↺", exact: true })
     .click();
@@ -392,6 +395,7 @@ try {
         ["login", ".login-project"],
       ]) {
         await page.goto(base + "#project/" + route);
+        if (route === "chat") await openExperiments(page);
         await expect(page.locator(selector)).toBeVisible();
       }
     },

@@ -164,6 +164,22 @@ export default function PaymentProject() {
           aria-label="결제 서비스 체험"
         >
           <LabWorkbench
+            hasResult={!!result}
+            onFlow={() => {
+              setTab("flow");
+              requestAnimationFrame(() =>
+                document
+                  .querySelector(".payment-flow")
+                  ?.scrollIntoView({ block: "start", behavior: "smooth" }),
+              );
+            }}
+            environment={
+              state.fault !== "none" || drop
+                ? "결제 연결·응답 장애 조건"
+                : state.user !== "A"
+                  ? "다른 고객 B"
+                  : undefined
+            }
             busy={playing}
             onFinish={() => {
               setPlaying(false);
@@ -175,6 +191,7 @@ export default function PaymentProject() {
                 busy={playing}
                 result={result?.frames.at(-1)?.message}
                 lastAction={userAction}
+                status={result?.status}
                 onReset={reset}
                 onRun={(action, input, label) => run(action, input, label)}
               />
@@ -400,7 +417,7 @@ export default function PaymentProject() {
               마지막으로 ⇥
             </button>
           </div>
-          <UserActionTrace action={userAction} />
+          <UserActionTrace action={result ? userAction : ""} />
           <PaymentScene
             view={view}
             frames={result?.frames || []}

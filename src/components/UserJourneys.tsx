@@ -24,6 +24,7 @@ type Common = {
   result?: string;
   onReset: () => void;
   lastAction: string;
+  status?: number;
 };
 
 export function LoginJourney(
@@ -138,7 +139,7 @@ export function LoginJourney(
           <button
             type="button"
             className="lab-primary"
-            disabled={p.busy}
+            disabled={p.busy || (!b.sid && !b.remember)}
             onClick={() =>
               p.onRun(
                 [{ kind: "close" }, { kind: "restore" }],
@@ -177,6 +178,7 @@ export function LoginJourney(
       steps={steps}
       busy={p.busy}
       result={p.result}
+      status={p.status}
       onReset={p.onReset}
     />
   );
@@ -430,6 +432,7 @@ export function SignupJourney(
         steps={mode === "email" ? emailSteps : linkSteps}
         busy={p.busy}
         result={p.result}
+        status={p.status}
         onReset={p.onReset}
       />
     </>
@@ -452,7 +455,7 @@ export function PaymentJourney(
       description:
         "10,000원 실습 상품을 주문합니다. 주문이 생겨도 아직 결제되지는 않습니다.",
       ready: true,
-      complete: s.accepted,
+      complete: s.order !== "NONE",
       content: (
         <button
           type="button"
@@ -468,13 +471,13 @@ export function PaymentJourney(
       title: "결제 수단 인증하기",
       description:
         "결제사에서 결제 수단을 인증합니다. 인증 완료와 실제 승인은 별개의 단계입니다.",
-      ready: s.accepted,
+      ready: s.order !== "NONE",
       complete: s.authorized,
       content: (
         <button
           type="button"
           className="lab-primary"
-          disabled={p.busy || !s.accepted}
+          disabled={p.busy || s.order === "NONE"}
           onClick={() =>
             p.onRun("authenticate", {}, "결제사에서 결제 수단 인증하기")
           }
@@ -502,6 +505,7 @@ export function PaymentJourney(
     },
     {
       title: "결제 취소하기",
+      repeatable: true,
       description:
         "부분 취소 또는 남은 금액 전액 취소를 요청합니다. 취소 예약과 PG·상점 원장의 확정을 나누어 보여줍니다.",
       ready: s.captured > 0,
@@ -560,6 +564,7 @@ export function PaymentJourney(
       steps={steps}
       busy={p.busy}
       result={p.result}
+      status={p.status}
       onReset={p.onReset}
     />
   );
@@ -644,6 +649,7 @@ export function ChatJourney(p: {
     },
     {
       title: "메시지 보내기",
+      repeatable: true,
       description:
         "참가자 A가 보낸 메시지가 저장되고 B에게 전달됩니다. 서버의 저장 응답과 상대의 읽음은 별개입니다.",
       ready: a.connected && b.connected,
@@ -657,6 +663,7 @@ export function ChatJourney(p: {
     },
     {
       title: "연결을 끊고 메시지 남기기",
+      repeatable: true,
       description:
         "B가 잠시 나간 동안 메시지를 남겨 보세요. 상대에게 즉시 전달되지는 않아도 서버의 대화 기록은 남습니다.",
       ready: a.connected,
@@ -681,6 +688,7 @@ export function ChatJourney(p: {
     },
     {
       title: "다시 접속해서 대화 받기",
+      repeatable: true,
       description:
         "B가 돌아오면 서버에 보관된 대화를 조회해 받습니다. DB → 서버 → B의 흐름과 대화 조회 소스를 확인하세요.",
       ready: !b.connected || latestB === latestA,

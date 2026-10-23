@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-23T22:32:18.592Z",
+  "checks": [
+    "all 57 frozen source keys have explicit reviewed boundaries and only valid architecture hops",
+    "login DB lookup, PREPARING insert, ACTIVE commit, Redis TTL and cookies correspond to actual source statements",
+    "browser close and later restore retain separate local and HTTP boundaries even when combined by one user action",
+    "login error, expiry, revocation and lost-response frames never invent a new successful browser credential",
+    "email outbox SQL, SMTP send and verification SQL are different source/route boundaries",
+    "SSO source excerpts include redirect/code exchange; claim verification runs on the server and linking is a DB commit",
+    "all signup actions and dependency failures use registered boundaries; environment changes stay local"
+  ],
+  "backendKeys": 57,
+  "scope": "Reviewed source statements and modeled boundaries; not runtime backend network capture"
+}

@@ -402,11 +402,16 @@ export default function AuthScene(props: Props) {
       host!.dataset.progress = progress.toFixed(3);
       host!.dataset.motion = p.playing && !motion.matches ? "playing" : "still";
       packet.visible = !!route;
+      if(!route)host!.dataset.packetPosition="";
       const interrupted = p.data.trace?.kind === "failure";
       const travel = interrupted ? Math.min(progress, 0.52) : progress;
       failure.visible = !!route && interrupted && progress >= 0.52;
       if (route) {
         packet.position.copy(route.getPointAt(travel));
+        host!.dataset.packetPosition = packet.position
+          .toArray()
+          .map((n) => n.toFixed(3))
+          .join(",");
         if (failure.visible) {
           failure.position.copy(packet.position);
           failure.quaternion.copy(camera.quaternion);
@@ -418,18 +423,30 @@ export default function AuthScene(props: Props) {
         );
       }
       const path = p.data.route;
+      host!.dataset.activeLink = "";
       if (path)
         for (const wire of wires) {
           const [a, b] = wire.userData.edge as [string, string];
+          const lengths = (
+            route as THREE.CurvePath<THREE.Vector3>
+          ).getCurveLengths();
           const segment = Math.min(
               path.length - 2,
-              Math.floor(travel * (path.length - 1)),
+              Math.max(
+                0,
+                lengths.findIndex(
+                  (length) => length >= travel * lengths.at(-1)!,
+                ),
+              ),
             ),
             from = path[segment],
             to = path[segment + 1];
           const arrow = wire.userData.arrow as THREE.Mesh;
           const selected = (a === from && b === to) || (b === from && a === to);
+          wire.material = selected ? palette.amber : muted;
+          arrow.material = wire.material;
           if (selected) {
+            host!.dataset.activeLink = `${from}>${to}`;
             const curve = curveBetween(from, to);
             arrow.position.copy(curve.getPointAt(0.68));
             arrow.quaternion.setFromUnitVectors(
@@ -438,12 +455,20 @@ export default function AuthScene(props: Props) {
             );
           }
         }
+      for (const node of nodes.values())
+        node.halo.scale.setScalar(
+          !route && p.data.trace ? 1 + Math.sin(progress * Math.PI) * 0.12 : 1,
+        );
       draw();
     }
     function animate(now: number) {
       raf = 0;
       if (destroyed || lost || !visible) return;
-      progress = Math.min(1, startProgress + (now - startTime) / 700);
+      const duration = Math.max(
+        700,
+        ((latest.current.data.route?.length || 1) - 1) * 400,
+      );
+      progress = Math.min(1, startProgress + (now - startTime) / duration);
       paint();
       if (progress < 1 && latest.current.playing && !motion.matches)
         raf = requestAnimationFrame(animate);
@@ -463,6 +488,7 @@ export default function AuthScene(props: Props) {
       for (const datum of p.data.nodes) {
         const n = nodes.get(datum.id)!;
         n.halo.visible = p.data.node === datum.id;
+        n.halo.material = p.data.trace ? palette.amber : palette.blue;
         n.lights.forEach((m) => {
           m.material = palette[datum.tone];
           if (m.userData.cookie) m.visible = datum.count > 0;
@@ -513,7 +539,7 @@ export default function AuthScene(props: Props) {
           );
         wire.material = selected
           ? palette.amber
-          : r || !wire.userData.primary
+          : r || p.data.trace || !wire.userData.primary
             ? muted
             : palette.blue;
         const arrow = wire.userData.arrow as THREE.Mesh;
@@ -643,8 +669,8 @@ export default function AuthScene(props: Props) {
       )}
       <SceneCaption
         route={
-          props.data.route
-            ? props.data.route
+          props.data.trace
+            ? props.data.trace.path
                 .map(
                   (id) =>
                     props.data.nodes.find((n) => n.id === id)?.label || id,
@@ -664,7 +690,7 @@ export default function AuthScene(props: Props) {
                 : props.data.trace.sourceRole === "configuration"
                   ? "요청이 통과하는 실제 서버 설정"
                   : props.data.trace.sourceRole === "observation"
-                    ? "HTTP 응답 완료를 기록하는 실제 처리 로그 코드"
+                    ? "처리 완료를 기록하는 실제 로그 코드"
                     : "해당 처리 경계의 실제 구현 소스"}
             </small>
           </p>

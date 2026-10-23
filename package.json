@@ -20,7 +20,10 @@
     "test:payment-scene": "node --experimental-strip-types scripts/test-payment-scene.ts",
     "test:payment-three-browser": "node scripts/test-payment-three-browser.mjs",
     "test:auth-scene": "node --experimental-strip-types scripts/test-auth-scene.ts",
-    "test:project-views-browser": "node scripts/test-project-views-browser.mjs"
+    "test:project-views-browser": "node scripts/test-project-views-browser.mjs",
+    "test:user-journeys-browser": "node scripts/test-user-journeys-browser.mjs",
+    "test:auth-trace": "node --experimental-strip-types scripts/test-auth-trace.ts",
+    "verify:interaction-source": "node scripts/verify-interaction-source.mjs"
   },
   "dependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.3.0",

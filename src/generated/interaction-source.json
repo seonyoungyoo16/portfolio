@@ -1,1 +1,291 @@
-{"repo":"https://github.com/seonyoungyoo16/portfolio","revision":"","sources":{}}
+{
+  "repo": "https://github.com/seonyoungyoo16/portfolio",
+  "revision": "4e1ddef92405147bc0ec25af8130c066384b953c",
+  "sources": {
+    "login.advance": {
+      "file": "src/login-demo.ts",
+      "line": 263,
+      "lines": [
+        "  if (action.kind === \"advance\") {",
+        "    state.now += Math.max(0, action.seconds ?? 0);",
+        "    request = \"LAB · 가상 시계 이동\";",
+        "    frame(",
+        "      \"server\",",
+        "      \"관찰용 시계 이동 +\" + action.seconds + \"초\",",
+        "      \"이동 자체는 인증 활동이 아닙니다. Redis 유휴 수명과 절대 종료 시각을 연장하지 않습니다. 실제 백엔드 테스트는 실제 경과 시간을 사용합니다.\",",
+        "      \"Policy\",",
+        "    );",
+        "    return finish(",
+        "      200,",
+        "      \"CLOCK_ADVANCED\",",
+        "      \"실습 시간 \" + state.now + \"초 · 보호 요청으로 만료 여부를 확인하세요.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "79a90d91870cd4ba785cfd74860f65f8334858d357c38f993fd28c5026974b83"
+    },
+    "login.redis": {
+      "file": "src/login-demo.ts",
+      "line": 278,
+      "lines": [
+        "  if (action.kind === \"redis\" || action.kind === \"db\") {",
+        "    const key = action.kind === \"redis\" ? \"redisUp\" : \"dbUp\";",
+        "    state[key] = action.available ?? !state[key];",
+        "    request = \"LAB · 저장소 연결 변경\";",
+        "    frame(",
+        "      action.kind === \"redis\" ? \"redis\" : \"database\",",
+        "      (action.kind === \"redis\" ? \"Redis\" : \"DB\") +",
+        "        (state[key] ? \" 연결 복구\" : \" 연결 차단\"),",
+        "      \"실제 실험실에서는 앱과 저장소 사이의 TCP 경로를 차단합니다. 이 체험은 같은 분기를 시뮬레이션합니다.\",",
+        "      \"Gateway.network\",",
+        "    );",
+        "    return finish(",
+        "      200,",
+        "      \"NETWORK_CHANGED\",",
+        "      \"다음 인증 요청에서 연결 상태를 확인합니다.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "79a90d91870cd4ba785cfd74860f65f8334858d357c38f993fd28c5026974b83"
+    },
+    "login.db": {
+      "file": "src/login-demo.ts",
+      "line": 278,
+      "lines": [
+        "  if (action.kind === \"redis\" || action.kind === \"db\") {",
+        "    const key = action.kind === \"redis\" ? \"redisUp\" : \"dbUp\";",
+        "    state[key] = action.available ?? !state[key];",
+        "    request = \"LAB · 저장소 연결 변경\";",
+        "    frame(",
+        "      action.kind === \"redis\" ? \"redis\" : \"database\",",
+        "      (action.kind === \"redis\" ? \"Redis\" : \"DB\") +",
+        "        (state[key] ? \" 연결 복구\" : \" 연결 차단\"),",
+        "      \"실제 실험실에서는 앱과 저장소 사이의 TCP 경로를 차단합니다. 이 체험은 같은 분기를 시뮬레이션합니다.\",",
+        "      \"Gateway.network\",",
+        "    );",
+        "    return finish(",
+        "      200,",
+        "      \"NETWORK_CHANGED\",",
+        "      \"다음 인증 요청에서 연결 상태를 확인합니다.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "79a90d91870cd4ba785cfd74860f65f8334858d357c38f993fd28c5026974b83"
+    },
+    "login.close": {
+      "file": "src/login-demo.ts",
+      "line": 295,
+      "lines": [
+        "  if (action.kind === \"close\") {",
+        "    browser.sid = null;",
+        "    browser.authenticated = false;",
+        "    request = \"LAB · 세션 쿠키 없는 재방문\";",
+        "    frame(",
+        "      \"browser\",",
+        "      \"세션 쿠키 없이 재방문\",",
+        "      browser.remember",
+        "        ? \"유지 자격정보만 남았습니다. 로그인 복원을 눌러 교체 과정을 확인하세요.\"",
+        "        : \"일반 로그인에는 유지 쿠키가 없습니다. 비밀번호 로그인이 필요합니다.\",",
+        "      \"SessionStore.save\",",
+        "    );",
+        "    return finish(",
+        "      200,",
+        "      \"BROWSER_REVISIT\",",
+        "      \"서버의 기존 세션은 TTL까지 남을 수 있습니다. 여기서는 브라우저 종료를 설명하기 위해 세션 식별자를 제거했습니다.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "79a90d91870cd4ba785cfd74860f65f8334858d357c38f993fd28c5026974b83"
+    },
+    "login.stale": {
+      "file": "src/login-demo.ts",
+      "line": 334,
+      "lines": [
+        "  if (action.kind === \"stale\") {",
+        "    request = \"LAB · 폐기된 Redis 스냅샷 복구\";",
+        "    const s = [...state.sessions]",
+        "      .reverse()",
+        "      .find((s) => s.state === \"REVOKED\" && grantOf(s).device === device);",
+        "    if (!s)",
+        "      return finish(",
+        "        400,",
+        "        \"NO_REVOKED_SESSION\",",
+        "        \"현재 기기에서 먼저 로그아웃을 실행하세요.\",",
+        "      );",
+        "    s.redis = true;",
+        "    s.idleUntil = state.now + p.idle;",
+        "    browser.sid = s.id;",
+        "    browser.authenticated = false;",
+        "    frame(",
+        "      \"redis\",",
+        "      \"오래된 Redis 키 복구\",",
+        "      \"DB 폐기 상태와 버전은 되돌리지 않습니다. 보호 요청으로 차단 여부를 확인하세요.\",",
+        "      \"AuthService.guard\",",
+        "    );",
+        "    return finish(",
+        "      200,",
+        "      \"STALE_RESTORED\",",
+        "      \"옛 쿠키와 Redis 키가 있어도 DB 검증에서 폐기 상태를 확인합니다.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "79a90d91870cd4ba785cfd74860f65f8334858d357c38f993fd28c5026974b83"
+    },
+    "signup.switch": {
+      "file": "src/signup-demo.ts",
+      "line": 185,
+      "lines": [
+        "  if (action === \"switch\") {",
+        "    s.active = input.browser || 0;",
+        "    s.selectedMail = null;",
+        "    return done(",
+        "      200,",
+        "      \"CONTEXT_SELECTED\",",
+        "      \"독립된 두 가입 흐름은 DB의 계정 목록과 제한을 공유합니다.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "6ea25c388e1ef4408a98a4ddcba592200b2404cdce74376d9cb06fdad4748d55"
+    },
+    "signup.wait": {
+      "file": "src/signup-demo.ts",
+      "line": 194,
+      "lines": [
+        "  if (action === \"wait\") {",
+        "    s.now += input.seconds || 60;",
+        "    for (const m of s.mail)",
+        "      if (m.state !== \"SMTP_ACCEPTED\" && m.expires <= s.now)",
+        "        m.state = \"EXPIRED\";",
+        "    step(",
+        "      \"DB\",",
+        "      \"서버 만료 기준\",",
+        "      \"관찰과 시간 이동은 증명을 연장하지 않습니다.\",",
+        "      \"Cleanup.expire\",",
+        "    );",
+        "    return done(",
+        "      200,",
+        "      \"CLOCK_ADVANCED\",",
+        "      \"메일·확인 증명·재인증의 남은 시간을 비교하세요.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "6ea25c388e1ef4408a98a4ddcba592200b2404cdce74376d9cb06fdad4748d55"
+    },
+    "signup.redis": {
+      "file": "src/signup-demo.ts",
+      "line": 211,
+      "lines": [
+        "  if ([\"redis\", \"db\", \"smtp\"].includes(action)) {",
+        "    if (action === \"redis\") s.redisUp = !s.redisUp;",
+        "    if (action === \"db\") s.dbUp = !s.dbUp;",
+        "    if (action === \"smtp\") s.smtpUp = !s.smtpUp;",
+        "    step(",
+        "      \"Server\",",
+        "      \"의존 서비스 장애 실험\",",
+        "      \"공개 화면에서는 상태를 바꾸며 실제 TCP 차단 검증은 원본 프로젝트에 있습니다.\",",
+        "      \"Gateway.network\",",
+        "    );",
+        "    return done(",
+        "      200,",
+        "      \"DEPENDENCY_CHANGED\",",
+        "      \"같은 요청의 상태를 복구 후 다시 확인하세요.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "6ea25c388e1ef4408a98a4ddcba592200b2404cdce74376d9cb06fdad4748d55"
+    },
+    "signup.db": {
+      "file": "src/signup-demo.ts",
+      "line": 211,
+      "lines": [
+        "  if ([\"redis\", \"db\", \"smtp\"].includes(action)) {",
+        "    if (action === \"redis\") s.redisUp = !s.redisUp;",
+        "    if (action === \"db\") s.dbUp = !s.dbUp;",
+        "    if (action === \"smtp\") s.smtpUp = !s.smtpUp;",
+        "    step(",
+        "      \"Server\",",
+        "      \"의존 서비스 장애 실험\",",
+        "      \"공개 화면에서는 상태를 바꾸며 실제 TCP 차단 검증은 원본 프로젝트에 있습니다.\",",
+        "      \"Gateway.network\",",
+        "    );",
+        "    return done(",
+        "      200,",
+        "      \"DEPENDENCY_CHANGED\",",
+        "      \"같은 요청의 상태를 복구 후 다시 확인하세요.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "6ea25c388e1ef4408a98a4ddcba592200b2404cdce74376d9cb06fdad4748d55"
+    },
+    "signup.smtp": {
+      "file": "src/signup-demo.ts",
+      "line": 211,
+      "lines": [
+        "  if ([\"redis\", \"db\", \"smtp\"].includes(action)) {",
+        "    if (action === \"redis\") s.redisUp = !s.redisUp;",
+        "    if (action === \"db\") s.dbUp = !s.dbUp;",
+        "    if (action === \"smtp\") s.smtpUp = !s.smtpUp;",
+        "    step(",
+        "      \"Server\",",
+        "      \"의존 서비스 장애 실험\",",
+        "      \"공개 화면에서는 상태를 바꾸며 실제 TCP 차단 검증은 원본 프로젝트에 있습니다.\",",
+        "      \"Gateway.network\",",
+        "    );",
+        "    return done(",
+        "      200,",
+        "      \"DEPENDENCY_CHANGED\",",
+        "      \"같은 요청의 상태를 복구 후 다시 확인하세요.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "6ea25c388e1ef4408a98a4ddcba592200b2404cdce74376d9cb06fdad4748d55"
+    },
+    "signup.smtpLoss": {
+      "file": "src/signup-demo.ts",
+      "line": 227,
+      "lines": [
+        "  if (action === \"smtpLoss\") {",
+        "    s.smtpLoss = !s.smtpLoss;",
+        "    return done(",
+        "      200,",
+        "      \"SMTP_RESPONSE_LOSS\",",
+        "      s.smtpLoss",
+        "        ? \"다음 SMTP 접수 응답 유실을 설정했습니다.\"",
+        "        : \"유실 설정을 해제했습니다.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "6ea25c388e1ef4408a98a4ddcba592200b2404cdce74376d9cb06fdad4748d55"
+    },
+    "signup.trust": {
+      "file": "src/signup-demo.ts",
+      "line": 237,
+      "lines": [
+        "  if (action === \"trust\") {",
+        "    s.trust = !s.trust;",
+        "    return done(",
+        "      200,",
+        "      \"EMAIL_TRUST_CHANGED\",",
+        "      \"main 공급자의 email_verified만 명시 정책에 따라 신뢰합니다.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "6ea25c388e1ef4408a98a4ddcba592200b2404cdce74376d9cb06fdad4748d55"
+    },
+    "signup.open": {
+      "file": "src/signup-demo.ts",
+      "line": 688,
+      "lines": [
+        "  if (action === \"open\") {",
+        "    s.selectedMail = mail.id;",
+        "    return done(",
+        "      200,",
+        "      \"CONFIRMATION_REQUIRED\",",
+        "      \"링크를 열기만 해서는 확인되지 않습니다. 확인 POST 버튼을 누르세요.\",",
+        "    );",
+        "  }"
+      ],
+      "sha256": "6ea25c388e1ef4408a98a4ddcba592200b2404cdce74376d9cb06fdad4748d55"
+    }
+  }
+}

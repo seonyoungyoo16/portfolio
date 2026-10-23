@@ -159,6 +159,7 @@ export default function LoginProject() {
     [playing, setPlaying] = useState(false),
     [sourceOpen, setSourceOpen] = useState(true),
     [flowServer, setFlowServer] = useState("A");
+  const [flowDevice,setFlowDevice]=useState<Device>(0);
   const [tab, setTab] = useState("service");
   const [userAction, setUserAction] = useState("");
   const frames = result?.frames || [],
@@ -195,6 +196,7 @@ export default function LoginProject() {
         "인증 조건 실험하기",
     );
     setFlowServer(server);
+    setFlowDevice(device);
     setState(next.state);
     setResult(next);
     setRunVersion((v) => v + 1);
@@ -203,10 +205,13 @@ export default function LoginProject() {
   };
   useEffect(() => {
     if (!playing || !result) return;
-    const timer = setTimeout(() => {
-      if (step < frames.length - 1) setStep(step + 1);
-      else setPlaying(false);
-    }, 850);
+    const timer = setTimeout(
+      () => {
+        if (step < frames.length - 1) setStep(step + 1);
+        else setPlaying(false);
+      },
+      Math.max(900, ((current?.trace?.path.length || 1) - 1) * 400 + 200),
+    );
     return () => clearTimeout(timer);
   }, [playing, result, step, frames.length]);
   const control = (
@@ -227,6 +232,8 @@ export default function LoginProject() {
     setPlaying(false);
     setDevice(0);
     setServer("A");
+    setFlowServer("A");
+    setFlowDevice(0);
   };
   return (
     <main className="login-project">
@@ -319,6 +326,22 @@ export default function LoginProject() {
           id="login-service"
         >
           <LabWorkbench
+            hasResult={!!result}
+            onFlow={() => {
+              setTab("flow");
+              requestAnimationFrame(() =>
+                document
+                  .querySelector(".login-flow")
+                  ?.scrollIntoView({ block: "start", behavior: "smooth" }),
+              );
+            }}
+            environment={
+              !state.redisUp || !state.dbUp
+                ? "저장소 연결 차단"
+                : device
+                  ? "다른 기기 B"
+                  : undefined
+            }
             busy={playing}
             onFinish={() => {
               setPlaying(false);
@@ -331,6 +354,7 @@ export default function LoginProject() {
                 busy={playing}
                 result={result?.message}
                 lastAction={userAction}
+                status={result?.status}
                 onReset={reset}
                 onRun={(actions, label) => run(actions, label)}
               />
@@ -348,7 +372,7 @@ export default function LoginProject() {
               </div>
               <div className="login-selectors">
                 <fieldset disabled={busy}>
-                  <legend>독립 브라우저 기기</legend>
+                  <legend>다음 행동의 기기</legend>
                   {([0, 1] as const).map((d) => (
                     <button
                       key={d}
@@ -360,7 +384,7 @@ export default function LoginProject() {
                   ))}
                 </fieldset>
                 <fieldset disabled={busy}>
-                  <legend>요청 처리 서버</legend>
+                  <legend>다음 요청의 서버</legend>
                   {["A", "B"].map((s) => (
                     <button
                       key={s}
@@ -559,11 +583,11 @@ export default function LoginProject() {
             </button>
           </div>
           <UserActionTrace
-            action={userAction}
+            action={result ? userAction : ""}
             request={current?.trace?.request || result?.request}
           />
           <AuthScene
-            data={loginSceneState(view, device, flowServer, frames, step)}
+            data={loginSceneState(view, result ? flowDevice : device, result ? flowServer : server, frames, step)}
             frames={frames}
             step={step}
             run={runVersion}
@@ -676,7 +700,7 @@ export default function LoginProject() {
           }
           id="login-data"
         >
-          <DataPanel state={view} device={device} />
+          <DataPanel state={view} device={result ? flowDevice : device} />
         </div>
       </div>
       <section className="login-design">
