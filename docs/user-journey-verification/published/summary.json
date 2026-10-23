@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-23T22:43:39.652Z",
+  "base": "https://seonyoungyoo16.github.io/portfolio/",
+  "source": "89848d7dcb2a44ff346a0de6fc21086f3fce086e",
+  "pages": "43f16c8fc2174934672328d6e1fb5d8b23e7300a",
+  "buildRun": "https://github.com/seonyoungyoo16/portfolio/actions/runs/40035143285",
+  "totalGroups": 103,
+  "suites": [
+    {
+      "file": "docs/user-journey-verification/published/browser.json",
+      "status": "passed",
+      "groups": 12,
+      "verifiedAt": "2026-10-23T22:41:33.521Z"
+    },
+    {
+      "file": "docs/project-view-verification/published/browser.json",
+      "status": "passed",
+      "groups": 20,
+      "verifiedAt": "2026-10-23T22:42:23.859Z"
+    },
+    {
+      "file": "docs/login-verification/published/browser.json",
+      "status": "passed",
+      "groups": 18,
+      "verifiedAt": "2026-10-23T22:41:29.513Z"
+    },
+    {
+      "file": "docs/signup-verification/published/browser.json",
+      "status": "passed",
+      "groups": 18,
+      "verifiedAt": "2026-10-23T22:41:39.879Z"
+    },
+    {
+      "file": "docs/payment-verification/published/browser.json",
+      "status": "passed",
+      "groups": 18,
+      "verifiedAt": "2026-10-23T22:41:23.825Z"
+    },
+    {
+      "file": "docs/payment-three-verification/published/browser.json",
+      "status": "passed",
+      "groups": 17,
+      "verifiedAt": "2026-10-23T22:41:31.806Z"
+    }
+  ],
+  "pageErrors": 0,
+  "unexpectedBackendRequests": 0,
+  "releaseResources": 3,
+  "authSourceKeys": 57,
+  "browserSourceBranches": 13,
+  "scope": "Published browser simulation, rendered processing paths and frozen original source. No actual backend I/O rerun."
+}

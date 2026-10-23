@@ -1,39 +1,40 @@
 {
   "status": "passed",
-  "verifiedAt": "2026-10-23T21:29:50.690Z",
+  "verifiedAt": "2026-10-23T22:41:09.073Z",
   "base": "https://seonyoungyoo16.github.io/portfolio/",
   "release": {
-    "source": "6c864c68be295ecabfef4358f68679e2c1114f04",
+    "source": "89848d7dcb2a44ff346a0de6fc21086f3fce086e",
     "paymentSource": "4b44cb606c2a77af45e5f16dbc4c34c33a29afbb",
     "signupSource": "b5294ab9bdcf27d424ae7326f186bc02fed82f9b",
     "loginSource": "a2bf485592c2d59d34c5e109a8b9bc839713f138",
     "chatSource": "428219d86fe7d16a2caa15e579df6f31f16f8fbb",
-    "builtAt": "2026-10-23T21:28:49.596Z",
+    "interactionSource": "4e1ddef92405147bc0ec25af8130c066384b953c",
+    "builtAt": "2026-10-23T22:40:29.554Z",
     "assets": [
-      "index-cD2DyIWW.js",
-      "index-BwuIbw_8.css"
+      "index-hHi5qFpi.js",
+      "index-B2VJciJ4.css"
     ],
     "hashes": {
-      "index.html": "7e901d1a7110cc34fbaf8b4a3adf24db003f446a99707080d8b2c8b921d5ae94",
-      "assets/index-cD2DyIWW.js": "5bcca7d820a92c1a88fe2c1c0626e51b469e6484b1b73023b1f85996dca0cfdb",
-      "assets/index-BwuIbw_8.css": "b8b630bde03dbbcedd1fd72d5036c836097d227ea4efa7f042b249042ecdbb87"
+      "index.html": "c87b08d6915f99aeb0739a96c5b82ab4eeb1c34a07bf7a692b8ee8a99cc1245c",
+      "assets/index-hHi5qFpi.js": "ea4efa6dc6a75e11cc34ba581136fb7b7e1e1e67b9586236caa97b0590e3513b",
+      "assets/index-B2VJciJ4.css": "f6d08679a2f99e1fba7131fa26172d21222de1d918a2ba265f648893a4b05cb0"
     }
   },
   "resources": [
     {
       "file": "index.html",
       "status": 200,
-      "sha256": "7e901d1a7110cc34fbaf8b4a3adf24db003f446a99707080d8b2c8b921d5ae94"
+      "sha256": "c87b08d6915f99aeb0739a96c5b82ab4eeb1c34a07bf7a692b8ee8a99cc1245c"
     },
     {
-      "file": "assets/index-cD2DyIWW.js",
+      "file": "assets/index-hHi5qFpi.js",
       "status": 200,
-      "sha256": "5bcca7d820a92c1a88fe2c1c0626e51b469e6484b1b73023b1f85996dca0cfdb"
+      "sha256": "ea4efa6dc6a75e11cc34ba581136fb7b7e1e1e67b9586236caa97b0590e3513b"
     },
     {
-      "file": "assets/index-BwuIbw_8.css",
+      "file": "assets/index-B2VJciJ4.css",
       "status": 200,
-      "sha256": "b8b630bde03dbbcedd1fd72d5036c836097d227ea4efa7f042b249042ecdbb87"
+      "sha256": "f6d08679a2f99e1fba7131fa26172d21222de1d918a2ba265f648893a4b05cb0"
     }
   ]
 }

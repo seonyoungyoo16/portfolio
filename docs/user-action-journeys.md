@@ -13,7 +13,7 @@ ALPEN: A=공통 사용자 체험·프로젝트별 단계·경로/소스 감사·
 | 채팅 | 두 참가자 입장 → 전송 → B 오프라인 중 전송 → B 재접속 대화 복구. 빠른 완료도 모든 상태 단계를 거친다. |
 | 경로 감사 | `auth-trace.ts`에 실제 소스별 처리 경계 명시. 로컬 행동·서버 내부·저장소 왕복·HTTP 응답·응답 유실 구분. |
 | 소스 감사 | 완료. 인증 백엔드 57개 키의 처리 경계를 명시하고 로컬 행동 13개는 포트폴리오 커밋 `4e1ddef`의 실제 모델 분기로 연결한다. 백엔드 소스 30/27/37/114개 고정 해시 검증 유지. |
-| 검증·배포 | 로컬 정적 빌드에서 새 사용자 여정 12그룹, 기존 흐름 20그룹, 로그인·가입·결제 각 18그룹, 결제 3D 17그룹 통과. 공개 배포 및 재검증 결과는 아래에 추가한다. |
+| 검증·배포 | 완료. 로컬·공개 각각 새 사용자 여정 12그룹, 기존 흐름 20그룹, 로그인·가입·결제 각 18그룹, 결제 3D 17그룹, 합계 103그룹 통과. |
 
 ## 행동과 소스가 대응하는 기준
 
@@ -30,3 +30,11 @@ ALPEN: A=공통 사용자 체험·프로젝트별 단계·경로/소스 감사·
 [새 체험 12그룹](user-journey-verification/local/browser.json)은 기본 순서·오류 복구·실제 렌더링 연결·소스 링크·SSO 명시적 연결·부분/전액 취소·오프라인 채팅 복구·모드 전환·모바일 이동을 포함한다. 기존 브라우저 91그룹은 `직접 실험하기`로 진입해 이전 세부 실험을 그대로 검사한다. [대표 로그인 화면](user-journey-verification/local/login-action-flow-source.png), [390px 조작 화면](user-journey-verification/local/login-guide-390.png).
 
 Chromium 320/390/768/1440/1800px 뷰포트 검사다. 공개 화면은 처리 규칙을 재현하는 브라우저 시뮬레이션이며, 이번 UI 변경에서 실제 백엔드 I/O를 재실행하지 않았다. 기존 실제 Spring Boot·Redis·DB 검증 근거는 별도 고정 링크로 유지한다.
+
+## 공개 배포 결과
+
+소스 `89848d7dcb2a44ff346a0de6fc21086f3fce086e`, Pages `43f16c8fc2174934672328d6e1fb5d8b23e7300a`. [Pages 실행 40035143285](https://github.com/seonyoungyoo16/portfolio/actions/runs/40035143285)이 성공했고, [릴리스 검증](user-journey-verification/published/release.json)에서 HTML·JS·CSS 3개 해시, 독립 백엔드 4개 및 브라우저 분기 소스 리비전이 일치했다. [GitHub 브라우저 원본 13분기](user-journey-verification/interaction-source-remote.json)도 원본 파일 텍스트·해시·행을 검사했다.
+
+[공개 새 체험 12그룹](user-journey-verification/published/browser.json), [흐름 20그룹](project-view-verification/published/browser.json), [로그인 18](login-verification/published/browser.json), [가입 18](signup-verification/published/browser.json), [결제 18](payment-verification/published/browser.json), [결제 3D 17](payment-three-verification/published/browser.json)이 모두 배포 빌드 이후 재실행해 통과했다. 예기치 않은 페이지 오류·백엔드 호출은 0건이다. [종합 근거](user-journey-verification/published/summary.json), [공개 화면](user-journey-verification/published/login-action-flow-source.png).
+
+인앱 브라우저에서도 공개 기본 로그인 → 완료 결과·다음 버튼 → PREPARING 단계 선택 → 원본 SQL 연결을 확인했다. 로컬 5191 미리보기는 유지하며 Pages는 별도 빌드 폴더에서 배포했다.

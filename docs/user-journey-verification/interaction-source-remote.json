@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-23T22:40:26.360Z",
+  "revision": "4e1ddef92405147bc0ec25af8130c066384b953c",
+  "branches": [
+    "login.advance",
+    "login.redis",
+    "login.db",
+    "login.close",
+    "login.stale",
+    "signup.switch",
+    "signup.wait",
+    "signup.redis",
+    "signup.db",
+    "signup.smtp",
+    "signup.smtpLoss",
+    "signup.trust",
+    "signup.open"
+  ],
+  "files": [
+    "src/login-demo.ts",
+    "src/signup-demo.ts"
+  ],
+  "remote": true,
+  "scope": "Exact source text and frozen line anchors; not backend I/O"
+}

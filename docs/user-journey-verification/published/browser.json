@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-23T22:41:33.521Z",
+  "base": "https://seonyoungyoo16.github.io/portfolio/",
+  "checks": [
+    "four projects start with the same ordered user actions; technical controls are absent from the basic surface",
+    "login user journey: login → profile → browser revisit with rotation → logout, each action reaches its own source",
+    "each login processing boundary lights the actual rendered connection and matches the exact frozen implementation",
+    "wrong password and no remember-me lead to understandable errors and do not unlock later actions",
+    "changing the next test device does not rewrite the previous action actor or its source",
+    "signup user journey keeps queued mail, SMTP reception, link opening, verification POST and account commit separate",
+    "SSO user journey requires existing login, external proof and explicit linking as three actions",
+    "payment user journey: order and authentication do not capture; pay once then partial and full cancellation conserve amounts",
+    "chat user journey uses every real state phase when finishing quickly: join, one stored/delivered message, offline send and history recovery",
+    "basic and technical modes change only controls, preserving scenario data and selected source",
+    "a mobile action provides a direct processing/source entry without losing the user journey",
+    "guided controls and scene fit 320/390/768/1440; mobile users can switch to the processing/source panel"
+  ],
+  "pageErrors": [],
+  "backendRequests": [],
+  "scope": "Guided browser simulation and actual frozen source mapping, not a real backend I/O run"
+}

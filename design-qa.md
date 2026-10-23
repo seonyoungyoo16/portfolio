@@ -24,3 +24,5 @@ final result: passed
 | 모바일에서 행동 후 흐름 패널을 찾기 어려웠다. | 결과에 `처리 흐름·소스 보기`를 연결하고 체험 패널로 돌아와 다음 행동을 이어가게 했다. | 320~1440px 기본 체험, 기존 1800px 회귀 통과 |
 
 [최종 조작과 흐름](docs/user-journey-verification/local/login-action-flow-source.png), [390px 로그인 폼](docs/user-journey-verification/local/login-guide-390.png), [전체 검증 범위](docs/user-action-journeys.md). 인앱 브라우저에서도 기본 로그인 버튼 → 완료 결과 → 모바일 흐름·소스 진입을 확인했다. View는 계속 부가기능이다.
+
+후속 사용자 여정 공개 검증도 **passed**. source `89848d7`, Pages `43f16c8` 배포 후 103그룹을 재실행했다. [공개 체험 화면](docs/user-journey-verification/published/login-action-flow-source.png), [종합 결과](docs/user-journey-verification/published/summary.json), [현재 릴리스 해시](docs/user-journey-verification/published/release.json). 공개 인앱 브라우저의 DB 단계 선택에서도 PREPARING 스냅샷과 해당 INSERT를 확인했다.
