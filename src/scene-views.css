@@ -1,9 +1,24 @@
 .lab-scene-controls {
   position: relative;
   z-index: 1;
-  padding: 12px;
-  border-bottom: 1px solid #ffffff16;
-  background: #101d28;
+  padding: 0 12px;
+  border-top: 1px solid #ffffff12;
+  background: #101b25;
+  color: #8ca4b7;
+  font: 11px var(--font-ui);
+}
+.lab-scene-controls > summary {
+  cursor: pointer;
+  padding: 10px 0;
+  width: fit-content;
+}
+.lab-scene-controls > summary small {
+  margin-left: 8px;
+  color: #697f91;
+  font: 10px var(--font-code);
+}
+.lab-scene-controls[open] {
+  padding-bottom: 10px;
 }
 .lab-scene-views {
   display: grid;
@@ -73,7 +88,8 @@
 }
 @media (max-width: 420px) {
   .lab-scene-controls {
-    padding: 10px 7px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
   .lab-scene-views {
     gap: 4px;
@@ -81,5 +97,121 @@
   .lab-scene-views button.lab-view-button {
     font-size: 10px;
     padding: 8px 1px;
+  }
+}
+.lab-scene-roles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  padding: 12px 12px 0;
+}
+.lab-scene-roles > span {
+  min-width: 0;
+  padding: 9px 3px;
+  text-align: center;
+  background: #1a2a39;
+  border: 1px solid #35485b;
+  border-radius: 4px;
+  color: #b9ccdf;
+  font: 500 11px/1.5 var(--font-ui);
+}
+.lab-scene-roles small {
+  font: 9px var(--font-code);
+  color: #7290a7;
+  margin-right: 7px;
+}
+.lab-scene-stage-wrap {
+  position: relative;
+}
+button.lab-source-action {
+  position: absolute;
+  z-index: 2;
+  right: 14px;
+  bottom: 12px;
+  padding: 7px 10px;
+  border: 1px solid #43856c;
+  border-radius: 4px;
+  background: #102d27ee;
+  color: #a9dfc4;
+  font: 11px var(--font-ui);
+  cursor: pointer;
+}
+button.lab-source-action:focus-visible,
+.lab-scene-controls > summary:focus-visible {
+  outline: 2px solid #a8d4f7;
+  outline-offset: 2px;
+}
+.lab-scene-caption {
+  padding: 12px 14px 14px;
+  text-align: center;
+  border-top: 1px solid #ffffff0d;
+  color: #e0c5aa;
+  font: 12px/1.8 var(--font-ui);
+}
+.lab-scene-route {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 12px;
+  color: #9bc7ec;
+  font: 10px/1.8 var(--font-code);
+  margin-bottom: 7px;
+}
+.lab-scene-route > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.lab-scene-route small {
+  flex: 0 0 auto;
+  color: #98acbc;
+  font: 10px var(--font-code);
+}
+.lab-scene-caption .login-current,
+.lab-scene-caption .signup-current,
+.lab-scene-caption .payment-current {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  text-align: center;
+}
+.lab-scene-caption .login-current > span,
+.lab-scene-caption .signup-current > span {
+  color: #9cb5c8;
+  font-size: 10px;
+}
+.lab-scene-caption .login-current > strong,
+.lab-scene-caption .signup-current > strong,
+.lab-scene-caption .payment-current > b {
+  display: block;
+  margin: 5px 0;
+  color: #e8c5a3;
+  font-size: 13px;
+}
+.lab-scene-caption .login-current p,
+.lab-scene-caption .signup-current p {
+  margin: 5px 0 0;
+  color: #9fb3c1;
+  font-size: 11px;
+  line-height: 1.8;
+}
+@media (max-width: 420px) {
+  .lab-scene-roles {
+    gap: 4px;
+    padding: 9px 8px 0;
+  }
+  .lab-scene-roles > span {
+    font-size: 9px;
+    padding: 8px 2px;
+  }
+  .lab-scene-roles small {
+    display: none;
+  }
+  .lab-scene-caption {
+    padding: 10px;
+  }
+  .lab-scene-route {
+    font-size: 9px;
+    gap: 7px;
   }
 }

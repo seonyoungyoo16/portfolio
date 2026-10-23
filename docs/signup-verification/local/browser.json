@@ -1,7 +1,7 @@
 {
   "status": "passed",
-  "completedAt": "2026-10-23T20:55:20.956Z",
-  "base": "http://127.0.0.1:5190/",
+  "completedAt": "2026-10-23T21:20:39.949Z",
+  "base": "http://127.0.0.1:5191/",
   "scope": "static portfolio experience; actual backend 50 cases linked separately",
   "sourceRevision": "b5294ab9bdcf27d424ae7326f186bc02fed82f9b",
   "checks": [

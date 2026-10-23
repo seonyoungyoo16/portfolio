@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import { authNodeStep, type AuthSceneState, type Tone } from "../auth-scene";
 import { applySceneCamera, type SceneView } from "../scene-view";
 import SceneViews from "./SceneViews";
+import { SceneRoles, SceneSource, SceneCaption } from "./SceneFlow";
 import "../auth-three.css";
 type Props = {
   data: AuthSceneState;
@@ -12,6 +13,8 @@ type Props = {
   run: number;
   playing: boolean;
   onSelectStep: (index: number) => void;
+  onShowSource: () => void;
+  children?: ReactNode;
 };
 const ink: Record<Tone, number> = {
   blue: 0x8fcaff,
@@ -34,7 +37,6 @@ export default function AuthScene(props: Props) {
   viewpoint.current = { mode, station };
   const choose = (id: string) => {
     setStation(id);
-    setMode("station");
     const p = latest.current,
       index = authNodeStep(p.frames, id, p.step);
     if (index >= 0) p.onSelectStep(index);
@@ -134,6 +136,11 @@ export default function AuthScene(props: Props) {
     for (const datum of latest.current.data.nodes) {
       const group = new THREE.Group();
       group.position.set(...datum.position);
+      const primary =
+        datum.shape === "browser" ||
+        datum.shape === "server" ||
+        datum.shape === "database";
+      group.scale.setScalar(primary ? 1.25 : 0.88);
       scene.add(group);
       box(group, 1.9, 0.1, 1.65, 0, -0.12, 0, screen);
       const halo = mesh(
@@ -286,21 +293,39 @@ export default function AuthScene(props: Props) {
       const start = nodes
           .get(a)!
           .group.position.clone()
-          .add(new THREE.Vector3(0, 0.35, 0)),
+          .add(new THREE.Vector3(0, 1.6, 0)),
         end = nodes
           .get(b)!
           .group.position.clone()
-          .add(new THREE.Vector3(0, 0.35, 0)),
+          .add(new THREE.Vector3(0, 1.6, 0)),
         mid = start.clone().lerp(end, 0.5);
-      mid.y += 0.4;
+      mid.y += 0.9;
       return new THREE.QuadraticBezierCurve3(start, mid, end);
     };
     for (const [a, b] of latest.current.data.edges) {
+      const primary =
+        (a.toLowerCase() === "browser" && b.toLowerCase() === "server") ||
+        (a.toLowerCase() === "server" &&
+          ["database", "db"].includes(b.toLowerCase()));
       const wire = mesh(
-        new THREE.TubeGeometry(curveBetween(a, b), 28, 0.018, 6, false),
-        muted,
+        new THREE.TubeGeometry(
+          curveBetween(a, b),
+          28,
+          primary ? 0.025 : 0.016,
+          6,
+          false,
+        ),
+        primary ? palette.blue : muted,
       );
       wire.userData.edge = [a, b];
+      wire.userData.primary = primary;
+      const arrow = mesh(new THREE.ConeGeometry(0.11, 0.29, 12), palette.blue);
+      arrow.position.copy(curveBetween(a, b).getPointAt(0.68));
+      arrow.quaternion.setFromUnitVectors(
+        new THREE.Vector3(0, 1, 0),
+        curveBetween(a, b).getTangentAt(0.68),
+      );
+      wire.userData.arrow = arrow;
       wires.push(wire);
     }
     const packetMaterial = material(ink.amber, 0.35),
@@ -340,7 +365,9 @@ export default function AuthScene(props: Props) {
         packet.visible ? packet.position : focus,
         width,
         height,
-        p.data.project === "login" ? 5.1 : 5.8,
+        5.8,
+        { position: [0, 10, 15], target: [0, 0.35, -0.6] },
+        2.6,
       );
       host!.dataset.camera = camera.position
         .toArray()
@@ -436,10 +463,21 @@ export default function AuthScene(props: Props) {
       for (const wire of wires) {
         const [a, b] = wire.userData.edge as [string, string],
           r = p.data.route;
-        wire.material =
-          r && ((r[0] === a && r[1] === b) || (r[1] === a && r[0] === b))
-            ? palette.amber
-            : muted;
+        const selected =
+          r && ((r[0] === a && r[1] === b) || (r[1] === a && r[0] === b));
+        wire.material = selected
+          ? palette.amber
+          : r || !wire.userData.primary
+            ? muted
+            : palette.blue;
+        const arrow = wire.userData.arrow as THREE.Mesh;
+        arrow.material = wire.material;
+        const curve = selected ? curveBetween(...r!) : curveBetween(a, b);
+        arrow.position.copy(curve.getPointAt(0.68));
+        arrow.quaternion.setFromUnitVectors(
+          new THREE.Vector3(0, 1, 0),
+          curve.getTangentAt(0.68),
+        );
       }
       if (!changed && p.playing && !lastPlaying && progress >= 1) progress = 0;
       paint();
@@ -537,6 +575,39 @@ export default function AuthScene(props: Props) {
       data-source={props.data.source}
       data-step={props.step}
     >
+      <SceneRoles
+        roles={
+          props.data.project === "login"
+            ? ["사용자 · 기기", "인증 서버 A·B", "세션 DB · Redis"]
+            : ["사용자 · 가입", "가입 서버 A·B", "계정 DB · 연계"]
+        }
+      />
+      <div className="lab-scene-stage-wrap">
+        <div className="auth-three-stage" ref={stage} />
+        <SceneSource onClick={props.onShowSource} />
+      </div>
+      {failed && (
+        <p className="auth-three-fallback" role="status">
+          3D를 표시할 수 없습니다. 요소·처리 단계·실제 소스에서 같은 상태를
+          확인하세요.
+        </p>
+      )}
+      <SceneCaption
+        route={
+          props.data.route
+            ? props.data.route
+                .map(
+                  (id) =>
+                    props.data.nodes.find((n) => n.id === id)?.label || id,
+                )
+                .join(" → ")
+            : "요청 실행 → 처리 경로 → 데이터 변화"
+        }
+        step={props.step}
+        total={props.frames.length}
+      >
+        {props.children}
+      </SceneCaption>
       <SceneViews
         value={mode}
         onChange={setMode}
@@ -545,13 +616,6 @@ export default function AuthScene(props: Props) {
         onStation={setStation}
         disabled={failed}
       />
-      <div className="auth-three-stage" ref={stage} />
-      {failed && (
-        <p className="auth-three-fallback" role="status">
-          3D를 표시할 수 없습니다. 요소·처리 단계·실제 소스에서 같은 상태를
-          확인하세요.
-        </p>
-      )}
       <div className="auth-three-nodes">
         {props.data.nodes.map((node) => (
           <button
@@ -562,8 +626,8 @@ export default function AuthScene(props: Props) {
             data-count={node.count}
             data-fraction={node.fraction ?? ""}
             data-tone={node.tone}
-            aria-pressed={mode === "station" && station === node.id}
-            aria-label={node.label + " 확대 및 처리 단계·실제 소스 보기"}
+            aria-pressed={props.data.node === node.id}
+            aria-label={node.label + " 처리 단계·실제 소스 보기"}
             onClick={() => choose(node.id)}
           >
             <b>{node.label}</b>
@@ -575,7 +639,7 @@ export default function AuthScene(props: Props) {
         {props.data.summary.map((text) => (
           <span key={text}>{text}</span>
         ))}
-        <small>요소 선택 → 확대·현재 작업의 해당 단계·실제 소스</small>
+        <small>요소 선택 → 해당 처리 단계·실제 소스 · 주황색 = 현재 경로</small>
       </div>
     </div>
   );

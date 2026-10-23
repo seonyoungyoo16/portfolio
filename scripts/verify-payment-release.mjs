@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import crypto from "node:crypto";
 const base =
     process.env.PORTFOLIO_URL || "https://seonyoungyoo16.github.io/portfolio/",
-  expected = JSON.parse(fs.readFileSync("dist/release.json", "utf8"));
+  expected = JSON.parse(fs.readFileSync(process.env.PORTFOLIO_RELEASE_FILE || "dist/release.json", "utf8"));
 let release;
 for (let i = 0; i < 18; i++) {
   const r = await fetch(base + "release.json?verify=" + Date.now(), {

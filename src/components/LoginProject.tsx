@@ -506,28 +506,30 @@ export default function LoginProject() {
               마지막으로 ⇥
             </button>
           </div>
-          <div className="login-current">
-            <span>{result?.request || "로그인 요청으로 시작하세요."}</span>
-            <strong>
-              {current?.title || "발급부터 만료, 복원과 폐기까지."}
-            </strong>
-            <p>
-              {current?.detail ||
-                "체험 화면의 요청을 실행하면 처리 단계·데이터·실제 소스가 함께 바뀝니다."}
-            </p>
-          </div>
           <AuthScene
             data={loginSceneState(view, device, flowServer, frames, step)}
             frames={frames}
             step={step}
             run={runVersion}
             playing={playing}
+            onShowSource={() => setSourceOpen(true)}
             onSelectStep={(index) => {
               setStep(index);
               setPlaying(false);
               setSourceOpen(true);
             }}
-          />
+          >
+            <div className="login-current">
+              <span>{result?.request || "로그인 요청으로 시작하세요."}</span>
+              <strong>
+                {current?.title || "발급부터 만료, 복원과 폐기까지."}
+              </strong>
+              <p>
+                {current?.detail ||
+                  "요청을 실행하면 경로·데이터·실제 소스가 함께 바뀝니다."}
+              </p>
+            </div>
+          </AuthScene>
           <ol className="login-steps">
             {frames.map((f, i) => (
               <li key={i}>

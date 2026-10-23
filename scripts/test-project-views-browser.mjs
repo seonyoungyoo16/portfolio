@@ -53,6 +53,9 @@ const check = async (name, fn) => {
   console.log("PASS " + name);
 };
 const view = async (name) => {
+  const settings = scene().locator("details.lab-scene-controls");
+  if (!(await settings.evaluate((e) => e.open)))
+    await settings.locator("summary").click();
   await scene().getByRole("button", { name, exact: true }).click();
   await expect(scene()).toHaveAttribute("data-view", name.toLowerCase());
 };
@@ -118,6 +121,46 @@ const snapshot = async () =>
     };
   }, project);
 try {
+  await check(
+    "flow-first UI: roles → scene → current step → collapsed auxiliary View, with working source access",
+    async () => {
+      for (const p of ["login", "signup", "chat", "payment"]) {
+        await go(p);
+        await expect(scene().locator(".lab-scene-roles > span")).toHaveCount(3);
+        await expect(
+          scene().locator("details.lab-scene-controls"),
+        ).not.toHaveAttribute("open", "");
+        const order = await scene().evaluate((root) => {
+          const top = (selector) =>
+            root.querySelector(selector).getBoundingClientRect().top;
+          return [
+            top(".lab-scene-roles"),
+            top("canvas"),
+            top(".lab-scene-caption"),
+            top(".lab-scene-controls"),
+          ];
+        });
+        expect(order.every((n, i) => !i || n > order[i - 1])).toBe(true);
+        const before = await snapshot();
+        await scene()
+          .getByRole("button", { name: "현재 단계 소스 ↗", exact: true })
+          .click();
+        const source = page.locator(
+          p === "chat" ? ".chat-source-panel > a" : `.${p}-source > a`,
+        );
+        await expect(source).toBeVisible();
+        await expect(source).toHaveAttribute(
+          "href",
+          /github\.com\/.*\/blob\/[a-f0-9]{40}\//,
+        );
+        await expect(scene()).toHaveAttribute("data-view", "overview");
+        expect(await snapshot()).toEqual(before);
+        await scene().screenshot({
+          path: path.join(out, `${p}-flow-first.png`),
+        });
+      }
+    },
+  );
   for (const p of ["login", "signup", "chat", "payment"]) {
     await check(
       `${p}: all five View presets move the actual camera and rendered geometry without changing state`,
@@ -186,11 +229,11 @@ try {
     },
   );
   await check(
-    "login: a real 3D database pick focuses the object and opens its processing source",
+    "login: a real 3D database pick keeps the whole flow visible and opens its processing source",
     async () => {
       await view("Overview");
       const r = await scene().locator("canvas").boundingBox(),
-        half = Math.max(5.1, (3.8 * r.width) / r.height),
+        half = Math.max(5.8, (2.6 * r.width) / r.height),
         camera = new OrthographicCamera(
           -half,
           half,
@@ -200,14 +243,14 @@ try {
           80,
         );
       camera.position.set(0, 10, 15);
-      camera.lookAt(0, 0, -0.6);
+      camera.lookAt(0, 0.35, -0.6);
       camera.updateMatrixWorld();
-      const point = new Vector3(2.6, 0.4, -2.6).project(camera);
+      const point = new Vector3(3.7, 0.5, 0.7).project(camera);
       await page.mouse.click(
         r.x + ((point.x + 1) * r.width) / 2,
         r.y + ((1 - point.y) * r.height) / 2,
       );
-      await expect(scene()).toHaveAttribute("data-view", "station");
+      await expect(scene()).toHaveAttribute("data-view", "overview");
       await expect(scene()).toHaveAttribute("data-station", "database");
       await sourceMatch();
       await expect(page.locator(".login-source>a")).toContainText(
@@ -237,6 +280,8 @@ try {
     async () => {
       await act("실험 초기화 ↺");
       await act("로그인하고 흐름 보기 →");
+      await scene().locator("details.lab-scene-controls > summary").focus();
+      await page.keyboard.press("Enter");
       await page
         .locator(".login-steps button")
         .filter({ hasText: "공유 세션 저장" })
@@ -406,10 +451,12 @@ try {
             width,
             sceneWidth: await scene().evaluate((e) => e.clientWidth),
           });
-          if (width === 390 || width === 1440)
+          if (width === 390 || width === 1440) {
+            await scene().locator("details.lab-scene-controls > summary").click();
             await scene().screenshot({
               path: path.join(out, `${p}-responsive-${width}.png`),
             });
+          }
         }
       }
     },
@@ -420,12 +467,14 @@ try {
       await page.setViewportSize({ width: 1440, height: 1100 });
       await go("login");
       await act("로그인하고 흐름 보기 →");
+      await scene().locator("details.lab-scene-controls > summary").focus();
+      await page.keyboard.press("Enter");
       await scene().getByRole("button", { name: "Top", exact: true }).focus();
       await page.keyboard.press("Enter");
       await expect(scene()).toHaveAttribute("data-view", "top");
       await authNode("database").focus();
       await page.keyboard.press("Enter");
-      await expect(scene()).toHaveAttribute("data-view", "station");
+      await expect(scene()).toHaveAttribute("data-view", "top");
       await expect(scene()).toHaveAttribute("data-motion", "still");
       await sourceMatch();
     },

@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import type { Frame, Node, State } from "../payment-demo";
 import SceneViews from "./SceneViews";
+import { SceneRoles, SceneSource, SceneCaption } from "./SceneFlow";
 import { applySceneCamera, type SceneView } from "../scene-view";
 import "../project-view-layout.css";
 import {
@@ -19,6 +20,8 @@ type Props = {
   playing: boolean;
   run: number;
   onSelectStep: (step: number) => void;
+  onShowSource: () => void;
+  children?: ReactNode;
 };
 const names: Record<Node, string> = {
   Browser: "브라우저",
@@ -269,21 +272,22 @@ export default function PaymentScene(props: Props) {
       ["Server", "PG"],
       ["PG", "PG DB"],
     ] as [Node, Node][]) {
-      const start = positions[a].clone().add(new THREE.Vector3(0, 0.22, 0)),
-        end = positions[b].clone().add(new THREE.Vector3(0, 0.22, 0)),
+      const start = positions[a].clone().add(new THREE.Vector3(0, 1.1, 0)),
+        end = positions[b].clone().add(new THREE.Vector3(0, 1.1, 0)),
         mid = start.clone().lerp(end, 0.5);
       mid.y += 0.4;
+      const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+      const arrow = mesh(
+        new THREE.ConeGeometry(0.085, 0.24, 12),
+        standard(colors.query),
+      );
+      arrow.position.copy(curve.getPointAt(0.68));
+      arrow.quaternion.setFromUnitVectors(
+        new THREE.Vector3(0, 1, 0),
+        curve.getTangentAt(0.68),
+      );
       tubes.push(
-        mesh(
-          new THREE.TubeGeometry(
-            new THREE.QuadraticBezierCurve3(start, mid, end),
-            32,
-            0.014,
-            6,
-            false,
-          ),
-          lineMat,
-        ),
+        mesh(new THREE.TubeGeometry(curve, 32, 0.014, 6, false), lineMat),
       );
     }
     const packet = mesh(
@@ -291,6 +295,9 @@ export default function PaymentScene(props: Props) {
       packetMat,
     );
     packet.visible = false;
+    const activePath = mesh(new THREE.BufferGeometry(), packetMat);
+    const direction = mesh(new THREE.ConeGeometry(0.1, 0.28, 12), packetMat);
+    activePath.visible = direction.visible = false;
     const crowdGeometry = new THREE.BoxGeometry(0.16, 0.1, 0.23);
     geometries.add(crowdGeometry);
     const crowd = new THREE.InstancedMesh(crowdGeometry, capture, 24);
@@ -333,7 +340,7 @@ export default function PaymentScene(props: Props) {
         path = paymentRoute(f);
       if (path.length < 2) return undefined;
       const points = path.map((n) =>
-        positions[n].clone().add(new THREE.Vector3(0, 0.43, 0)),
+        positions[n].clone().add(new THREE.Vector3(0, 1.1, 0)),
       );
       if (f.visual?.kind === "dedupe")
         points[0] = gateGroup.position
@@ -450,7 +457,10 @@ export default function PaymentScene(props: Props) {
           .project(camera);
         label.style.left = ((top.x + 1) * width) / 2 + "px";
         label.style.top =
-          canvasTarget!.offsetTop + ((-top.y + 1) * height) / 2 + "px";
+          canvasTarget!.getBoundingClientRect().top -
+          target!.getBoundingClientRect().top +
+          ((-top.y + 1) * height) / 2 +
+          "px";
       }
     }
     function draw() {
@@ -561,6 +571,31 @@ export default function PaymentScene(props: Props) {
         lastKey = key;
         progress = p.playing && !motion.matches ? 0 : 1;
         route = makeRoute();
+        const visual = p.frames[p.step]?.visual;
+        activePath.visible = !!route && visual?.kind !== "query";
+        direction.visible = !!route;
+        geometries.delete(activePath.geometry);
+        activePath.geometry.dispose();
+        const blocked = visual?.kind === "blocked" || visual?.lost;
+        const shown =
+          route && blocked
+            ? new THREE.CatmullRomCurve3(
+                Array.from({ length: 21 }, (_, i) =>
+                  route!.getPointAt((i / 20) * 0.52),
+                ),
+              )
+            : route;
+        activePath.geometry = shown
+          ? new THREE.TubeGeometry(shown, 40, 0.025, 8, false)
+          : new THREE.BufferGeometry();
+        geometries.add(activePath.geometry);
+        if (route) {
+          direction.position.copy(route.getPointAt(blocked ? 0.4 : 0.68));
+          direction.quaternion.setFromUnitVectors(
+            new THREE.Vector3(0, 1, 0),
+            route.getTangentAt(blocked ? 0.4 : 0.68),
+          );
+        }
         if (queryLine) {
           scene.remove(queryLine);
           queryLine.geometry.dispose();
@@ -707,15 +742,13 @@ export default function PaymentScene(props: Props) {
       data-view={mode}
       data-station={station}
     >
-      <SceneViews
-        value={mode}
-        onChange={setMode}
-        stations={paymentNodes.map((id) => ({ id, label: names[id] }))}
-        station={station}
-        onStation={(id) => setStation(id as Node)}
-        disabled={failed}
+      <SceneRoles
+        roles={["사용자 · 결제 요청", "상점 서버 · 원장", "독립 PG · 원장"]}
       />
-      <div className="payment-three-stage" ref={canvasHost} />
+      <div className="lab-scene-stage-wrap">
+        <div className="payment-three-stage" ref={canvasHost} />
+        <SceneSource onClick={props.onShowSource} />
+      </div>
       <div className="payment-three-labels">
         {paymentNodes.map((node) => (
           <button
@@ -754,6 +787,27 @@ export default function PaymentScene(props: Props) {
           확인할 수 있습니다.
         </p>
       )}
+      <SceneCaption
+        route={
+          visual?.from && visual?.to
+            ? `${names[visual.from]} → ${names[visual.to]}`
+            : current?.node
+              ? names[current.node]
+              : "결제 요청 → 중복 게이트 → 상점·PG 원장"
+        }
+        step={props.step}
+        total={props.frames.length}
+      >
+        {props.children}
+      </SceneCaption>
+      <SceneViews
+        value={mode}
+        onChange={setMode}
+        stations={paymentNodes.map((id) => ({ id, label: names[id] }))}
+        station={station}
+        onStation={(id) => setStation(id as Node)}
+        disabled={failed}
+      />
       <div className="payment-three-summary">
         <span className="payment-gate-state" data-testid="payment-gate-state">
           {gate

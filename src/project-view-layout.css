@@ -1,6 +1,20 @@
 .payment-three-labels {
   display: contents;
 }
+.payment-three[data-ready="fallback"] .lab-scene-roles,
+.payment-three[data-ready="fallback"] .lab-scene-caption,
+.payment-three[data-ready="fallback"] .lab-scene-stage-wrap {
+  grid-column: 1/-1;
+}
+.auth-three .lab-scene-stage-wrap button.lab-source-action,
+.payment-three .lab-scene-stage-wrap button.lab-source-action,
+.chat-three-experience .lab-scene-stage-wrap button.lab-source-action {
+  background: #102d27ee;
+  color: #a9dfc4;
+  border: 1px solid #43856c;
+  font: 11px var(--font-ui);
+  padding: 7px 10px;
+}
 .payment-three:not([data-view="overview"]) .payment-three-labels {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

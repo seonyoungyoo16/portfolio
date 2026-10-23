@@ -25,7 +25,10 @@ export default function SceneViews({
       stations[(index + direction + stations.length) % stations.length].id,
     );
   return (
-    <div className="lab-scene-controls">
+    <details className="lab-scene-controls">
+      <summary>
+        보기 설정 <small>{value[0].toUpperCase() + value.slice(1)}</small>
+      </summary>
       <div className="lab-scene-views" role="group" aria-label="3D View 선택">
         <span>
           VIEW <small>{viewDescriptions[value]}</small>
@@ -73,6 +76,6 @@ export default function SceneViews({
           </button>
         </div>
       )}
-    </div>
+    </details>
   );
 }

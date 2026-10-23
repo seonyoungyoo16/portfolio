@@ -64,7 +64,7 @@ export function loginSceneState(
       id: "browser",
       label: `기기 ${device ? "B" : "A"}`,
       detail: `SID ${b.sid ? "있음" : "없음"} · 유지 ${generation === undefined ? "없음" : "g" + generation}`,
-      position: [-2.6, 0, 1.5],
+      position: [-3.7, 0, 0.7],
       shape: "browser",
       tone: b.authenticated ? "mint" : "blue",
       count: Number(!!b.sid) + Number(!!b.remember),
@@ -73,8 +73,8 @@ export function loginSceneState(
     {
       id: "server",
       label: `서버 ${server} / A·B 공유`,
-      detail: "Spring Security · 발급 상태 확인",
-      position: [2.6, 0, 1.5],
+      detail: "발급 상태 · 버전 검증",
+      position: [0, 0, 0.7],
       shape: "server",
       tone: "blue",
       count: 2,
@@ -86,7 +86,7 @@ export function loginSceneState(
       detail: s.redisUp
         ? `만료 전 키 ${alive}개 · 최근 발급 TTL ${ttl}초`
         : "연결 불가 · 저장 상태 보존",
-      position: [-2.6, 0, -2.6],
+      position: [3.7, 0, -2.8],
       shape: "redis",
       tone: !s.redisUp ? "red" : ttl > 0 ? "mint" : "muted",
       count: alive,
@@ -99,7 +99,7 @@ export function loginSceneState(
       detail: s.dbUp
         ? `발급 ${s.sessions.length}개 · 사용자 버전 ${s.version}`
         : "연결 불가 · 발급 상태 미확인",
-      position: [2.6, 0, -2.6],
+      position: [3.7, 0, 0.7],
       shape: "database",
       tone: !s.dbUp ? "red" : "mint",
       count: s.sessions.length,

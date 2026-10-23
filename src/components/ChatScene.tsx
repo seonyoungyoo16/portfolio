@@ -3,11 +3,14 @@ import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 import type { ChatClient } from "../chat-demo";
 import SceneViews from "./SceneViews";
+import { SceneRoles, SceneSource, SceneCaption } from "./SceneFlow";
 import { applySceneCamera, type SceneView } from "../scene-view";
 import "../project-view-layout.css";
 
 type Props = {
   onNode?: (node: string) => void;
+  onShowSource: () => void;
+  stepLabel: string;
   cancelledCounts: number[];
   pendingCounts: number[];
   databaseRunning: boolean;
@@ -44,7 +47,6 @@ export default function ChatScene(props: Props) {
     [epoch, setEpoch] = useState(0);
   const choose = (id: string) => {
     setStation(id);
-    setMode("station");
     latest.current.onNode?.(id);
   };
   const chooseRef = useRef(choose);
@@ -270,13 +272,21 @@ export default function ChatScene(props: Props) {
       ring.position.copy(v).add(new THREE.Vector3(0.15, -0.5, 0));
       return ring;
     });
+    const idleArrows: THREE.Mesh[] = [];
     const lines = positions.map((v) => {
       const curve = new THREE.QuadraticBezierCurve3(
-        v.clone().add(new THREE.Vector3(0, 0.25, 0)),
-        new THREE.Vector3(v.x / 2, 0.3, -0.8),
-        server,
+        v.clone().add(new THREE.Vector3(0, 1.1, 0)),
+        new THREE.Vector3(v.x / 2, 1.7, -0.3),
+        server.clone().add(new THREE.Vector3(0, 1, 0)),
       );
-      return mesh(new THREE.TubeGeometry(curve, 40, 0.018, 6, false), green);
+      const arrow = mesh(new THREE.ConeGeometry(0.1, 0.25, 12), blue);
+      arrow.position.copy(curve.getPointAt(v.x < 0 ? 0.65 : 0.35));
+      arrow.quaternion.setFromUnitVectors(
+        new THREE.Vector3(0, 1, 0),
+        curve.getTangentAt(0.5).multiplyScalar(v.x < 0 ? 1 : -1),
+      );
+      idleArrows.push(arrow);
+      return mesh(new THREE.TubeGeometry(curve, 40, 0.025, 6, false), blue);
     });
     const dbCurve = new THREE.LineCurve3(server, db);
     mesh(new THREE.TubeGeometry(dbCurve, 12, 0.014, 6, false), muted);
@@ -300,6 +310,12 @@ export default function ChatScene(props: Props) {
       face.position.z = 0.06;
       return g;
     });
+    const activeFlows = [0, 1].map(() => ({
+      mesh: mesh(new THREE.BufferGeometry(), accent),
+      arrow: mesh(new THREE.ConeGeometry(0.1, 0.26, 12), accent),
+      key: "",
+      curve: null as THREE.QuadraticBezierCurve3 | null,
+    }));
     const resize = () => {
       const w = target.clientWidth,
         h = target.clientHeight;
@@ -391,8 +407,11 @@ export default function ChatScene(props: Props) {
         lines[i].material =
           p.clients[i].connected ||
           (p.run > 0 && p.kind === "join" && i === p.actor && p.step >= 1)
-            ? green
+            ? p.run > 0
+              ? muted
+              : blue
             : muted;
+        idleArrows[i].visible = p.run === 0;
       });
       const pending = Math.max(
         ...p.waiting.filter((_, i) => !p.clients[i].connected),
@@ -658,12 +677,51 @@ export default function ChatScene(props: Props) {
       }
       packets.forEach((packet, i) => {
         packet.visible = !!routes[i];
+        const flow = activeFlows[i],
+          segment = routes[i];
+        const signature = segment
+          ? segment.map((v) => v.toArray().join(",")).join(":")
+          : "";
+        if (flow.key !== signature) {
+          flow.key = signature;
+          const previous = geometries.indexOf(flow.mesh.geometry);
+          if (previous >= 0) geometries.splice(previous, 1);
+          flow.mesh.geometry.dispose();
+          const [a, b] = segment || [server, server];
+          const mid = a
+            .clone()
+            .lerp(b, 0.5)
+            .add(new THREE.Vector3(0, 1.05, 0));
+          flow.curve =
+            a.distanceTo(b) > 0.05
+              ? new THREE.QuadraticBezierCurve3(
+                  a.clone().add(new THREE.Vector3(0, 0.35, 0)),
+                  mid,
+                  b.clone().add(new THREE.Vector3(0, 0.35, 0)),
+                )
+              : null;
+          flow.mesh.geometry = flow.curve
+            ? new THREE.TubeGeometry(flow.curve, 32, 0.025, 8, false)
+            : new THREE.BufferGeometry();
+          geometries.push(flow.mesh.geometry);
+        }
+        flow.mesh.visible = flow.arrow.visible = !!segment && !!flow.curve;
+        if (flow.curve) {
+          flow.arrow.position.copy(flow.curve.getPointAt(0.68));
+          flow.arrow.quaternion.setFromUnitVectors(
+            new THREE.Vector3(0, 1, 0),
+            flow.curve.getTangentAt(0.68),
+          );
+        }
         if (routes[i]) {
           (packet.children[0] as THREE.Mesh).material =
             p.kind === "cancel" ? muted : p.kind === "requeue" ? blue : accent;
           const [a, b] = routes[i];
-          packet.position.lerpVectors(a, b, progress);
-          packet.position.y += Math.sin(progress * Math.PI) * 0.6 + 0.35;
+          if (flow.curve) packet.position.copy(flow.curve.getPoint(progress));
+          else
+            packet.position
+              .lerpVectors(a, b, progress)
+              .add(new THREE.Vector3(0, 0.35, 0));
           packet.quaternion.copy(camera.quaternion);
         }
       });
@@ -734,6 +792,151 @@ export default function ChatScene(props: Props) {
       data-view={mode}
       data-station={selectedStation}
     >
+      <SceneRoles
+        roles={["참가자 A · 앱", "메시지 서버 · DB", "참가자 B · 앱"]}
+      />
+      <div className="lab-scene-stage-wrap">
+        <div
+          ref={host}
+          className={
+            "chat-three-scene " + (props.mode === "kafka" ? "kafka-scene" : "")
+          }
+          role="img"
+          aria-label={`참가자 A·B의 소켓과 메시지 흐름. ${props.clients[props.actor].name}의 ${props.kind} 단계 ${props.step + 1}`}
+        >
+          {failed && (
+            <p className="chat-three-fallback">
+              3D 화면을 불러올 수 없습니다. 아래 단계에서 같은 흐름을
+              확인하세요.
+            </p>
+          )}
+          <span className="scene-label scene-a">
+            <b>참가자 A</b>
+            <small>
+              {props.clients[0].connected ? "● 온라인" : "○ 오프라인"} ·{" "}
+              {props.clients[0].roomId}
+            </small>
+            <small className="scene-view-state">
+              {props.clients[0].viewOpen ? "대화창 열림" : "대화창 닫힘"}
+            </small>
+            {props.cancelledCounts[0] > 0 && (
+              <small className="scene-cancelled-count">
+                취소 {props.cancelledCounts[0]}건 · 재전송 제외
+              </small>
+            )}
+            {props.pendingCounts[0] > 0 && (
+              <small className="scene-pending-count">
+                PC 전송 대기 {props.pendingCounts[0]}건
+              </small>
+            )}
+          </span>
+          <span className="scene-label scene-server">
+            <b>
+              {props.mode === "kafka" ? "메시지 수신 서버" : "WebSocket 서버"}
+            </b>
+            <small>/ws/chat</small>
+          </span>
+          {props.mode === "kafka" && (
+            <>
+              <span className="scene-label scene-kafka">
+                <b>Kafka {props.brokerRunning ? "" : "· 중단"}</b>
+                <small>
+                  {props.brokerRunning
+                    ? "전달 대기 " + props.queueCount + "건"
+                    : "발행·소비 불가"}
+                </small>
+              </span>
+              <span className="scene-label scene-consumer">
+                <b>전달 서버</b>
+                <small>
+                  {props.workerRunning
+                    ? props.brokerRunning
+                      ? "● 실행 중"
+                      : "Kafka 연결 대기"
+                    : "○ 중단됨"}
+                </small>
+              </span>
+            </>
+          )}
+          <span className="scene-label scene-b">
+            <b>참가자 B</b>
+            <small>
+              {props.clients[1].connected ? "● 온라인" : "○ 오프라인"} ·{" "}
+              {props.clients[1].roomId}
+            </small>
+            <small className="scene-view-state">
+              {props.clients[1].viewOpen ? "대화창 열림" : "대화창 닫힘"}
+            </small>
+            {props.cancelledCounts[1] > 0 && (
+              <small className="scene-cancelled-count">
+                취소 {props.cancelledCounts[1]}건 · 재전송 제외
+              </small>
+            )}
+            {props.pendingCounts[1] > 0 && (
+              <small className="scene-pending-count">
+                PC 전송 대기 {props.pendingCounts[1]}건
+              </small>
+            )}
+          </span>
+          {!props.databaseRunning && (
+            <span className="scene-database-outage">
+              DB 저장 불가 · PC 전송 대기 {props.pendingCount}건
+            </span>
+          )}
+          {props.databaseRunning &&
+            !props.brokerRunning &&
+            props.mode === "kafka" && (
+              <span className="scene-broker-outage">
+                Kafka 연결 불가 · Outbox에 보관
+              </span>
+            )}
+          {props.kind === "interrupted" && props.step === props.total - 1 && (
+            <span className="scene-connection-lost">
+              ACK 미수신 · PC에 요청 보관
+            </span>
+          )}
+          <span className="scene-label scene-db">
+            {props.databaseRunning ? "서버 대화 기록" : "DB 중단 · 마지막 저장"}{" "}
+            · {props.stored}건
+            <small>
+              {!props.databaseRunning
+                ? "저장/조회 불가 · ACK 없음"
+                : props.mode === "kafka" && props.outboxCount > 0
+                  ? "Outbox 미발행 " + props.outboxCount + "건"
+                  : props.kind === "retry"
+                    ? "중복 요청 · 추가 저장 / 방송 없음"
+                    : props.kind === "typing"
+                      ? "입력 신호 · DB 저장 없음"
+                      : props.kind === "read" && props.step >= 2
+                        ? "읽음 위치 #" + props.readUpTo
+                        : props.clients
+                            .map((c, i) =>
+                              !c.connected && props.waiting[i] > 0
+                                ? `${i ? "B" : "A"} 미수신 ${props.waiting[i]}건`
+                                : null,
+                            )
+                            .filter(Boolean)
+                            .join(" · ") || "오프라인이어도 서버에 보관"}
+            </small>
+          </span>
+        </div>
+        <SceneSource onClick={props.onShowSource} />
+      </div>
+      <SceneCaption
+        route={
+          props.mode === "kafka"
+            ? "사용자 → 서버·DB → Kafka → 전달 서버 → 수신자"
+            : "사용자 → WebSocket 서버·DB → 수신자"
+        }
+        step={props.step}
+        total={props.run ? props.total : 0}
+      >
+        <strong>
+          {props.run
+            ? props.stepLabel
+            : "참가자를 연결하고 메시지 흐름을 확인하세요."}
+        </strong>
+      </SceneCaption>
       <SceneViews
         value={mode}
         onChange={setMode}
@@ -742,129 +945,6 @@ export default function ChatScene(props: Props) {
         onStation={setStation}
         disabled={failed}
       />
-      <div
-        ref={host}
-        className={
-          "chat-three-scene " + (props.mode === "kafka" ? "kafka-scene" : "")
-        }
-        role="img"
-        aria-label={`참가자 A·B의 소켓과 메시지 흐름. ${props.clients[props.actor].name}의 ${props.kind} 단계 ${props.step + 1}`}
-      >
-        {failed && (
-          <p className="chat-three-fallback">
-            3D 화면을 불러올 수 없습니다. 아래 단계에서 같은 흐름을 확인하세요.
-          </p>
-        )}
-        <span className="scene-label scene-a">
-          <b>참가자 A</b>
-          <small>
-            {props.clients[0].connected ? "● 온라인" : "○ 오프라인"} ·{" "}
-            {props.clients[0].roomId}
-          </small>
-          <small className="scene-view-state">
-            {props.clients[0].viewOpen ? "대화창 열림" : "대화창 닫힘"}
-          </small>
-          {props.cancelledCounts[0] > 0 && (
-            <small className="scene-cancelled-count">
-              취소 {props.cancelledCounts[0]}건 · 재전송 제외
-            </small>
-          )}
-          {props.pendingCounts[0] > 0 && (
-            <small className="scene-pending-count">
-              PC 전송 대기 {props.pendingCounts[0]}건
-            </small>
-          )}
-        </span>
-        <span className="scene-label scene-server">
-          <b>
-            {props.mode === "kafka" ? "메시지 수신 서버" : "WebSocket 서버"}
-          </b>
-          <small>/ws/chat</small>
-        </span>
-        {props.mode === "kafka" && (
-          <>
-            <span className="scene-label scene-kafka">
-              <b>Kafka {props.brokerRunning ? "" : "· 중단"}</b>
-              <small>
-                {props.brokerRunning
-                  ? "전달 대기 " + props.queueCount + "건"
-                  : "발행·소비 불가"}
-              </small>
-            </span>
-            <span className="scene-label scene-consumer">
-              <b>전달 서버</b>
-              <small>
-                {props.workerRunning
-                  ? props.brokerRunning
-                    ? "● 실행 중"
-                    : "Kafka 연결 대기"
-                  : "○ 중단됨"}
-              </small>
-            </span>
-          </>
-        )}
-        <span className="scene-label scene-b">
-          <b>참가자 B</b>
-          <small>
-            {props.clients[1].connected ? "● 온라인" : "○ 오프라인"} ·{" "}
-            {props.clients[1].roomId}
-          </small>
-          <small className="scene-view-state">
-            {props.clients[1].viewOpen ? "대화창 열림" : "대화창 닫힘"}
-          </small>
-          {props.cancelledCounts[1] > 0 && (
-            <small className="scene-cancelled-count">
-              취소 {props.cancelledCounts[1]}건 · 재전송 제외
-            </small>
-          )}
-          {props.pendingCounts[1] > 0 && (
-            <small className="scene-pending-count">
-              PC 전송 대기 {props.pendingCounts[1]}건
-            </small>
-          )}
-        </span>
-        {!props.databaseRunning && (
-          <span className="scene-database-outage">
-            DB 저장 불가 · PC 전송 대기 {props.pendingCount}건
-          </span>
-        )}
-        {props.databaseRunning &&
-          !props.brokerRunning &&
-          props.mode === "kafka" && (
-            <span className="scene-broker-outage">
-              Kafka 연결 불가 · Outbox에 보관
-            </span>
-          )}
-        {props.kind === "interrupted" && props.step === props.total - 1 && (
-          <span className="scene-connection-lost">
-            ACK 미수신 · PC에 요청 보관
-          </span>
-        )}
-        <span className="scene-label scene-db">
-          {props.databaseRunning ? "서버 대화 기록" : "DB 중단 · 마지막 저장"} ·{" "}
-          {props.stored}건
-          <small>
-            {!props.databaseRunning
-              ? "저장/조회 불가 · ACK 없음"
-              : props.mode === "kafka" && props.outboxCount > 0
-                ? "Outbox 미발행 " + props.outboxCount + "건"
-                : props.kind === "retry"
-                  ? "중복 요청 · 추가 저장 / 방송 없음"
-                  : props.kind === "typing"
-                    ? "입력 신호 · DB 저장 없음"
-                    : props.kind === "read" && props.step >= 2
-                      ? "읽음 위치 #" + props.readUpTo
-                      : props.clients
-                          .map((c, i) =>
-                            !c.connected && props.waiting[i] > 0
-                              ? `${i ? "B" : "A"} 미수신 ${props.waiting[i]}건`
-                              : null,
-                          )
-                          .filter(Boolean)
-                          .join(" · ") || "오프라인이어도 서버에 보관"}
-          </small>
-        </span>
-      </div>
       {mode !== "overview" && (
         <div className="chat-view-nodes">
           {stations.map((n) => (

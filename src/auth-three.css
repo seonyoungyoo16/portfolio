@@ -8,7 +8,7 @@
 }
 .auth-three-stage {
   width: 100%;
-  height: 330px;
+  height: 240px;
 }
 .auth-three-stage canvas {
   display: block;
@@ -18,10 +18,13 @@
 }
 .auth-three-nodes {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 7px;
   padding: 12px;
   border-top: 1px solid #ffffff16;
+}
+.auth-three[data-scene-project="signup"] .auth-three-nodes {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 .auth-three-nodes button.auth-three-node {
   min-width: 0;
@@ -78,7 +81,7 @@
 }
 @media (max-width: 420px) {
   .auth-three-stage {
-    height: 290px;
+    height: 230px;
   }
   .auth-three-nodes {
     padding: 9px;
@@ -92,5 +95,10 @@
   }
   .auth-three-node small {
     font-size: 10px;
+  }
+}
+@media (max-width: 1300px) {
+  .auth-three .auth-three-nodes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

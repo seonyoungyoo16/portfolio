@@ -466,28 +466,32 @@ export default function SignupProject() {
               마지막으로 ⇥
             </button>
           </div>
-          <div className="signup-current">
-            <span>{current?.node || "BROWSER → SERVER → STORAGE"}</span>
-            <strong>
-              {current?.title || "이메일 소유 확인에서 시작합니다."}
-            </strong>
-            <p>
-              {current?.detail ||
-                "접수, 확인, 가입 확정과 로그인 권한을 각각 구분합니다."}
-            </p>
-          </div>
           <AuthScene
             data={signupSceneState(view, result?.frames || [], step)}
             frames={result?.frames || []}
             step={step}
             run={runVersion}
             playing={playing}
+            onShowSource={() => setSourceOpen(true)}
             onSelectStep={(index) => {
               setStep(index);
               setPlaying(false);
               setSourceOpen(true);
             }}
-          />
+          >
+            <div className="signup-current">
+              <span>
+                {current?.node || "이메일 인증 · 중복 가입 방지 · SSO"}
+              </span>
+              <strong>
+                {current?.title || "이메일 소유 확인에서 시작합니다."}
+              </strong>
+              <p>
+                {current?.detail ||
+                  "접수 → 이메일 확인 → 가입 확정, 각 단계의 변화를 확인하세요."}
+              </p>
+            </div>
+          </AuthScene>
           <ol className="signup-steps">
             {result?.frames.map((frame, i) => (
               <li key={i}>

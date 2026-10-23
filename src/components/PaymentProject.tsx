@@ -370,17 +370,16 @@ export default function PaymentProject() {
             playing={playing}
             run={runVersion}
             onSelectStep={selectStep}
-          />
-          <p className="payment-subtle">
-            노드·원장을 선택하면 해당 처리 단계와 실제 소스를 엽니다.
-          </p>
-          <div className="payment-current">
-            <b>
-              {current?.message ||
-                "주문을 만들고 인증·승인을 나누어 실행하세요."}
-            </b>
-            <small>{current?.node || "DESIGN FLOW"}</small>
-          </div>
+            onShowSource={() => setSourceOpen(true)}
+          >
+            <div className="payment-current">
+              <b>
+                {current?.message ||
+                  "주문을 만들고 인증·승인을 나누어 실행하세요."}
+              </b>
+              <small>{current?.node || "DESIGN FLOW"}</small>
+            </div>
+          </PaymentScene>
           <ol className="payment-steps">
             {result?.frames.map((f, i) => (
               <li key={i}>

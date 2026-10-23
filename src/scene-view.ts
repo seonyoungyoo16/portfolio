@@ -53,6 +53,7 @@ export function applySceneCamera(
   height: number,
   span = 5.8,
   overview?: { position: Point3; target: Point3 },
+  minHalfHeight = 3.8,
 ) {
   const pose = scenePose(
     view,
@@ -64,7 +65,7 @@ export function applySceneCamera(
   camera.up.set(0, 1, 0);
   camera.lookAt(...pose.target);
   if ("isOrthographicCamera" in camera) {
-    const half = Math.max(span, (3.8 * width) / Math.max(height, 1));
+    const half = Math.max(span, (minHalfHeight * width) / Math.max(height, 1));
     camera.left = -half;
     camera.right = half;
     camera.top = (half * height) / Math.max(width, 1);

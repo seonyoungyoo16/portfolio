@@ -1,14 +1,15 @@
 {
   "status": "passed",
-  "verifiedAt": "2026-10-23T21:04:00.869Z",
+  "verifiedAt": "2026-10-23T21:22:27.757Z",
   "base": "http://127.0.0.1:5191/",
   "checks": [
+    "flow-first UI: roles → scene → current step → collapsed auxiliary View, with working source access",
     "login: all five View presets move the actual camera and rendered geometry without changing state",
     "signup: all five View presets move the actual camera and rendered geometry without changing state",
     "chat: all five View presets move the actual camera and rendered geometry without changing state",
     "payment: all five View presets move the actual camera and rendered geometry without changing state",
     "login: PREPARING has no browser cookie, Redis stores before activation, exact Java source follows",
-    "login: a real 3D database pick focuses the object and opens its processing source",
+    "login: a real 3D database pick keeps the whole flow visible and opens its processing source",
     "login: TTL expiry rotation revocation and outage use the selected snapshot only",
     "login: Flight follows a moving packet and pause freezes its selected position",
     "signup: SMTP receipt email proof and atomic account commit remain visually distinct",
@@ -30,15 +31,15 @@
         "0.000,10.000,15.000",
         "12.000,5.000,10.000",
         "0.000,18.000,0.010",
-        "0.400,3.050,6.500",
-        "-0.300,2.000,5.500"
+        "-0.700,3.050,5.700",
+        "-1.400,2.000,4.700"
       ],
       "canvasHashes": [
-        "e741ce3c4254ca458ba1ac096fbca2523462aa28dac55f499c4c5c3705264ca5",
-        "ff4c5ffcd077825b5be9c02a2ce535695f36a2168302d70ff446ef6a343d7f7b",
-        "c66e5c9af3e2f7861f25e37951b5939b97b0ecc9287ef9f9b2e535f7acdad201",
-        "13307727cbe9a13c432b2fb206a1f7e58277c136fd60dd359e8bf84f0821fa57",
-        "c8f507d8ea5801619ec900608e1c81c49c752eb77aa66dfe1b979bc4edeacca1"
+        "ed1fbcfd9c2408582706f3d071bfe265133ec4d0b001ceabf589afb4e634a3de",
+        "b063ed3b675a029b789ace2e56328a4dd1b3881f5c1512d087e72c6ff63ff6ff",
+        "03c618df120e9d139add66449d458e28301aeaad4b3165e970c62d711e518957",
+        "435b5573b83481ad3ade1b3b42e3584c97f8dcc6498d15effd9d94cf671f4efe",
+        "cc305e68b51be9026d0c2d1a74cef5629709aac7da323f10742796cd7d74d22c"
       ]
     },
     {
@@ -51,11 +52,11 @@
         "-1.500,2.000,5.500"
       ],
       "canvasHashes": [
-        "5f767c8aee6a5fdc1e84f90525a3895624dd596d84b3f077cfc19c2856159377",
-        "1b24b0ae16f801bb949ce40ab78e80eda391540107cfaf2304d6701b980f15dc",
-        "eb166817fdc7cf1234721034ae1a5a9b854e13a8127edb7ae4a9488382a2c214",
-        "893dfdb8e85e6b1b477def1237baa8257a94410033a27b796ff7e87072ce730a",
-        "17d44aab7194f5eead309c258b00dfbcf84e3e29cc8866e95dde69d69b15feb4"
+        "0abe3439a740ad1e568ed41af6095c7c22d5cbe584f197a0e41e5f2b1517cebf",
+        "adefb6360d539005fdbe1ffa54518b1c9388d282004dac01381300c49b385766",
+        "9582b283db7dc6a87e5e63318ac5eec39e350234a62488d452984255cef227ba",
+        "411bfd4c8d4a4beefbcf0cd753e6ef55a01fab0f8376f452b3a3a2ba40523d3f",
+        "98ba1c0fb227c5bda207d76a266525c5716349197789c1306209eb4b8436bdcb"
       ]
     },
     {
@@ -68,11 +69,11 @@
         "2.300,2.200,4.000"
       ],
       "canvasHashes": [
-        "c2368c5cfea5751ee70b1f4cac45881ed37435aae593b8f5d2ed5a916027fddf",
-        "6856677afa90e94a6d98c2c5d6fb8c7a526648ca3c3c129543ffe4838edf9e06",
-        "15d3ca24ef06824dc8d16ecac9f21bb559bffe595a0542d0ff959f03d96702f0",
-        "8f9d7111cc36c632127969b6aaad7eeafe6dbfcae47c0ca52b4c870f38843535",
-        "ddfc269c85af9ca41962b507a214bbbb5a2477173b259d8ad8461d8dfe99ee14"
+        "5e2ab0328732fad0adb58c016d63c2bebbede5aa4a8afbbc94e40c0b76b95c04",
+        "c2a93c94d4bb546d8e1ff83dca0b5ca2482516ca34b045d5d76c350c052fd3eb",
+        "ff9f9693354fa9766086fe73d091852ea64a236b50d4b78590f08dadf07d9b98",
+        "ba31fad0977b16b48e72f0a486783712de200a893f9389dacb9c0100ae354125",
+        "0eb3e588f6cd4ff2f840d497f69d6ef24970b347341a7c733dea427657ae97e0"
       ]
     },
     {
@@ -85,11 +86,11 @@
         "-1.500,2.000,5.500"
       ],
       "canvasHashes": [
-        "93e54dcc48926fb332da5ba1d613c387e61521afe98c6b29f8eb86450bce9aea",
-        "f8c513588d9bcf2f383c4bdc04eb4b13c9ad40049cae08413dde70375dcb690b",
-        "92db1f6c8ea0a264bef25a1685eaea12d51b3acd617ef2d440578a9642538306",
-        "b805be2aec6c6ab6bb65f9d3f0d53129b9fceaef03a96b22f7b34d9d3ccc4cbc",
-        "d770096dfcf48ee26f9e7a09fd4073ab13c9ff2609cde3b2867c27138a5588ad"
+        "f21d65e85a491b19370b6bcc11d68591ff9361208ab7cb7520b034962d1cdfca",
+        "3ac2ae6ed1c39a112a778e35045dbab21c3ada4d13dfda7822e6c6ed4790251c",
+        "2690dd0e4226a3c178370c296165d8af2430dffde848485348136e9affc83b55",
+        "16c78b1cdf5a1946288f97bcdfa7440daad13541ddfdb6a161d70e2e408b69a8",
+        "2191cc534a3658d813c2789a025e5d69bb43bb8dfaf9302405cd1e5751e26879"
       ]
     }
   ],
