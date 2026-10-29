@@ -1,18 +1,19 @@
 {
-  "source": "89848d7dcb2a44ff346a0de6fc21086f3fce086e",
+  "source": "551d56debdf953789e72247de1923b9d9146d9bd",
   "paymentSource": "4b44cb606c2a77af45e5f16dbc4c34c33a29afbb",
   "signupSource": "b5294ab9bdcf27d424ae7326f186bc02fed82f9b",
   "loginSource": "a2bf485592c2d59d34c5e109a8b9bc839713f138",
   "chatSource": "428219d86fe7d16a2caa15e579df6f31f16f8fbb",
   "interactionSource": "4e1ddef92405147bc0ec25af8130c066384b953c",
-  "builtAt": "2026-10-23T22:40:29.554Z",
+  "todoSource": "af0728e7a562bbc78471edc41a088afc93d66be6",
+  "builtAt": "2026-10-29T18:53:23.639Z",
   "assets": [
-    "index-hHi5qFpi.js",
-    "index-B2VJciJ4.css"
+    "index-BLeJOjC_.js",
+    "index--Vlahyz1.css"
   ],
   "hashes": {
-    "index.html": "c87b08d6915f99aeb0739a96c5b82ab4eeb1c34a07bf7a692b8ee8a99cc1245c",
-    "assets/index-hHi5qFpi.js": "ea4efa6dc6a75e11cc34ba581136fb7b7e1e1e67b9586236caa97b0590e3513b",
-    "assets/index-B2VJciJ4.css": "f6d08679a2f99e1fba7131fa26172d21222de1d918a2ba265f648893a4b05cb0"
+    "index.html": "d93b6c282f7c6708317ade6985ee7e65c8f8b8a941aaea8a5d4fd528844c5c0b",
+    "assets/index-BLeJOjC_.js": "73a7442ee7af59a774cd1cc69134c49d81034baa565619451fc0a20f0b6298fc",
+    "assets/index--Vlahyz1.css": "4700754c827447de1abbcde0c4cc4e431ea75d550c8d4fc000d9cddd4d770d97"
   }
 }
