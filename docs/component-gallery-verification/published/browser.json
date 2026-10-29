@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-29T20:04:47.457Z",
+  "base": "https://seonyoungyoo16.github.io/portfolio/",
+  "checks": [
+    "home links the additive component gallery while preserving six project cards",
+    "eight equipment models render distinct pixels and share one WebGL renderer",
+    "selection, rotation and four status examples update the actual selected model",
+    "fourteen logical overlays stay separate and their gate lock transaction TTL and recovery examples respond",
+    "the composition uses the physical models and distinguishes internal work roundtrip and response",
+    "320/390/768/1440/1800 layouts retain all model and overlay controls without horizontal overflow",
+    "WebGL context loss and restoration retain selected model rotation and status with one canvas",
+    "WebGL unavailable retains role names and logical examples and existing project routes still open"
+  ],
+  "pageErrors": [],
+  "backendRequests": [],
+  "scope": "3D component proposal gallery and illustrative overlays only; no real backend operations or project data changes."
+}

@@ -35,4 +35,12 @@ PC→서버→DB 예시는 같은 모델 팩터리를 재사용한다. 서버 �
 - [로컬 브라우저8그룹](component-gallery-verification/local/browser.json):8종의 서로 다른 실제 렌더링 픽셀, 회전 픽셀 변화, 상태 변경, 논리14종, 조합 경로,320/390/768/1440/1800px, WebGL 유실/복구·미지원, 기존6개 프로젝트 진입.
 - [장비8종](component-gallery-verification/local/models-1440.png), [조합](component-gallery-verification/local/composition-1440.png), [모바일](component-gallery-verification/local/gallery-390.png).
 
-모바일 검증은 Chromium 뷰포트 기준이다. 실제 장비·실제 백엔드 검증 수치와 구분한다. 공개 배포 결과는 확인 후 보완한다.
+모바일 검증은 Chromium 뷰포트 기준이다. 실제 장비·실제 백엔드 검증 수치와 구분한다.
+
+## 공개 배포
+
+소스 `06d1080edab20c924be2eb84bc03bcadafd7ef93`, Pages `05c55118c2aef368d34ba3e029bdf899637c059c`. [Pages 실행40945498448](https://github.com/seonyoungyoo16/portfolio/actions/runs/40945498448)이 성공했고 [HTML·JS·CSS 해시 및 소스 리비전](component-gallery-verification/published/release.json)이 빌드와 일치했다.
+
+[공개 브라우저8그룹](component-gallery-verification/published/browser.json)도 통과했다. 공개 GitHub 모델 파일 전체와 현재 모델 소스의 텍스트가 일치하며, 예상치 않은 페이지 오류·백엔드 호출은0건이다. 인앱 브라우저에서 실제 3D 장비8종과 회전·상태 표시도 확인했다.
+
+[갤러리 열기](https://seonyoungyoo16.github.io/portfolio/#components) · [장비8종](component-gallery-verification/published/models-1440.png) · [논리 표시](component-gallery-verification/published/logical-overlays-1440.png) · [조합](component-gallery-verification/published/composition-1440.png) · [모바일](component-gallery-verification/published/gallery-390.png).

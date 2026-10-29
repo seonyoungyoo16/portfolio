@@ -1,0 +1,42 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-29T20:04:40.594Z",
+  "base": "https://seonyoungyoo16.github.io/portfolio/",
+  "release": {
+    "source": "06d1080edab20c924be2eb84bc03bcadafd7ef93",
+    "paymentSource": "4b44cb606c2a77af45e5f16dbc4c34c33a29afbb",
+    "signupSource": "b5294ab9bdcf27d424ae7326f186bc02fed82f9b",
+    "loginSource": "a2bf485592c2d59d34c5e109a8b9bc839713f138",
+    "chatSource": "428219d86fe7d16a2caa15e579df6f31f16f8fbb",
+    "interactionSource": "4e1ddef92405147bc0ec25af8130c066384b953c",
+    "todoSource": "af0728e7a562bbc78471edc41a088afc93d66be6",
+    "todoDemoSource": "45c95bd20f6a53a241c61b7edd896db2cfe768e4",
+    "builtAt": "2026-10-29T20:02:34.983Z",
+    "assets": [
+      "index-Ce1uahYX.js",
+      "index-C77Zz0Vt.css"
+    ],
+    "hashes": {
+      "index.html": "a4e701238fdd1e98839c943494bf35d3b91993121b4baddb2c86e2c947df69ac",
+      "assets/index-Ce1uahYX.js": "786c395d9201e7e62fe21e66a64dfe90a8cdd89ac1e0259ad2d56b3835df5be5",
+      "assets/index-C77Zz0Vt.css": "3d77fe590aaf9d0022597612616b4d4068f4a04ebc48f9378afee94090320285"
+    }
+  },
+  "resources": [
+    {
+      "file": "index.html",
+      "status": 200,
+      "sha256": "a4e701238fdd1e98839c943494bf35d3b91993121b4baddb2c86e2c947df69ac"
+    },
+    {
+      "file": "assets/index-Ce1uahYX.js",
+      "status": 200,
+      "sha256": "786c395d9201e7e62fe21e66a64dfe90a8cdd89ac1e0259ad2d56b3835df5be5"
+    },
+    {
+      "file": "assets/index-C77Zz0Vt.css",
+      "status": 200,
+      "sha256": "3d77fe590aaf9d0022597612616b4d4068f4a04ebc48f9378afee94090320285"
+    }
+  ]
+}
