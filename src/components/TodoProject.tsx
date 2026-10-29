@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import todo from '../generated/todo-source.json';
+import TodoWorkbench from './TodoWorkbench';
 import '../todo-project.css';
 
 export function TodoPreview() {
@@ -31,20 +32,21 @@ export default function TodoProject() {
   const sourceUrl = `${todo.repo}/blob/${todo.revision}/${source.file}#L${source.line}`;
   return <main className="todo-project">
     <div className="todo-topline"><a href="#projects">← 프로젝트 목록</a><span>PROJECT 06 / REACT PRODUCTIVITY</span><a href={todo.repo} target="_blank" rel="noopener noreferrer">독립 프로젝트 소스 ↗</a></div>
-    <section className="todo-intro">
+    <section className="todo-intro todo-live-intro">
       <div><span className="eyebrow">REACT · NEXT.JS · TYPESCRIPT</span><h1>해야 할 일에서,<br/><em>실행할 하루로.</em></h1><p>oddk · 리액트 투두리스트<br/>할 일을 모으고, 여유를 두어 계획하고,<br/>시간표와 실제 기록으로 하루를 돌아봅니다.</p>
-        <div className="todo-actions"><a className="todo-primary" href={todo.appUrl} target="_blank" rel="noopener noreferrer">투두리스트 앱 열기 ↗</a><a href={todo.repo} target="_blank" rel="noopener noreferrer">GitHub 소스 보기 ↗</a></div>
+        <div className="todo-actions"><button type="button" className="todo-start-link" onClick={()=>document.getElementById('todo-playground')?.scrollIntoView({block:'start',behavior:'instant'})}>바로 체험하기 ↓</button><a href={todo.appUrl} target="_blank" rel="noopener noreferrer">투두리스트 앱 열기 ↗</a><a href={todo.repo} target="_blank" rel="noopener noreferrer">GitHub 소스 보기 ↗</a></div>
       </div>
-      <div className="todo-app-preview"><TodoPreview/><p>기능과 구조를 소개하는 화면입니다. 실제 등록·수정·저장은 위의 oddk 앱에서 체험할 수 있습니다.</p></div>
+      <div className="todo-live-brief"><strong>이 화면 안에서 바로 체험합니다.</strong>할 일을 추가하고 시간을 배치한 뒤 완료해보세요. 처리 기록·당시 데이터·실행 코드가 함께 바뀝니다.<br/>ALPEN으로 작업·여유를 정하고 타임블로킹으로 배치합니다.</div>
     </section>
-    <section className="todo-flow-section" aria-labelledby="todo-flow-heading">
+    <TodoWorkbench />
+    <details className="todo-reference"><summary>원본 앱의 설계·실제 시간 기록 구현 더 보기</summary><section className="todo-flow-section" aria-labelledby="todo-flow-heading">
       <div className="todo-section-heading"><div><span className="eyebrow">COLLECT → PLAN → SCHEDULE → REVIEW</span><h2 id="todo-flow-heading">사용 흐름에서 구현까지.</h2></div><p>단계를 선택해 설계 의도와<br/>해당 기능의 실제 소스를 살펴보세요.</p></div>
       <ol className="todo-flow-steps">{steps.map((item,i)=><li key={item.key}><button type="button" aria-pressed={i===selected} aria-controls="todo-flow-detail" onClick={()=>setSelected(i)}><small>0{i+1} / {item.short}</small><strong>{item.title}</strong><span aria-hidden="true">↗</span></button></li>)}</ol>
       <div className="todo-flow-detail" id="todo-flow-detail">
         <div className="todo-flow-copy"><span className="eyebrow">0{selected+1} / USER ACTION</span><h3>{step.title}</h3><p>{step.description}</p><div className="todo-boundary">{step.boundary}</div><p className="todo-design-reason">{step.why}</p><a href={sourceUrl} target="_blank" rel="noopener noreferrer">이 기능의 원본 코드 ↗</a></div>
         <div className="todo-code"><div><span>{source.name}()</span><small>{todo.revision.slice(0,7)}</small></div><a href={sourceUrl} target="_blank" rel="noopener noreferrer">{source.file}:{source.line} ↗</a><pre aria-label="선택한 기능의 실제 소스">{source.lines.map((line,i)=><div key={i}><span>{source.line+i}</span><code>{line || ' '}</code></div>)}</pre></div>
       </div>
-    </section>
+    </section></details>
     <section className="todo-notes" aria-label="프로젝트 구현과 실행 범위">
       <article><span className="eyebrow">ONE TASK, MULTIPLE VIEWS</span><h2>목록·시간표·목표를 같은 업무로.</h2><p>오늘·이번 주·전체 할 일과 목표 연결이 같은 업무 ID를 사용합니다. 표시 방식이 바뀌어도 작업의 날짜·시간·완료 상태를 이어서 확인합니다.</p></article>
       <article><span className="eyebrow">PLAN & ACTUAL</span><h2>계획과 실제 기록을 나누어.</h2><p>비로그인 계획은 브라우저 localStorage, 실제 시간 기록은 IndexedDB에 보관합니다. 로그인한 계정의 확정 계획·목표·실적은 계정 동기화로 이어갑니다.</p><a href={`${todo.repo}/blob/${todo.revision}/README.md`} target="_blank" rel="noopener noreferrer">실행 방법·저장 범위 ↗</a></article>

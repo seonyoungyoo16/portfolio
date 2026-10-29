@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-29T19:10:07.067Z",
+  "checks": [
+    "add trims title, preserves immutable state and rejects empty or duplicate pending identities",
+    "schedule keeps the same task ID and conserves work + buffer without silently extending time",
+    "verbatim oddk timeline handles overlaps and adjacency with stable task IDs",
+    "complete and undo preserve the task and its schedule while changing the active timeline",
+    "successful actions write only the isolated key and record precommit and postcommit snapshots",
+    "storage failure preserves old data and stops before a view-success frame",
+    "a stale tab cannot overwrite a newer committed version",
+    "corrupt persistence is preserved and reset removes no other application data"
+  ],
+  "scope": "Browser-local model, real persistence boundary with injected storage failures, verbatim original timeline hash. Not backend I/O."
+}

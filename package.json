@@ -24,7 +24,9 @@
     "test:user-journeys-browser": "node scripts/test-user-journeys-browser.mjs",
     "test:auth-trace": "node --experimental-strip-types scripts/test-auth-trace.ts",
     "verify:interaction-source": "node scripts/verify-interaction-source.mjs",
-    "test:todo-browser": "node scripts/test-todo-browser.mjs"
+    "test:todo-browser": "node scripts/test-todo-browser.mjs",
+    "test:todo": "node --experimental-strip-types scripts/test-todo-demo.ts",
+    "verify:todo-demo-source": "node scripts/verify-todo-demo-source.mjs"
   },
   "dependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.3.0",

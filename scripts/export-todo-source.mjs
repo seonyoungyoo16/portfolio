@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 import ts from 'typescript';
 const root = path.resolve(process.argv[2] || 'C:/workspace/study/todo');
 const revision = execFileSync('git', ['rev-parse', process.env.TODO_SOURCE_REVISION || 'HEAD'], {cwd:root,encoding:'utf8'}).trim();
-const files = [['add','app/todo/page.tsx','addTask'],['plan','app/todo/task-time.ts','parseTaskTimeDraft'],['schedule','app/todo/timeline.ts','layoutTimeline'],['record','app/todo/execution-idb.ts','localExecutionTransaction']];
+const files = [['add','app/todo/page.tsx','addTask'],['plan','app/todo/task-time.ts','parseTaskTimeDraft'],['schedule','app/todo/timeline.ts','layoutTimeline'],['record','app/todo/execution-idb.ts','localExecutionTransaction'],['save','app/todo/page.tsx','save'],['complete','app/todo/page.tsx','toggleDone'],['editor','app/todo/editor-schedule.ts','parseEditorSchedule']];
 const sources = {};
 for (const [key,file,name] of files) {
   const text = execFileSync('git',['show',`${revision}:${file}`],{cwd:root,encoding:'utf8'}).replaceAll('\r\n','\n');
@@ -19,4 +19,6 @@ for (const [key,file,name] of files) {
   sources[key] = {file,name,line,lines:text.split('\n').slice(line-1,endLine+1),sha256:crypto.createHash('sha256').update(text).digest('hex')};
 }
 fs.writeFileSync('src/generated/todo-source.json',JSON.stringify({repo:'https://github.com/seonyoungyoo16/oddk-todo',appUrl:'https://seonyoungyoo16.github.io/oddk-todo/todo/',revision,sources},null,2)+'\n');
-console.log('Exported 4 actual Todo functions at '+revision);
+const timeline = execFileSync('git',['show',`${revision}:app/todo/timeline.ts`],{cwd:root,encoding:'utf8'}).replaceAll('\r\n','\n');
+fs.writeFileSync('src/generated/todo-timeline.ts',timeline);
+console.log(`Exported ${files.length} actual Todo functions and the verbatim timeline module at ${revision}`);

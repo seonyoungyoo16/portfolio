@@ -24,7 +24,8 @@ try {
     await expect(page.locator('.header nav').getByRole('link',{name:'GitHub ↗'})).toHaveAttribute('href',todo.repo);
   });
   await check('four user-flow selections show exact frozen source text and public source hashes',async()=>{
-    for(const [i,source] of Object.values(todo.sources).entries()){
+    await page.locator('.todo-reference>summary').click();
+    for(const [i,source] of ['add','plan','schedule','record'].map(key=>todo.sources[key]).entries()){
       await page.locator('.todo-flow-steps button').nth(i).click();
       await expect(page.locator('.todo-flow-steps button').nth(i)).toHaveAttribute('aria-pressed','true');
       await expect(page.locator('.todo-code>a')).toHaveAttribute('href',`${todo.repo}/blob/${todo.revision}/${source.file}#L${source.line}`);

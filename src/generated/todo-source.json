@@ -128,6 +128,77 @@
         "}"
       ],
       "sha256": "7fde57d65026601cb6086e3c3446c605164552f2b839de23d173f46d2b55ed52"
+    },
+    "save": {
+      "file": "app/todo/page.tsx",
+      "name": "save",
+      "line": 313,
+      "lines": [
+        "  function save(next: Plan, message: string, recordHistory = true, markRepeatExceptions = true) {",
+        "    if (markRepeatExceptions) next = preserveManualRepeatEdits(plan, next);",
+        "    if (!planLoad.ok) { setError(planLoad.error); return false; }",
+        "    if (!validPlan(next)) { setError(\"할 일과 시간 설정을 확인해주세요.\"); return false; }",
+        "    try {",
+        "      if (!sameValue(readLatestPlan(), plan)) throw new Error(\"저장된 계획이 바뀌었어요. 최신 내용을 확인해주세요.\");",
+        "      if (sameValue(next, plan)) { setError(\"\"); setNotice({ message: \"변경된 내용이 없어요.\" }); return true; }",
+        "      const undo = recordHistory ? makeUndo(plan, next, message) : null;",
+        "      writePlan(next);",
+        "      if (recordHistory && undo) history.set(undo);",
+        "      setError(\"\");",
+        "      setNotice({ message });",
+        "      return true;",
+        "    } catch (error) {",
+        "      setError(error instanceof Error && /[가-힣]/.test(error.message) ? error.message : \"브라우저에 저장하지 못했어요. 저장 공간이나 사이트 저장 권한을 확인해주세요.\");",
+        "      return false;",
+        "    }",
+        "  }"
+      ],
+      "sha256": "da063567f5e76fe7a8cd22cf374ab10daa50b63bb1bde6b500d7ae241b7009ea"
+    },
+    "complete": {
+      "file": "app/todo/page.tsx",
+      "name": "toggleDone",
+      "line": 459,
+      "lines": [
+        "  function toggleDone(task: Task) {",
+        "    if (task.summaryOnly) { setError(\"요약 업무는 완료율과 시간 집계에서 제외돼요. 나눈 실행 업무를 완료해주세요.\"); return; }",
+        "    if (task.done && plan.tasks.some((item) => item.id !== task.id && !item.done && !item.summaryOnly && taskTitleKey(item) === taskTitleKey(task))) {",
+        "      setError(\"같은 내용의 진행 중인 항목이 있어 완료를 취소할 수 없어요.\"); return;",
+        "    }",
+        "    save({ ...plan, tasks: plan.tasks.map((item) => item.id === task.id ? { ...item, done: !item.done } : item) },",
+        "      task.done ? \"완료를 취소했어요.\" : \"하나 끝냈어요. 잘했어요!\");",
+        "  }"
+      ],
+      "sha256": "da063567f5e76fe7a8cd22cf374ab10daa50b63bb1bde6b500d7ae241b7009ea"
+    },
+    "editor": {
+      "file": "app/todo/editor-schedule.ts",
+      "name": "parseEditorSchedule",
+      "line": 16,
+      "lines": [
+        "export function parseEditorSchedule(draft: TimeInput) {",
+        "  const empty = { minutes: null, bufferMinutes: null, startTime: null, endTime: null, endDate: null, endDayOffset: null, work: null };",
+        "  const fail = (error: string) => ({ ...empty, error });",
+        "  if (draft.date && !isPlanDate(draft.date)) return fail(\"계획 날짜를 올바르게 선택해주세요.\");",
+        "  if (editorMode(draft) === \"clock\") {",
+        "    if (!draft.start && !draft.end && !draft.buffer.trim()) return { ...empty, error: \"\" };",
+        "    const window = endpointWindow(draft);",
+        "    if (!window.ok) return fail(window.error);",
+        "    if (!draft.buffer.trim()) return fail(\"수행 시간에 포함할 여유 시간을 입력해주세요.\");",
+        "    const buffer = Number(draft.buffer), offset = window.endDayOffset;",
+        "    const result = calculateSchedule({ date: draft.date || null, start: draft.start, end: draft.end ?? \"\", endDate: draft.date ? draft.endDate ?? draft.date : null, endDayOffset: offset, buffer });",
+        "    return result.ok ? { minutes: result.minutes, bufferMinutes: buffer, startTime: draft.start, endTime: draft.end!, endDate: draft.date ? draft.endDate ?? draft.date : null, endDayOffset: offset, work: result.work, error: \"\" } : fail(result.error);",
+        "  }",
+        "  const duration = parseTaskTimeDraft(draft.work, draft.buffer);",
+        "  if (duration.error) return fail(duration.error);",
+        "  const startTime = editorMode(draft) === \"duration\" ? null : draft.start || null;",
+        "  if (startTime && duration.minutes === null) return fail(\"시각을 보존하려면 작업과 여유 시간을 모두 입력해주세요.\");",
+        "  const end = startTime && duration.minutes !== null ? deriveScheduleEnd(draft.date || null, startTime, duration.minutes) : null;",
+        "  if (startTime && !end) return fail(\"종료 날짜를 계산할 수 없어요. 날짜와 시각을 확인해주세요.\");",
+        "  return { ...empty, ...duration, startTime, ...(end ?? {}), work: duration.minutes === null ? null : duration.minutes - duration.bufferMinutes! };",
+        "}"
+      ],
+      "sha256": "5bc6cc0d9fdbb7f6f2074446e13129e0ed9d17d017ada8aae6c55dd8e905e8ea"
     }
   }
 }
