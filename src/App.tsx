@@ -5,6 +5,7 @@ import LoginProject from "./components/LoginProject";
 import SignupProject from "./components/SignupProject";
 import PaymentProject from "./components/PaymentProject";
 import TodoProject, { TodoPreview } from "./components/TodoProject";
+import ComponentGallery from "./components/ComponentGallery";
 import todoModel from "./generated/todo-source.json";
 import paymentModel from "./generated/payment-source.json";
 import signupModel from "./generated/signup-source.json";
@@ -40,7 +41,9 @@ export default function App() {
           <a href="#experience">개발관</a>
           <a
             href={
-              route === "#project/todo"
+              route === "#components"
+                ? "https://github.com/seonyoungyoo16/portfolio"
+                : route === "#project/todo"
                 ? todoModel.repo
                 : route === "#project/payment"
                 ? paymentModel.repo
@@ -59,7 +62,9 @@ export default function App() {
           </a>
         </nav>
       </header>
-      {route === "#project/board" ? (
+      {route === "#components" ? (
+        <ComponentGallery />
+      ) : route === "#project/board" ? (
         <BoardProject />
       ) : route === "#project/chat" ? (
         <ChatProject />
@@ -284,6 +289,7 @@ export default function App() {
               <span>
                 GitHub 소스 게시 완료 · commit {model.revision?.slice(0, 7)}
               </span>
+              <a href="#components">공통 3D 요소 예시 보기 ↗</a>
             </div>
           </section>
           <section className="section experience" id="experience">

@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-29T19:57:40.567Z",
+  "checks": [
+    "all eight roles create independent volumetric models with finite geometry and real status lights",
+    "status changes only indicators and the active halo, keeping equipment appearance stable",
+    "instances never share mutable geometry or material resources",
+    "every model geometry and material receives disposal during teardown"
+  ],
+  "scope": "Example 3D model geometry, state indicators and resource lifecycle. No backend I/O."
+}

@@ -153,3 +153,9 @@ DB 중단이나 전송 처리 중에도 입력창과 보내기를 계속 사용�
 `npm run test:todo`, `npm run verify:todo-demo-source`, `npm run test:todo-interactive-browser`. 실행 소스 갱신은 안정된 구현을 커밋한 뒤 `node scripts/export-todo-demo-source.mjs`로 추출합니다. `--remote` 검사는 GitHub 고정 파일까지 대조합니다.
 
 `src/generated/todo-source.json`은 `scripts/export-todo-source.mjs`로 고정 커밋의 함수 전체와 원본 파일 해시를 추출합니다. `npm run test:todo-browser`는 여섯 카드·상세 라우팅·원본 4개 소스/해시·실제 앱 새 탭·320~1800px·기존 프로젝트 진입을 검사합니다. [연결 및 검증 기록](docs/todo-project.md).
+
+## 공통 3D 요소 갤러리
+
+`#components`에서 사용자 PC·모바일·서버·DB·공유 캐시·파일 저장소·브로커·외부 호스트의 실제 Three.js 모델8종을 비교합니다. 선택한 모델의 회전·대기/처리/성공/실패 표시를 조작하고, 논리 표시14종과 PC→서버→DB 조합 예시를 볼 수 있습니다.
+
+재사용 모델은 `src/three/hardware-models.ts`, 갤러리는 `ComponentGallery`·`HardwareGallery`, 조합 장면은 `ComponentFlowExample`입니다. 기존 프로젝트의 장면을 바꾸기 전 비교하는 시안이며 실제 서버 요청이나 프로젝트 데이터 변경은 없습니다. `npm run test:hardware-models`, `npm run test:component-gallery-browser`. [범위와 검증](docs/component-gallery.md).

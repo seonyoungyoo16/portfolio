@@ -27,7 +27,9 @@
     "test:todo-browser": "node scripts/test-todo-browser.mjs",
     "test:todo": "node --experimental-strip-types scripts/test-todo-demo.ts",
     "verify:todo-demo-source": "node scripts/verify-todo-demo-source.mjs",
-    "test:todo-interactive-browser": "node scripts/test-todo-interactive-browser.mjs"
+    "test:todo-interactive-browser": "node scripts/test-todo-interactive-browser.mjs",
+    "test:hardware-models": "node --experimental-strip-types scripts/test-hardware-models.ts",
+    "test:component-gallery-browser": "node scripts/test-component-gallery-browser.mjs"
   },
   "dependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
