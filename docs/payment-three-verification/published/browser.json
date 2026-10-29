@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "verifiedAt": "2026-10-23T22:41:31.806Z",
+  "verifiedAt": "2026-10-29T18:54:53.761Z",
   "base": "https://seonyoungyoo16.github.io/portfolio/",
   "checks": [
     "real WebGL canvas initializes and keeps native source controls",
@@ -15,7 +15,7 @@
     "recovery query keeps pending R until merchant apply and does not add another PG transaction",
     "REVIEW keeps external canceled 5000 and unresolved reserved 7000 visible together",
     "320 390 768 1440 1800 widths keep nodes separate and mobile flow/source usable",
-    "five project cards have the same widths, column ratios, and uniform vertical gaps",
+    "six project cards have the same widths, column ratios, and uniform vertical gaps",
     "reduced motion uses a still selected snapshot and native keyboard source navigation",
     "WebGL context loss preserves controls and restores a single synchronized canvas",
     "route unmount and revisit rebuild a single fresh renderer",
@@ -56,12 +56,12 @@
         {
           "r": {
             "x": 19.1875,
-            "y": 125.65625,
+            "y": 767.65625,
             "width": 281.625,
             "height": 755.34375,
-            "top": 125.65625,
+            "top": 767.65625,
             "right": 300.8125,
-            "bottom": 881,
+            "bottom": 1523,
             "left": 19.1875
           },
           "cols": "279.625px"
@@ -69,12 +69,12 @@
         {
           "r": {
             "x": 19.1875,
-            "y": 901,
+            "y": 1543,
             "width": 281.625,
             "height": 771.84375,
-            "top": 901,
+            "top": 1543,
             "right": 300.8125,
-            "bottom": 1672.84375,
+            "bottom": 2314.84375,
             "left": 19.1875
           },
           "cols": "279.625px"
@@ -82,12 +82,12 @@
         {
           "r": {
             "x": 19.1875,
-            "y": 1692.84375,
+            "y": 2334.84375,
             "width": 281.625,
             "height": 764.34375,
-            "top": 1692.84375,
+            "top": 2334.84375,
             "right": 300.8125,
-            "bottom": 2457.1875,
+            "bottom": 3099.1875,
             "left": 19.1875
           },
           "cols": "279.625px"
@@ -95,12 +95,12 @@
         {
           "r": {
             "x": 19.1875,
-            "y": 2477.1875,
+            "y": 3119.1875,
             "width": 281.625,
             "height": 744.84375,
-            "top": 2477.1875,
+            "top": 3119.1875,
             "right": 300.8125,
-            "bottom": 3222.03125,
+            "bottom": 3864.03125,
             "left": 19.1875
           },
           "cols": "279.625px"
@@ -108,18 +108,32 @@
         {
           "r": {
             "x": 19.1875,
-            "y": 3242.03125,
+            "y": 3884.03125,
             "width": 281.625,
             "height": 744.84375,
-            "top": 3242.03125,
+            "top": 3884.03125,
             "right": 300.8125,
-            "bottom": 3986.875,
+            "bottom": 4628.875,
+            "left": 19.1875
+          },
+          "cols": "279.625px"
+        },
+        {
+          "r": {
+            "x": 19.1875,
+            "y": 4648.875,
+            "width": 281.625,
+            "height": 887.34375,
+            "top": 4648.875,
+            "right": 300.8125,
+            "bottom": 5536.21875,
             "left": 19.1875
           },
           "cols": "279.625px"
         }
       ],
       "gaps": [
+        20,
         20,
         20,
         20,
@@ -132,12 +146,12 @@
         {
           "r": {
             "x": 23.390625,
-            "y": 60.265625,
+            "y": 673.265625,
             "width": 343.21875,
             "height": 615.5625,
-            "top": 60.265625,
+            "top": 673.265625,
             "right": 366.609375,
-            "bottom": 675.828125,
+            "bottom": 1288.828125,
             "left": 23.390625
           },
           "cols": "341.219px"
@@ -145,12 +159,12 @@
         {
           "r": {
             "x": 23.390625,
-            "y": 695.828125,
+            "y": 1308.828125,
             "width": 343.21875,
             "height": 675.34375,
-            "top": 695.828125,
+            "top": 1308.828125,
             "right": 366.609375,
-            "bottom": 1371.171875,
+            "bottom": 1984.171875,
             "left": 23.390625
           },
           "cols": "341.219px"
@@ -158,12 +172,12 @@
         {
           "r": {
             "x": 23.390625,
-            "y": 1391.171875,
+            "y": 2004.171875,
             "width": 343.21875,
             "height": 705.84375,
-            "top": 1391.171875,
+            "top": 2004.171875,
             "right": 366.609375,
-            "bottom": 2097.015625,
+            "bottom": 2710.015625,
             "left": 23.390625
           },
           "cols": "341.219px"
@@ -171,12 +185,12 @@
         {
           "r": {
             "x": 23.390625,
-            "y": 2117.015625,
+            "y": 2730.015625,
             "width": 343.21875,
             "height": 705.84375,
-            "top": 2117.015625,
+            "top": 2730.015625,
             "right": 366.609375,
-            "bottom": 2822.859375,
+            "bottom": 3435.859375,
             "left": 23.390625
           },
           "cols": "341.219px"
@@ -184,18 +198,32 @@
         {
           "r": {
             "x": 23.390625,
-            "y": 2842.859375,
+            "y": 3455.859375,
             "width": 343.21875,
             "height": 744.84375,
-            "top": 2842.859375,
+            "top": 3455.859375,
             "right": 366.609375,
-            "bottom": 3587.703125,
+            "bottom": 4200.703125,
+            "left": 23.390625
+          },
+          "cols": "341.219px"
+        },
+        {
+          "r": {
+            "x": 23.390625,
+            "y": 4220.703125,
+            "width": 343.21875,
+            "height": 856.84375,
+            "top": 4220.703125,
+            "right": 366.609375,
+            "bottom": 5077.546875,
             "left": 23.390625
           },
           "cols": "341.219px"
         }
       ],
       "gaps": [
+        20,
         20,
         20,
         20,
@@ -269,9 +297,23 @@
             "left": 46.078125
           },
           "cols": "673.844px"
+        },
+        {
+          "r": {
+            "x": 46.078125,
+            "y": 3141.109375,
+            "width": 675.84375,
+            "height": 793.171875,
+            "top": 3141.109375,
+            "right": 721.921875,
+            "bottom": 3934.28125,
+            "left": 46.078125
+          },
+          "cols": "673.844px"
         }
       ],
       "gaps": [
+        20,
         20,
         20,
         20,
@@ -345,9 +387,23 @@
             "left": 86.390625
           },
           "cols": "632.609px 632.609px"
+        },
+        {
+          "r": {
+            "x": 86.390625,
+            "y": 2201.109375,
+            "width": 1267.21875,
+            "height": 473.375,
+            "top": 2201.109375,
+            "right": 1353.609375,
+            "bottom": 2674.484375,
+            "left": 86.390625
+          },
+          "cols": "632.609px 632.609px"
         }
       ],
       "gaps": [
+        24,
         24,
         24,
         24,
@@ -421,9 +477,23 @@
             "left": 266.390625
           },
           "cols": "632.609px 632.609px"
+        },
+        {
+          "r": {
+            "x": 266.390625,
+            "y": 2201.109375,
+            "width": 1267.21875,
+            "height": 475,
+            "top": 2201.109375,
+            "right": 1533.609375,
+            "bottom": 2676.109375,
+            "left": 266.390625
+          },
+          "cols": "632.609px 632.609px"
         }
       ],
       "gaps": [
+        24,
         24,
         24,
         24,

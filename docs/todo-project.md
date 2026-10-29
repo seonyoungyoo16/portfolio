@@ -28,4 +28,12 @@ ALPEN 작업 블록: A=원본 확인/카드·상세/소스 연결/브라우저/�
 
 로컬: [투두 연결 5그룹](todo-verification/local/browser.json), 320/390/768/1440/1800px, 원본 4개 파일 해시/코드, 실제 배포 앱 새 탭 및 기존 다섯 프로젝트 진입 통과. 기존 결제 3D 17그룹의 공통 카드 검사도 여섯 장으로 확장해 통과했다. 로그인·가입·결제 각18그룹과 공통 사용자 여정12그룹도 통과했다. 마지막 카드에서 상세로 진입할 때 공통 라우트 스크롤을 즉시 맨 위로 이동하게 해 이전 목록의 긴 스크롤 높이가 남는 현상을 해결했다.
 
-이번 범위는 포트폴리오 소개·라우팅·소스·앱 연결이다. 독립 Todo 앱의 실제 계정/동기화/저장소 변경이나 OAuth·실물 기기 인수를 재실행하지 않았다. 화면 크기 검사는 Chromium 뷰포트 기준이다. 공개 배포 결과는 확인 후 이 문서에 추가한다.
+이번 범위는 포트폴리오 소개·라우팅·소스·앱 연결이다. 독립 Todo 앱의 실제 계정/동기화/저장소 변경이나 OAuth·실물 기기 인수를 재실행하지 않았다. 화면 크기 검사는 Chromium 뷰포트 기준이다.
+
+## 공개 배포 결과
+
+- 포트폴리오 소스 `551d56debdf953789e72247de1923b9d9146d9bd`, Pages `2d0d52fc8aaa9f7ddc752ef84d8d85d5fe770d1a`.
+- [Pages 실행 40935060508](https://github.com/seonyoungyoo16/portfolio/actions/runs/40935060508) 성공. [릴리스 검증](todo-verification/published/release.json)은 HTML·JS·CSS의 SHA-256 및 모든 프로젝트 원본 리비전을 확인했다.
+- [공개 투두 연결 5그룹](todo-verification/published/browser.json), [공통 카드·결제 3D 17그룹](payment-three-verification/published/browser.json), [기존 사용자 여정 12그룹](user-journey-verification/published/browser.json), 합계34그룹 통과. 예상치 않은 페이지 오류0건.
+- [공개 카드](todo-verification/published/project-card.png), [데스크톱 상세](todo-verification/published/detail-1440.png), [모바일 상세](todo-verification/published/detail-390.png). 인앱 브라우저에서도 공개 상세와 ALPEN 단계의 소스 전환을 확인했다.
+- 배포 주소: [React Todo 프로젝트](https://seonyoungyoo16.github.io/portfolio/#project/todo). 실제 앱은 기존 oddk 배포를 그대로 연결했다.
