@@ -1,6 +1,6 @@
 {
   "repo": "https://github.com/seonyoungyoo16/portfolio",
-  "revision": "eae5fcbfda15ee8a9f4c76df886d5b5a18f5ebf9",
+  "revision": "45c95bd20f6a53a241c61b7edd896db2cfe768e4",
   "sources": {
     "prepare": {
       "file": "src/todo-demo.ts",
@@ -88,7 +88,8 @@
       "lines": [
         "export function performTodoAction(before: TodoState, action: TodoAction, storage: TodoStorage): TodoRun {",
         "  const original = action.kind === 'add' ? 'add' : action.kind === 'schedule' ? 'editor' : 'complete';",
-        "  const label = action.kind === 'add' ? '할 일 추가' : action.kind === 'schedule' ? '선택한 할 일을 시간표에 배치하기' : before.tasks.find(t => t.id === action.id)?.done ? '완료를 취소하기' : '선택한 할 일을 완료하기';",
+        "  const target = before.tasks.find(t => t.id === action.id);",
+        "  const label = action.kind === 'add' ? '할 일 추가' : action.kind === 'schedule' ? `「${target?.title || '선택한 할 일'}」 시간표에 배치` : `「${target?.title || '선택한 할 일'}」 ${target?.done ? '완료 취소' : '완료하기'}`;",
         "  const actionLabel = action.kind === 'add' ? `「${action.title.trim() || '빈 제목'}」 할 일 추가` : label;",
         "  const frames: TodoFrame[] = [{ title: '사용자 행동 접수', detail: '이 페이지의 React 이벤트가 입력을 받았습니다. 서버 요청은 보내지 않습니다.', path: ['input','react'], source: 'render', original, state: before }];",
         "  let after = before;",
@@ -111,7 +112,7 @@
         "  }",
         "}"
       ],
-      "sha256": "2a1724091850a2df984c71b14e33cfdc02a9802bd7064ba04619efa4ba7ef125"
+      "sha256": "45198a46f232a054ffc1cd8deefe0050e6943f57ac6f5811b6b4c8b9931c514f"
     },
     "render": {
       "file": "src/components/TodoWorkbench.tsx",

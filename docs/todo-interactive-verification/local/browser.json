@@ -1,8 +1,8 @@
 {
   "status": "passed",
-  "verifiedAt": "2026-10-29T19:15:36.153Z",
+  "verifiedAt": "2026-10-29T19:18:01.311Z",
   "base": "http://127.0.0.1:5191/",
-  "executedSource": "eae5fcbfda15ee8a9f4c76df886d5b5a18f5ebf9",
+  "executedSource": "45c95bd20f6a53a241c61b7edd896db2cfe768e4",
   "oddkSource": "af0728e7a562bbc78471edc41a088afc93d66be6",
   "checks": [
     "real add stores one isolated task and immediately links the action to its processing record",

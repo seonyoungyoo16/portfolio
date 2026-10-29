@@ -43,6 +43,7 @@ try{
    await expect(page.locator('.todo-time-block')).toHaveCount(1);await expect(page.locator('.todo-time-block')).toContainText('09:00–10:00');
    await flow().locator('.todo-live-steps button').nth(2).click();
    await page.locator('.todo-playground').scrollIntoViewIfNeeded();await page.screenshot({path:path.join(out,'action-flow-source-1440.png'),fullPage:true});
+   await page.locator('.todo-playground').screenshot({path:path.join(out,'workspace-1440.png')});
  });
  await check('completion and undo keep task data, update the active timeline and survive reload',async()=>{
    const before=await state();await page.getByRole('checkbox',{name:'기획안 작성 완료',exact:true}).check();await finish();

@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "verifiedAt": "2026-10-29T19:10:07.067Z",
+  "verifiedAt": "2026-10-29T19:17:41.868Z",
   "checks": [
     "add trims title, preserves immutable state and rejects empty or duplicate pending identities",
     "schedule keeps the same task ID and conserves work + buffer without silently extending time",

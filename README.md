@@ -146,7 +146,7 @@ DB 중단이나 전송 처리 중에도 입력창과 보내기를 계속 사용�
 
 ## 리액트 투두리스트 · oddk
 
-여섯 번째 프로젝트 `#project/todo`는 기존 [oddk 앱](https://seonyoungyoo16.github.io/oddk-todo/todo/)과 [독립 소스](https://github.com/seonyoungyoo16/oddk-todo)를 연결합니다. 할 일 모으기 → ALPEN 작업·여유 계획 → 타임블로킹 → 실제 기록·점검의 네 단계를 설명하며 단계별 실제 React/TypeScript 함수를 표시합니다. 카드와 상세의 그림은 화면 구성 예시이고, 실제 등록·수정·저장은 독립 앱에서 수행합니다.
+여섯 번째 프로젝트 `#project/todo`는 [oddk 앱](https://seonyoungyoo16.github.io/oddk-todo/todo/)과 [독립 소스](https://github.com/seonyoungyoo16/oddk-todo)를 연결합니다. 카드 그림은 구성 예시이며 상세 첫 영역에서 실제 브라우저 저장을 사용하는 등록·배치·완료를 직접 체험합니다. 원본 앱의 ALPEN·타임블로킹·실제 기록 설계는 추가 설명과 별도 앱으로 연결합니다.
 
 후속 직접 체험은 **포트폴리오 안에서 등록·시간표 배치·완료/취소를 실제로 수행**합니다. 전용 localStorage의 저장 전·후 기록에 맞춰 Three.js 경로·데이터·실행 소스가 함께 바뀝니다. 기본 소스는 이 체험의 실제 실행 코드이며 `oddk 기준 구현`으로 원본 앱 코드를 따로 볼 수 있습니다. 시간표는 원본 파일을 그대로 가져와 실행합니다. 기존 정적 설계 설명은 접힌 영역으로 옮겼습니다. [직접 체험의 경계와 검증](docs/todo-interactive.md).
 

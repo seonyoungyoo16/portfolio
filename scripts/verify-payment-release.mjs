@@ -24,6 +24,7 @@ for (const key of [
   "chatSource",
   "interactionSource",
   "todoSource",
+  "todoDemoSource",
 ])
   assert.equal(release[key], expected[key], key);
 const resources = [];
