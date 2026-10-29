@@ -49,8 +49,8 @@ export default function TodoProject() {
     </section></details>
     <section className="todo-notes" aria-label="프로젝트 구현과 실행 범위">
       <article><span className="eyebrow">ONE TASK, MULTIPLE VIEWS</span><h2>목록·시간표·목표를 같은 업무로.</h2><p>오늘·이번 주·전체 할 일과 목표 연결이 같은 업무 ID를 사용합니다. 표시 방식이 바뀌어도 작업의 날짜·시간·완료 상태를 이어서 확인합니다.</p></article>
-      <article><span className="eyebrow">PLAN & ACTUAL</span><h2>계획과 실제 기록을 나누어.</h2><p>비로그인 계획은 브라우저 localStorage, 실제 시간 기록은 IndexedDB에 보관합니다. 로그인한 계정의 확정 계획·목표·실적은 계정 동기화로 이어갑니다.</p><a href={`${todo.repo}/blob/${todo.revision}/README.md`} target="_blank" rel="noopener noreferrer">실행 방법·저장 범위 ↗</a></article>
+      <article><span className="eyebrow">ORIGINAL APP · PLAN & ACTUAL</span><h2>원본 앱은 실제 시간도 기록합니다.</h2><p>위 체험은 전용 localStorage를 사용합니다. 독립 oddk 앱은 비로그인 계획과 IndexedDB의 실제 시간 기록을 나누고, 로그인한 계정의 확정 계획·목표·실적은 계정 동기화로 이어갑니다.</p><a href={`${todo.repo}/blob/${todo.revision}/README.md`} target="_blank" rel="noopener noreferrer">실행 방법·저장 범위 ↗</a></article>
     </section>
-    <div className="todo-evidence"><p>고정 커밋 <code>{todo.revision.slice(0,7)}</code>의 실제 소스로 기능을 설명합니다. 앱의 기존 검증 결과와 이번 포트폴리오 연결 확인은 별도로 기록합니다.</p><a href={`${todo.repo}/blob/${todo.revision}/docs/ux/UX13-ACCEPTANCE.md`} target="_blank" rel="noopener noreferrer">앱의 검증 결과·남은 확인 범위 ↗</a></div>
+    <div className="todo-evidence"><p>체험 실행 코드와 oddk 원본을 구분해 표시합니다. 원본 기준은 고정 커밋 <code>{todo.revision.slice(0,7)}</code>이며, 앱의 기존 검증과 이번 브라우저 체험 검증은 별도로 기록합니다.</p><a href={`${todo.repo}/blob/${todo.revision}/docs/ux/UX13-ACCEPTANCE.md`} target="_blank" rel="noopener noreferrer">앱의 검증 결과·남은 확인 범위 ↗</a></div>
   </main>;
 }

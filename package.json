@@ -26,7 +26,8 @@
     "verify:interaction-source": "node scripts/verify-interaction-source.mjs",
     "test:todo-browser": "node scripts/test-todo-browser.mjs",
     "test:todo": "node --experimental-strip-types scripts/test-todo-demo.ts",
-    "verify:todo-demo-source": "node scripts/verify-todo-demo-source.mjs"
+    "verify:todo-demo-source": "node scripts/verify-todo-demo-source.mjs",
+    "test:todo-interactive-browser": "node scripts/test-todo-interactive-browser.mjs"
   },
   "dependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.3.0",

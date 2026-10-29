@@ -57,6 +57,7 @@ try {
       assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'home overflow '+width);
       await page.locator('.todo-featured').click();
       await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(0);
+      await page.locator('.todo-reference>summary').click();
       for(const button of await page.locator('.todo-flow-steps button').all()){await button.click();await expect(page.locator('.todo-code>a')).toBeVisible();}
       assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Todo overflow '+width);
       if(width===390)await page.screenshot({path:path.join(out,'detail-390.png'),fullPage:true});

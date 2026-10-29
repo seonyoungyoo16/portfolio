@@ -48,7 +48,9 @@ export default function TodoScene({frame,playing,onNode}:{frame:TodoFrame | null
       if(disposed||lost)return;
       const {frame,playing}=latest.current,path=frame?.path||[],legs=path.slice(1).map((to,i)=>{const from=path[i],forward=edges.get(from+'>'+to);const edge=forward||edges.get(to+'>'+from);return {edge,reverse:!forward};}).filter(leg=>leg.edge);
       const total=legs.reduce((sum,leg)=>sum+leg.edge!.curve.getLength(),0);
-      const progress=frame?.failed ? .52 : playing&&!reduce.matches?((performance.now()-start)/1800)%1:.54;
+      const progress=frame?.failed ? .52 : playing&&!reduce.matches?Math.min(1,(performance.now()-start)/Math.max(650,legs.length*400)):.54;
+      mount.dataset.progress=progress.toFixed(3);
+      mount.dataset.arrived=progress===1?(path.at(-1)||''):'';
       let distance=total*progress,active=0;
       for(let i=0;i<legs.length;i++){const length=legs[i].edge!.curve.getLength();if(distance<=length||i===legs.length-1){active=i;break;}distance-=length;}
       for(const [key,edge] of edges){
@@ -65,7 +67,7 @@ export default function TodoScene({frame,playing,onNode}:{frame:TodoFrame | null
       else delete mount.dataset.activeLink;
       for(const key of Object.keys(rings))rings[key].visible=path.includes(key as TodoNode);
       renderer.render(scene,camera);
-      if(playing&&!reduce.matches&&legs.length&&!frame?.failed)request=requestAnimationFrame(render);
+      if(playing&&!reduce.matches&&legs.length&&!frame?.failed&&progress<1)request=requestAnimationFrame(render);
     };
     const restart=()=>{cancelAnimationFrame(request);start=performance.now();render();};control.current={restart};
     const resize=()=>{const w=mount.clientWidth,h=mount.clientHeight,halfWidth=Math.max(5.6,3.2*w/h),halfHeight=halfWidth*h/w;camera.left=-halfWidth;camera.right=halfWidth;camera.top=halfHeight;camera.bottom=-halfHeight;camera.updateProjectionMatrix();renderer.setSize(w,h);restart();};

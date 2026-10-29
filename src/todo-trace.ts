@@ -6,7 +6,8 @@ export type TodoRun = { frames: TodoFrame[]; after: TodoState; ok: boolean; mess
 
 export function performTodoAction(before: TodoState, action: TodoAction, storage: TodoStorage): TodoRun {
   const original = action.kind === 'add' ? 'add' : action.kind === 'schedule' ? 'editor' : 'complete';
-  const label = action.kind === 'add' ? '할 일 추가' : action.kind === 'schedule' ? '선택한 할 일을 시간표에 배치하기' : before.tasks.find(t => t.id === action.id)?.done ? '완료를 취소하기' : '선택한 할 일을 완료하기';
+  const target = before.tasks.find(t => t.id === action.id);
+  const label = action.kind === 'add' ? '할 일 추가' : action.kind === 'schedule' ? `「${target?.title || '선택한 할 일'}」 시간표에 배치` : `「${target?.title || '선택한 할 일'}」 ${target?.done ? '완료 취소' : '완료하기'}`;
   const actionLabel = action.kind === 'add' ? `「${action.title.trim() || '빈 제목'}」 할 일 추가` : label;
   const frames: TodoFrame[] = [{ title: '사용자 행동 접수', detail: '이 페이지의 React 이벤트가 입력을 받았습니다. 서버 요청은 보내지 않습니다.', path: ['input','react'], source: 'render', original, state: before }];
   let after = before;
