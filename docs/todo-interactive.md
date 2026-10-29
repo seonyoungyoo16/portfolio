@@ -33,4 +33,13 @@ ALPEN 작업 블록: A=원본 대응 확인/조작·저장/3D·소스/실패·�
 - 브라우저12그룹 통과: 등록 → 배치 → 완료/취소 → 새로고침, 단계별 소스/스냅샷, 실패 시 입력 보존, 320~1800px, 동작 줄이기·WebGL 대체, 실제 패킷의 노드 도착·저장소 왕복, 모바일 패널 이동. [로컬 근거](todo-interactive-verification/local/browser.json).
 - 실제 OAuth·계정 동기화·서버 I/O·실물 휴대기기는 이번 실습 검증 범위 밖이다.
 
-배포와 브라우저 결과는 검증 후 추가한다.
+## 공개 배포와 최종 검증
+
+포트폴리오 소스 `7651ce8c069cf1b10a52dac94aa31bbe21d79aa7`, Pages `fe492b9c0c31fcd582968f642686417dc8c1a5df`. [Pages 40939263801](https://github.com/seonyoungyoo16/portfolio/actions/runs/40939263801)이 성공했다. [릴리스 증거](todo-interactive-verification/published/release.json)의 HTML·JS·CSS 3개 해시와 모든 원본 리비전이 빌드와 일치한다.
+
+- [직접 조작12그룹](todo-interactive-verification/published/browser.json), [기존 투두 연결5그룹](todo-verification/published/browser.json), [공통 사용자 여정12그룹](user-journey-verification/published/browser.json), [결제·공통 카드17그룹](payment-three-verification/published/browser.json), 공개46그룹 통과. [통합 결과](todo-interactive-verification/published/summary.json).
+- [모델8그룹](todo-interactive-verification/model.json), [실행 코드6개·기준 코드7개의 GitHub 고정 행/파일 대조](todo-interactive-verification/source-remote.json) 통과. 실제 실행 코드 리비전 `45c95bd20f6a53a241c61b7edd896db2cfe768e4`.
+- [조작·3D·소스 한 화면](todo-interactive-verification/published/workspace-1440.png), [390px 조작](todo-interactive-verification/published/actions-390.png), [390px 흐름·소스](todo-interactive-verification/published/flow-source-390.png). 뷰포트는 320/390/768/1440/1800px이며 실물 휴대기기 검증과 구분한다.
+- 공개 인앱 브라우저에서도 실제 등록 → 50분 작업+10분 여유 배치 → 완료 → 저장 단계 선택을 확인했다. 저장 버전1→2→3, 완료1개·진행 중 시간 블록0개와 실제 `commitTodoState` 소스를 관찰했다.
+
+실행 주소: [포트폴리오 투두 직접 체험](https://seonyoungyoo16.github.io/portfolio/#project/todo). 실제 브라우저의 격리된 저장과 UI 조작을 검사했으며 oddk 본 앱의 계정·백엔드는 변경하지 않았다.

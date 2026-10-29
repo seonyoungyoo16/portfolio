@@ -1,41 +1,42 @@
 {
   "status": "passed",
-  "verifiedAt": "2026-10-29T18:54:32.855Z",
+  "verifiedAt": "2026-10-29T19:21:48.815Z",
   "base": "https://seonyoungyoo16.github.io/portfolio/",
   "release": {
-    "source": "551d56debdf953789e72247de1923b9d9146d9bd",
+    "source": "7651ce8c069cf1b10a52dac94aa31bbe21d79aa7",
     "paymentSource": "4b44cb606c2a77af45e5f16dbc4c34c33a29afbb",
     "signupSource": "b5294ab9bdcf27d424ae7326f186bc02fed82f9b",
     "loginSource": "a2bf485592c2d59d34c5e109a8b9bc839713f138",
     "chatSource": "428219d86fe7d16a2caa15e579df6f31f16f8fbb",
     "interactionSource": "4e1ddef92405147bc0ec25af8130c066384b953c",
     "todoSource": "af0728e7a562bbc78471edc41a088afc93d66be6",
-    "builtAt": "2026-10-29T18:53:23.639Z",
+    "todoDemoSource": "45c95bd20f6a53a241c61b7edd896db2cfe768e4",
+    "builtAt": "2026-10-29T19:20:36.567Z",
     "assets": [
-      "index-BLeJOjC_.js",
-      "index--Vlahyz1.css"
+      "index-CAGWjMDk.js",
+      "index-DwkG4_aj.css"
     ],
     "hashes": {
-      "index.html": "d93b6c282f7c6708317ade6985ee7e65c8f8b8a941aaea8a5d4fd528844c5c0b",
-      "assets/index-BLeJOjC_.js": "73a7442ee7af59a774cd1cc69134c49d81034baa565619451fc0a20f0b6298fc",
-      "assets/index--Vlahyz1.css": "4700754c827447de1abbcde0c4cc4e431ea75d550c8d4fc000d9cddd4d770d97"
+      "index.html": "58454ba3d4f02d887596932f34b0936ce0ca7445a35933e6fbb52ade12d7e277",
+      "assets/index-CAGWjMDk.js": "e30c11d357cee13962e573c1bf9f1af78d4565d64ebfa0d8296400d50798fd01",
+      "assets/index-DwkG4_aj.css": "5940494c59a7aab18764fe1fbf67bcddced0996524af4aa9adccf1457e30737a"
     }
   },
   "resources": [
     {
       "file": "index.html",
       "status": 200,
-      "sha256": "d93b6c282f7c6708317ade6985ee7e65c8f8b8a941aaea8a5d4fd528844c5c0b"
+      "sha256": "58454ba3d4f02d887596932f34b0936ce0ca7445a35933e6fbb52ade12d7e277"
     },
     {
-      "file": "assets/index-BLeJOjC_.js",
+      "file": "assets/index-CAGWjMDk.js",
       "status": 200,
-      "sha256": "73a7442ee7af59a774cd1cc69134c49d81034baa565619451fc0a20f0b6298fc"
+      "sha256": "e30c11d357cee13962e573c1bf9f1af78d4565d64ebfa0d8296400d50798fd01"
     },
     {
-      "file": "assets/index--Vlahyz1.css",
+      "file": "assets/index-DwkG4_aj.css",
       "status": 200,
-      "sha256": "4700754c827447de1abbcde0c4cc4e431ea75d550c8d4fc000d9cddd4d770d97"
+      "sha256": "5940494c59a7aab18764fe1fbf67bcddced0996524af4aa9adccf1457e30737a"
     }
   ]
 }

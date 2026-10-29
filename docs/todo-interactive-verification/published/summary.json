@@ -1,0 +1,37 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-29T19:26:43.9327632Z",
+  "base": "https://seonyoungyoo16.github.io/portfolio/",
+  "source": "7651ce8c069cf1b10a52dac94aa31bbe21d79aa7",
+  "pages": "fe492b9c0c31fcd582968f642686417dc8c1a5df",
+  "run": "https://github.com/seonyoungyoo16/portfolio/actions/runs/40939263801",
+  "totalGroups": 46,
+  "suites": [
+    {
+      "file": "docs/todo-interactive-verification/published/browser.json",
+      "groups": 12,
+      "verifiedAt": "2026-10-29T19:21:57.249Z"
+    },
+    {
+      "file": "docs/todo-verification/published/browser.json",
+      "groups": 5,
+      "verifiedAt": "2026-10-29T19:22:02.476Z"
+    },
+    {
+      "file": "docs/user-journey-verification/published/browser.json",
+      "groups": 12,
+      "verifiedAt": "2026-10-29T19:22:07.81Z"
+    },
+    {
+      "file": "docs/payment-three-verification/published/browser.json",
+      "groups": 17,
+      "verifiedAt": "2026-10-29T19:22:15.166Z"
+    }
+  ],
+  "executedSource": "45c95bd20f6a53a241c61b7edd896db2cfe768e4",
+  "oddkSource": "af0728e7a562bbc78471edc41a088afc93d66be6",
+  "modelGroups": 8,
+  "executedFunctions": 6,
+  "originalFunctions": 7,
+  "scope": "Real browser-local portfolio Todo actions and persistence, source/route snapshots and Chromium viewports. No oddk account or backend changes."
+}

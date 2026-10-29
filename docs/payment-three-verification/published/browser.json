@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "verifiedAt": "2026-10-29T18:54:53.761Z",
+  "verifiedAt": "2026-10-29T19:22:15.166Z",
   "base": "https://seonyoungyoo16.github.io/portfolio/",
   "checks": [
     "real WebGL canvas initializes and keeps native source controls",
