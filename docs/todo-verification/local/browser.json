@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "verifiedAt": "2026-10-29T18:52:22.475Z",
+  "base": "http://127.0.0.1:5191/",
+  "todoSource": "af0728e7a562bbc78471edc41a088afc93d66be6",
+  "checks": [
+    "six equally sized project cards include the React Todo route",
+    "four user-flow selections show exact frozen source text and public source hashes",
+    "primary app link opens the actual deployed Todo app in a separate tab",
+    "320/390/768/1440/1800 layouts keep all six cards and Todo source readable",
+    "direct hash reload, return navigation and all existing project routes remain available"
+  ],
+  "pageErrors": [],
+  "scope": "Portfolio card/detail, fixed original source, live app link and responsive browser checks. No Todo account or backend mutation."
+}

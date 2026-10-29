@@ -1,11 +1,11 @@
 {
   "status": "passed",
-  "completedAt": "2026-10-23T22:38:01.052Z",
+  "completedAt": "2026-10-29T18:50:46.113Z",
   "base": "http://127.0.0.1:5191/",
   "scope": "static portfolio simulation; independent actual backend 64 browser and 12 SQL/API linked separately",
   "sourceRevision": "4b44cb606c2a77af45e5f16dbc4c34c33a29afbb",
   "checks": [
-    "five cards, payment route and explicit static versus actual boundary",
+    "six cards, payment route and explicit static versus actual boundary",
     "order snapshot and authentication produce zero PG capture",
     "PG commit frame precedes merchant ledger and links independent PSP source",
     "different client key reuses canonical approval",

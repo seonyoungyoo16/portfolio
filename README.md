@@ -134,7 +134,7 @@ DB 중단이나 전송 처리 중에도 입력창과 보내기를 계속 사용�
 
 `npm run test:payment`, `npm run verify:payment-source`, `npm run test:payment-browser`. [연결 및 검증 범위](docs/payment-project.md).
 
-결제 체험의 Three.js 장면은 현재 처리 프레임의 요청·중복 게이트·독립 원장·취소 예약을 표시합니다. 노드·원장 선택은 해당 단계와 고정 커밋 실제 소스를 함께 엽니다. 프로젝트 목록 5개는 공통 너비·열 비율과 데스크톱 24px/작은 화면 20px 간격을 사용합니다. [장면과 검증 범위](docs/payment-three.md).
+결제 체험의 Three.js 장면은 현재 처리 프레임의 요청·중복 게이트·독립 원장·취소 예약을 표시합니다. 노드·원장 선택은 해당 단계와 고정 커밋 실제 소스를 함께 엽니다. 프로젝트 목록 6개는 공통 너비·열 비율과 데스크톱 24px/작은 화면 20px 간격을 사용합니다. [장면과 검증 범위](docs/payment-three.md).
 
 로그인·회원가입·채팅·결제에도 게시판과 같은 `Overview / Side / Top / Station / Flight` View를 제공합니다. 로그인은 쿠키·A/B 서버·Redis TTL·발급 상태, 회원가입은 인증 메일·가입 게이트·SSO 신원으로 표현합니다. 선택한 요소의 처리 단계와 실제 소스를 함께 볼 수 있습니다. [요소 선택과 검증 범위](docs/project-three-views.md).
 
@@ -143,3 +143,9 @@ DB 중단이나 전송 처리 중에도 입력창과 보내기를 계속 사용�
 로그인·가입·결제·채팅은 기본 `사용자로 체험하기`에서 번호 순서대로 행동합니다. 완료하면 결과와 다음 행동이 나타나고, 장애·서버·중복 실험 설정은 `직접 실험하기`에서 조작합니다. 모바일은 행동 직후 `처리 흐름·소스 보기`로 연결됩니다. 실제 HTTP·저장소 왕복·서버 내부 처리·브라우저 동작을 구분하고, 인증 소스 57개 및 로컬 행동 소스 13개의 고정 코드와 경로를 검사합니다. [설계와 검증 범위](docs/user-action-journeys.md).
 
 `npm run test:auth-trace`, `npm run verify:interaction-source`, `npm run test:user-journeys-browser`. 브라우저 검사는 HMR 없는 정적 빌드에서 실행합니다. 기본 주소는 `http://127.0.0.1:5191/`, 공개 검사는 `PORTFOLIO_URL`로 지정합니다. 원본 공개 파일까지 확인하려면 `npm run verify:interaction-source -- --remote`를 실행합니다.
+
+## 리액트 투두리스트 · oddk
+
+여섯 번째 프로젝트 `#project/todo`는 기존 [oddk 앱](https://seonyoungyoo16.github.io/oddk-todo/todo/)과 [독립 소스](https://github.com/seonyoungyoo16/oddk-todo)를 연결합니다. 할 일 모으기 → ALPEN 작업·여유 계획 → 타임블로킹 → 실제 기록·점검의 네 단계를 설명하며 단계별 실제 React/TypeScript 함수를 표시합니다. 카드와 상세의 그림은 화면 구성 예시이고, 실제 등록·수정·저장은 독립 앱에서 수행합니다.
+
+`src/generated/todo-source.json`은 `scripts/export-todo-source.mjs`로 고정 커밋의 함수 전체와 원본 파일 해시를 추출합니다. `npm run test:todo-browser`는 여섯 카드·상세 라우팅·원본 4개 소스/해시·실제 앱 새 탭·320~1800px·기존 프로젝트 진입을 검사합니다. [연결 및 검증 기록](docs/todo-project.md).

@@ -4,6 +4,8 @@ import ChatProject from "./components/ChatProject";
 import LoginProject from "./components/LoginProject";
 import SignupProject from "./components/SignupProject";
 import PaymentProject from "./components/PaymentProject";
+import TodoProject, { TodoPreview } from "./components/TodoProject";
+import todoModel from "./generated/todo-source.json";
 import paymentModel from "./generated/payment-source.json";
 import signupModel from "./generated/signup-source.json";
 import loginModel from "./generated/login-source.json";
@@ -20,7 +22,7 @@ export default function App() {
   useEffect(() => {
     if (route === "#experience")
       document.getElementById("experience")?.scrollIntoView();
-    else window.scrollTo({ top: 0 });
+    else window.scrollTo({ top: 0, behavior: "instant" });
   }, [route]);
   return (
     <>
@@ -38,7 +40,9 @@ export default function App() {
           <a href="#experience">개발관</a>
           <a
             href={
-              route === "#project/payment"
+              route === "#project/todo"
+                ? todoModel.repo
+                : route === "#project/payment"
                 ? paymentModel.repo
                 : route === "#project/signup"
                   ? signupModel.repo
@@ -65,6 +69,8 @@ export default function App() {
         <SignupProject />
       ) : route === "#project/payment" ? (
         <PaymentProject />
+      ) : route === "#project/todo" ? (
+        <TodoProject />
       ) : (
         <main className="portfolio-home">
           <section className="home-intro">
@@ -261,6 +267,16 @@ export default function App() {
                   <strong>
                     결제 흐름과 체험 열기 <span>↗</span>
                   </strong>
+                </div>
+              </a>
+              <a className="featured-project todo-featured" href="#project/todo">
+                <TodoPreview />
+                <div className="featured-copy">
+                  <span className="eyebrow">06 / REACT PRODUCTIVITY</span>
+                  <h3>oddk · React Todo</h3>
+                  <p>할 일 등록부터 하루 계획과 실제 시간 기록까지.<br />ALPEN으로 작업·여유를 정하고 시간표에 배치하며,<br />목록·목표·실행 기록을 하나의 흐름으로 연결합니다.</p>
+                  <div className="tags"><span>React</span><span>Next.js · TypeScript</span><span>ALPEN</span><span>Time Blocking</span></div>
+                  <strong>투두리스트 소개와 앱 열기 <span>↗</span></strong>
                 </div>
               </a>
             </div>

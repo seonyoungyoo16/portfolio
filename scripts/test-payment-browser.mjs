@@ -73,10 +73,10 @@ async function check(name, fn) {
 }
 try {
   await check(
-    "five cards, payment route and explicit static versus actual boundary",
+    "six cards, payment route and explicit static versus actual boundary",
     async () => {
       await page.goto(base);
-      await expect(page.locator("a.featured-project")).toHaveCount(5);
+      await expect(page.locator("a.featured-project")).toHaveCount(6);
       await page.locator('a.featured-project[href="#project/payment"]').click();
       await expect(page.locator(".payment-project h1")).toContainText(
         "끝까지 확인",

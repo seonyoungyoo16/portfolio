@@ -326,11 +326,11 @@ try {
     },
   );
   await check(
-    "five project cards have the same widths, column ratios, and uniform vertical gaps",
+    "six project cards have the same widths, column ratios, and uniform vertical gaps",
     async () => {
       await page.goto(base + "#projects");
       await expect(page.locator(".project-list>.featured-project")).toHaveCount(
-        5,
+          6,
       );
       for (const width of [320, 390, 768, 1440, 1800]) {
         await page.setViewportSize({ width, height: 1000 });

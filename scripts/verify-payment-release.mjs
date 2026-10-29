@@ -23,6 +23,7 @@ for (const key of [
   "loginSource",
   "chatSource",
   "interactionSource",
+  "todoSource",
 ])
   assert.equal(release[key], expected[key], key);
 const resources = [];
@@ -54,7 +55,7 @@ fs.writeFileSync(
   ) + "\n",
 );
 console.log(
-  "Published portfolio, all 4 backend revisions and browser interaction revision plus " +
+  "Published portfolio, all 4 backend revisions, Todo and browser interaction revisions plus " +
     resources.length +
     " resource hashes match",
 );

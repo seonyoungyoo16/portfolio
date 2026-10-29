@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "completedAt": "2026-10-23T22:37:53.268Z",
+  "completedAt": "2026-10-29T18:50:22.115Z",
   "base": "http://127.0.0.1:5191/",
   "scope": "GitHub Pages browser simulation; actual backend evidence linked separately",
   "checks": [

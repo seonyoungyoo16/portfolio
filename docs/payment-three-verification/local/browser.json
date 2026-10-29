@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "verifiedAt": "2026-10-23T22:32:43.566Z",
+  "verifiedAt": "2026-10-29T18:49:24.527Z",
   "base": "http://127.0.0.1:5191/",
   "checks": [
     "real WebGL canvas initializes and keeps native source controls",
@@ -15,7 +15,7 @@
     "recovery query keeps pending R until merchant apply and does not add another PG transaction",
     "REVIEW keeps external canceled 5000 and unresolved reserved 7000 visible together",
     "320 390 768 1440 1800 widths keep nodes separate and mobile flow/source usable",
-    "five project cards have the same widths, column ratios, and uniform vertical gaps",
+    "six project cards have the same widths, column ratios, and uniform vertical gaps",
     "reduced motion uses a still selected snapshot and native keyboard source navigation",
     "WebGL context loss preserves controls and restores a single synchronized canvas",
     "route unmount and revisit rebuild a single fresh renderer",
@@ -117,9 +117,23 @@
             "left": 19.1875
           },
           "cols": "279.625px"
+        },
+        {
+          "r": {
+            "x": 19.1875,
+            "y": 4006.875,
+            "width": 281.625,
+            "height": 887.34375,
+            "top": 4006.875,
+            "right": 300.8125,
+            "bottom": 4894.21875,
+            "left": 19.1875
+          },
+          "cols": "279.625px"
         }
       ],
       "gaps": [
+        20,
         20,
         20,
         20,
@@ -132,12 +146,12 @@
         {
           "r": {
             "x": 23.390625,
-            "y": 60.265625,
+            "y": 156.265625,
             "width": 343.21875,
             "height": 615.5625,
-            "top": 60.265625,
+            "top": 156.265625,
             "right": 366.609375,
-            "bottom": 675.828125,
+            "bottom": 771.828125,
             "left": 23.390625
           },
           "cols": "341.219px"
@@ -145,12 +159,12 @@
         {
           "r": {
             "x": 23.390625,
-            "y": 695.828125,
+            "y": 791.828125,
             "width": 343.21875,
             "height": 675.34375,
-            "top": 695.828125,
+            "top": 791.828125,
             "right": 366.609375,
-            "bottom": 1371.171875,
+            "bottom": 1467.171875,
             "left": 23.390625
           },
           "cols": "341.219px"
@@ -158,12 +172,12 @@
         {
           "r": {
             "x": 23.390625,
-            "y": 1391.171875,
+            "y": 1487.171875,
             "width": 343.21875,
             "height": 705.84375,
-            "top": 1391.171875,
+            "top": 1487.171875,
             "right": 366.609375,
-            "bottom": 2097.015625,
+            "bottom": 2193.015625,
             "left": 23.390625
           },
           "cols": "341.219px"
@@ -171,12 +185,12 @@
         {
           "r": {
             "x": 23.390625,
-            "y": 2117.015625,
+            "y": 2213.015625,
             "width": 343.21875,
             "height": 705.84375,
-            "top": 2117.015625,
+            "top": 2213.015625,
             "right": 366.609375,
-            "bottom": 2822.859375,
+            "bottom": 2918.859375,
             "left": 23.390625
           },
           "cols": "341.219px"
@@ -184,18 +198,32 @@
         {
           "r": {
             "x": 23.390625,
-            "y": 2842.859375,
+            "y": 2938.859375,
             "width": 343.21875,
             "height": 744.84375,
-            "top": 2842.859375,
+            "top": 2938.859375,
             "right": 366.609375,
-            "bottom": 3587.703125,
+            "bottom": 3683.703125,
+            "left": 23.390625
+          },
+          "cols": "341.219px"
+        },
+        {
+          "r": {
+            "x": 23.390625,
+            "y": 3703.703125,
+            "width": 343.21875,
+            "height": 856.84375,
+            "top": 3703.703125,
+            "right": 366.609375,
+            "bottom": 4560.546875,
             "left": 23.390625
           },
           "cols": "341.219px"
         }
       ],
       "gaps": [
+        20,
         20,
         20,
         20,
@@ -269,9 +297,23 @@
             "left": 46.078125
           },
           "cols": "673.844px"
+        },
+        {
+          "r": {
+            "x": 46.078125,
+            "y": 3141.109375,
+            "width": 675.84375,
+            "height": 793.171875,
+            "top": 3141.109375,
+            "right": 721.921875,
+            "bottom": 3934.28125,
+            "left": 46.078125
+          },
+          "cols": "673.844px"
         }
       ],
       "gaps": [
+        20,
         20,
         20,
         20,
@@ -345,9 +387,23 @@
             "left": 86.390625
           },
           "cols": "632.609px 632.609px"
+        },
+        {
+          "r": {
+            "x": 86.390625,
+            "y": 2201.109375,
+            "width": 1267.21875,
+            "height": 473.375,
+            "top": 2201.109375,
+            "right": 1353.609375,
+            "bottom": 2674.484375,
+            "left": 86.390625
+          },
+          "cols": "632.609px 632.609px"
         }
       ],
       "gaps": [
+        24,
         24,
         24,
         24,
@@ -421,9 +477,23 @@
             "left": 266.390625
           },
           "cols": "632.609px 632.609px"
+        },
+        {
+          "r": {
+            "x": 266.390625,
+            "y": 2201.109375,
+            "width": 1267.21875,
+            "height": 475,
+            "top": 2201.109375,
+            "right": 1533.609375,
+            "bottom": 2676.109375,
+            "left": 266.390625
+          },
+          "cols": "632.609px 632.609px"
         }
       ],
       "gaps": [
+        24,
         24,
         24,
         24,
